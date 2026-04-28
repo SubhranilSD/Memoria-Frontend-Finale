@@ -136,18 +136,16 @@ async function extractExifFromFile(file) {
       gps: true,
       iptc: true,
       xmp: true,
-      icc: false,
-      jfif: false,
-      ihdr: false,
-      translateValues: true,
       reviveValues: true,
+      translateValues: true
     });
     if (!exif) return null;
 
     const result = { raw: exif, found: [] };
 
-    // Date
-    const dateStr = exifDateToInputDate(exif.DateTimeOriginal || exif.DateTime);
+    // Date - check multiple possible EXIF date fields
+    const rawDate = exif.DateTimeOriginal || exif.CreateDate || exif.ModifyDate || exif.DateTime;
+    const dateStr = exifDateToInputDate(rawDate);
     if (dateStr) { result.date = dateStr; result.found.push('date'); }
 
     // GPS → reverse geocode
@@ -292,7 +290,7 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
     const firstImage = [...files].find(f => f.type.startsWith('image/'));
     let exifDataPending = null;
 
-    if (firstImage && !event) {   // only scan on new memories
+    if (firstImage) { 
       setExifScan(true);
       exifDataPending = extractExifFromFile(firstImage); // promise
     }

@@ -101,7 +101,9 @@ export default function BulkImportModal({ onClose, onComplete }) {
         // Extract EXIF from the very first photo that works
         if (!firstExifData) {
           try {
-            const exif = await exifr.parse(file, { tiff: true, exif: true, gps: true, translateValues: true });
+            const exif = await exifr.parse(file, { 
+              tiff: true, exif: true, gps: true, iptc: true, xmp: true, translateValues: true 
+            });
             if (exif) {
               firstExifData = {};
               const dateStr = exifDateToInputDate(exif.DateTimeOriginal || exif.DateTime);
@@ -119,7 +121,12 @@ export default function BulkImportModal({ onClose, onComplete }) {
               
               const mood = inferMoodFromExif(exif);
               if (mood) firstExifData.mood = mood;
-              firstExifData.title = buildTitleFromExif(exif, firstExifData.location);
+
+              const metaTitle = exif.XPTitle || exif.ObjectName || exif.Title;
+              const metaDesc = exif.ImageDescription || exif.UserComment || exif.Caption || exif.XPSubject || exif.XPComment;
+              
+              firstExifData.title = metaTitle || buildTitleFromExif(exif, firstExifData.location);
+              firstExifData.description = metaDesc || (firstExifData.camera ? `Captured with ${firstExifData.camera}` : '');
             }
           } catch (e) {
             // keep firstExifData null so it tries the next photo
@@ -140,7 +147,7 @@ export default function BulkImportModal({ onClose, onComplete }) {
           coordinates: firstExifData?.coordinates || null,
           media: mediaList,
           color: '#c4813a',
-          description: firstExifData?.camera ? `Captured with ${firstExifData.camera}` : '',
+          description: firstExifData?.description || '',
         });
       }
     } else {
@@ -152,7 +159,9 @@ export default function BulkImportModal({ onClose, onComplete }) {
         
         let exifData = {};
         try {
-          const exif = await exifr.parse(file, { tiff: true, exif: true, gps: true, translateValues: true });
+          const exif = await exifr.parse(file, { 
+            tiff: true, exif: true, gps: true, iptc: true, xmp: true, translateValues: true 
+          });
           if (exif) {
             const dateStr = exifDateToInputDate(exif.DateTimeOriginal || exif.DateTime);
             if (dateStr) exifData.date = dateStr;
@@ -170,7 +179,11 @@ export default function BulkImportModal({ onClose, onComplete }) {
             const mood = inferMoodFromExif(exif);
             if (mood) exifData.mood = mood;
             
-            exifData.title = buildTitleFromExif(exif, exifData.location);
+            const metaTitle = exif.XPTitle || exif.ObjectName || exif.Title;
+            const metaDesc = exif.ImageDescription || exif.UserComment || exif.Caption || exif.XPSubject || exif.XPComment;
+            
+            exifData.title = metaTitle || buildTitleFromExif(exif, exifData.location);
+            exifData.description = metaDesc || (exifData.camera ? `Captured with ${exifData.camera}` : '');
           }
         } catch (e) { }
 
@@ -185,7 +198,7 @@ export default function BulkImportModal({ onClose, onComplete }) {
           coordinates: exifData.coordinates || null,
           media: [{ url: base64, type: 'image' }],
           color: '#c4813a',
-          description: exifData.camera ? `Captured with ${exifData.camera}` : '',
+          description: exifData.description || '',
         });
       }
     }

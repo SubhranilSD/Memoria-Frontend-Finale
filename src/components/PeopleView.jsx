@@ -1,14 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { loadFaceModels, processEventsForFaces } from '../utils/faceUtils';
+import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 import TimelineView from './TimelineView';
 import HighlightsReel from './HighlightsReel';
 import './PeopleView.css';
 
 export default function PeopleView({ events, onEdit, onDelete }) {
+  const { user } = useAuth();
   const [clusters, setClusters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [selectedPerson, setSelectedPerson] = useState(null);
+  
+  // Storage keys
+  const CLUSTERS_KEY = `memoria_face_clusters_${user?._id || 'guest'}`;
+  const GROUPS_KEY = `memoria_people_groups_${user?._id || 'guest'}`;
+  const BDAYS_KEY = `memoria_people_birthdays_${user?._id || 'guest'}`;
+  const CACHE_KEY = 'memoria_face_descriptor_cache_v2';
+
+  const [syncing, setSyncing] = useState(false);
+  const [lastSynced, setLastSynced] = useState(null);
   
   // Selection mode for Merge/Groups
   const [selectionMode, setSelectionMode] = useState(null); // 'merge' or 'group'
@@ -23,47 +35,153 @@ export default function PeopleView({ events, onEdit, onDelete }) {
   const [activeBdayFlow, setActiveBdayFlow] = useState(null); // { person, mode: 'reel' | 'book' }
 
   // Load from local storage
-  useEffect(() => {
+  const loadFromLocal = useCallback(async () => {
+    let hasLocalData = false;
     try {
-      const savedClusters = localStorage.getItem('memoria_face_clusters');
-      if (savedClusters) setClusters(JSON.parse(savedClusters));
+      const savedClusters = localStorage.getItem(CLUSTERS_KEY);
+      if (savedClusters) {
+        setClusters(JSON.parse(savedClusters));
+        hasLocalData = true;
+      }
       
-      const savedGroups = localStorage.getItem('memoria_people_groups');
+      const savedGroups = localStorage.getItem(GROUPS_KEY);
       if (savedGroups) setGroups(JSON.parse(savedGroups));
 
-      const savedBdays = localStorage.getItem('memoria_people_birthdays');
+      const savedBdays = localStorage.getItem(BDAYS_KEY);
       if (savedBdays) setBirthdays(JSON.parse(savedBdays));
     } catch (e) { }
-  }, []);
+
+    // If no local data, try fetching from backend
+    if (!hasLocalData && user) {
+      try {
+        const res = await api.get('/people');
+        if (res.data && res.data.clusters?.length > 0) {
+          const { clusters: c, groups: g, birthdays: b } = res.data;
+          setClusters(c);
+          setGroups(g || []);
+          setBirthdays(b || {});
+          // Cache locally
+          localStorage.setItem(CLUSTERS_KEY, JSON.stringify(c));
+          if (g) localStorage.setItem(GROUPS_KEY, JSON.stringify(g));
+          if (b) localStorage.setItem(BDAYS_KEY, JSON.stringify(b));
+          setLastSynced(new Date(res.data.updatedAt));
+        }
+      } catch (err) {
+        console.error("Failed to fetch from backend:", err);
+      }
+    }
+  }, [CLUSTERS_KEY, GROUPS_KEY, BDAYS_KEY, user]);
+
+  useEffect(() => {
+    // Pre-load models in background
+    loadFaceModels();
+    loadFromLocal();
+  }, [loadFromLocal]);
+
+  // Sync across tabs
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === CLUSTERS_KEY || e.key === GROUPS_KEY || e.key === BDAYS_KEY) {
+        loadFromLocal();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [loadFromLocal, CLUSTERS_KEY, GROUPS_KEY, BDAYS_KEY]);
 
 
   const saveToLocal = (updatedClusters, updatedGroups, updatedBdays) => {
-    if (updatedClusters) {
+    if (updatedClusters !== undefined && updatedClusters !== null) {
       setClusters(updatedClusters);
-      localStorage.setItem('memoria_face_clusters', JSON.stringify(updatedClusters));
+      localStorage.setItem(CLUSTERS_KEY, JSON.stringify(updatedClusters));
     }
-    if (updatedGroups) {
+    if (updatedGroups !== undefined && updatedGroups !== null) {
       setGroups(updatedGroups);
-      localStorage.setItem('memoria_people_groups', JSON.stringify(updatedGroups));
+      localStorage.setItem(GROUPS_KEY, JSON.stringify(updatedGroups));
     }
-    if (updatedBdays) {
+    if (updatedBdays !== undefined && updatedBdays !== null) {
       setBirthdays(updatedBdays);
-      localStorage.setItem('memoria_people_birthdays', JSON.stringify(updatedBdays));
+      localStorage.setItem(BDAYS_KEY, JSON.stringify(updatedBdays));
     }
   };
 
+  const shrinkThumbnail = async (dataUrl) => {
+    if (!dataUrl || !dataUrl.startsWith('data:image')) return dataUrl;
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const size = 80; // Small but clear enough for avatars
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, size, size);
+        resolve(canvas.toDataURL('image/jpeg', 0.5)); // Low quality to save space
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
+  };
+
+  const handleSaveToBackend = async () => {
+    if (!user) return;
+    setSyncing(true);
+    try {
+      // Shrink thumbnails before sending to stay under MongoDB's 16MB limit
+      const processedClusters = await Promise.all(clusters.map(async c => ({
+        ...c,
+        faceUrl: await shrinkThumbnail(c.faceUrl)
+      })));
+
+      await api.post('/people', {
+        clusters: processedClusters,
+        groups,
+        birthdays
+      });
+      setLastSynced(new Date());
+      alert("People profiles saved securely to cloud ✦");
+    } catch (err) {
+      console.error("Cloud sync failed:", err);
+      alert("Failed to save to cloud. Try again later.");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const [scanStatus, setScanStatus] = useState('');
+  
   const handleScan = async () => {
     setLoading(true);
     setProgress(0);
+    setScanStatus('Initializing AI Engine...');
     const modelsReady = await loadFaceModels();
     if (!modelsReady) {
       alert("Failed to load AI Face Models.");
       setLoading(false);
       return;
     }
-    const results = await processEventsForFaces(events, (p) => setProgress(Math.round(p)));
-    saveToLocal(results);
+    setScanStatus('Scanning Library...');
+    const results = await processEventsForFaces(events, (p) => {
+      setProgress(Math.round(p));
+      if (p > 50) setScanStatus('Clustering similar faces...');
+    });
+    setScanStatus('Saving results...');
+    try {
+      saveToLocal(results);
+    } catch (err) {
+      console.error("Failed to save results to localStorage:", err);
+      // If we run out of space, try clearing the descriptor cache as it's the largest part
+      if (err.name === 'QuotaExceededError') {
+        localStorage.removeItem(CACHE_KEY);
+        try {
+          saveToLocal(results);
+        } catch (e2) {
+          alert("Storage full! Even after clearing cache, data is too large for this browser.");
+        }
+      }
+    }
     setLoading(false);
+    setScanStatus('');
   };
 
   const toggleSelect = (id) => {
@@ -82,15 +200,39 @@ export default function PeopleView({ events, onEdit, onDelete }) {
     const target = clusters.find(c => c.id === targetId);
     let updatedClusters = clusters.filter(c => !sourceIds.includes(c.id));
     
-    // Merge eventIds and descriptors
+    // Merge everything: eventIds, mediaUrls, and descriptors
     updatedClusters = updatedClusters.map(c => {
       if (c.id === targetId) {
         const mergedEventIds = new Set(c.eventIds);
+        const mergedMediaUrls = new Set(c.mediaUrls || []);
+        
+        // Use a weighted average for descriptors to maintain accuracy
+        let totalDescriptors = 1;
+        let avgDesc = new Float32Array(c.avgDescriptor);
+
         sourceIds.forEach(sid => {
           const s = clusters.find(cl => cl.id === sid);
-          if (s) s.eventIds.forEach(eid => mergedEventIds.add(eid));
+          if (s) {
+            s.eventIds?.forEach(eid => mergedEventIds.add(eid));
+            s.mediaUrls?.forEach(murl => mergedMediaUrls.add(murl));
+            
+            // Average the descriptors
+            if (s.avgDescriptor) {
+              const sDesc = new Float32Array(s.avgDescriptor);
+              for (let k = 0; k < avgDesc.length; k++) {
+                avgDesc[k] = (avgDesc[k] * totalDescriptors + sDesc[k]) / (totalDescriptors + 1);
+              }
+              totalDescriptors++;
+            }
+          }
         });
-        return { ...c, eventIds: Array.from(mergedEventIds) };
+
+        return { 
+          ...c, 
+          eventIds: Array.from(mergedEventIds),
+          mediaUrls: Array.from(mergedMediaUrls),
+          avgDescriptor: Array.from(avgDesc).map(n => parseFloat(n.toFixed(4)))
+        };
       }
       return c;
     });
@@ -118,9 +260,29 @@ export default function PeopleView({ events, onEdit, onDelete }) {
     saveToLocal(null, null, updated);
   };
 
-  const handleRename = (id, newName) => {
+  const handleRename = async (id, newName) => {
     const updated = clusters.map(c => c.id === id ? { ...c, name: newName } : c);
     saveToLocal(updated);
+
+    // Sync with database events if the name is real
+    if (newName.trim() && newName.toLowerCase() !== 'unknown person') {
+      const cluster = clusters.find(c => c.id === id);
+      if (cluster) {
+        try {
+          // Update each event this person appears in
+          await Promise.all(cluster.eventIds.map(async (eid) => {
+            const event = events.find(e => e._id === eid);
+            if (event) {
+              const currentPeople = new Set(event.people || []);
+              currentPeople.add(newName);
+              return api.put(`/events/${eid}`, { people: Array.from(currentPeople) });
+            }
+          }));
+        } catch (e) {
+          console.error("Sync to events failed", e);
+        }
+      }
+    }
   };
 
   // If a person is selected, show their specific memories
@@ -254,7 +416,12 @@ export default function PeopleView({ events, onEdit, onDelete }) {
       <div className="people-header">
         <div>
           <h1 className="font-display" style={{ fontSize: '42px', margin: '0 0 8px' }}>People & Faces</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>
+          <div className="ai-performance-badges">
+            <span className="ai-badge">⚡ TinyFaceDetector Active</span>
+            <span className="ai-badge">📦 Parallel Batching: 4x</span>
+            <span className="ai-badge">🧠 Persistent Descriptor Cache</span>
+          </div>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '12px' }}>
             Manage the people in your story. Group them, mark birthdays, and merge profiles.
           </p>
         </div>
@@ -262,6 +429,14 @@ export default function PeopleView({ events, onEdit, onDelete }) {
         <div className="people-header-actions">
           {!selectionMode ? (
             <>
+              <button 
+                className="btn btn-ghost btn-save-cloud" 
+                onClick={handleSaveToBackend} 
+                disabled={syncing || clusters.length === 0}
+                title={lastSynced ? `Last saved: ${lastSynced.toLocaleTimeString()}` : 'Save to cloud'}
+              >
+                {syncing ? 'Saving...' : '💾 Save Faces'}
+              </button>
               <button className="btn btn-ghost" onClick={() => setSelectionMode('merge')}>🔗 Merge Profiles</button>
               <button className="btn btn-ghost" onClick={() => setSelectionMode('group')}>👥 Make Group</button>
               <button className="btn btn-primary" onClick={handleScan} disabled={loading}>
@@ -308,7 +483,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
       {loading && (
         <div className="people-loading-state">
           <div className="spinner" />
-          <h3>AI Face Recognition Running</h3>
+          <h3>{scanStatus || 'AI Face Recognition Running'}</h3>
           <div className="progress-bar-container">
             <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
           </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { inferWeather, isFutureLetter, daysUntilUnlock } from '../utils/memoryUtils';
+import { useAuth } from '../context/AuthContext';
 import { MOOD_COLORS as BASE_COLORS, MOOD_EMOJIS as BASE_EMOJIS } from '../utils/moodProvider';
 import './MemoryDetail.css';
 
@@ -70,6 +71,7 @@ function renderAudio(audioUrl) {
 }
 
 export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, onUpdateEvent }) {
+  const { user } = useAuth();
   const [activeImg, setActiveImg] = useState(0);
   const [activeTab, setActiveTab] = useState('details');
   const [isDragging, setIsDragging] = useState(false);
@@ -153,13 +155,14 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
   // Load face clusters
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('memoria_face_clusters');
+      const clustersKey = `memoria_face_clusters_${user?._id || 'guest'}`;
+      const saved = localStorage.getItem(clustersKey);
       if (saved) {
         const cls = JSON.parse(saved);
         setFaceClusters(cls.filter(c => c.eventIds.includes(event._id)));
       }
     } catch { }
-  }, [event._id]);
+  }, [event._id, user?._id]);
 
   const color      = event.color || MOOD_COLORS[event.mood] || '#c4813a';
   const moodEmoji  = MOOD_EMOJIS[event.mood] || '✨';

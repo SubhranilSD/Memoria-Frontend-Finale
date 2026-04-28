@@ -355,7 +355,14 @@
 /* Empty */
 .sp-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--text-muted); font-size: 14px; }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
+  .sp-trigger {
+    padding: 10px 12px;
+    top: auto;
+    bottom: 20px;
+    border-radius: 20px 0 0 20px;
+  }
+  .sp-trigger-label { display: none; }
   .sp-panel { width: 100vw; }
   .sp-grid { grid-template-columns: 1fr; padding: 16px; }
   .sp-header { padding: 16px; }

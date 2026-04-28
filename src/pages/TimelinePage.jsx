@@ -1,29 +1,31 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
 import Sidebar from '../components/Sidebar';
 import TimelineView from '../components/TimelineView';
-import NodeCanvasView from '../components/NodeCanvasView';
-import HorizonView from '../components/HorizonView';
-import ConstellationView from '../components/ConstellationView';
-import GlobeView from '../components/GlobeView';
-import EventModal from '../components/EventModal';
-import StoryMode from '../components/StoryMode';
-import StatsPanel from '../components/StatsPanel';
-import OnThisDay from '../components/OnThisDay';
-import ExportBook from '../components/ExportBook';
-import VaultOverlay from '../components/VaultOverlay';
-import TopBar from '../components/TopBar';
-import BulkImportModal from '../components/BulkImportModal';
-import AboutMaker from '../components/AboutMaker';
-import PeopleView from '../components/PeopleView';
-import Lightbox from '../components/Lightbox';
-import HorizStreamView from '../components/HorizStreamView';
-import MemoryDetail from '../components/MemoryDetail';
-import HighlightsReel from '../components/HighlightsReel';
-import Toast from '../components/Toast';
+
+// Lazy load heavy views
+const NodeCanvasView = lazy(() => import('../components/NodeCanvasView'));
+const HorizonView = lazy(() => import('../components/HorizonView'));
+const ConstellationView = lazy(() => import('../components/ConstellationView'));
+const GlobeView = lazy(() => import('../components/GlobeView'));
+const EventModal = lazy(() => import('../components/EventModal'));
+const StoryMode = lazy(() => import('../components/StoryMode'));
+const StatsPanel = lazy(() => import('../components/StatsPanel'));
+const OnThisDay = lazy(() => import('../components/OnThisDay'));
+const ExportBook = lazy(() => import('../components/ExportBook'));
+const VaultOverlay = lazy(() => import('../components/VaultOverlay'));
+const TopBar = lazy(() => import('../components/TopBar'));
+const BulkImportModal = lazy(() => import('../components/BulkImportModal'));
+const AboutMaker = lazy(() => import('../components/AboutMaker'));
+const PeopleView = lazy(() => import('../components/PeopleView'));
+const Lightbox = lazy(() => import('../components/Lightbox'));
+const HorizStreamView = lazy(() => import('../components/HorizStreamView'));
+const MemoryDetail = lazy(() => import('../components/MemoryDetail'));
+const HighlightsReel = lazy(() => import('../components/HighlightsReel'));
+const Toast = lazy(() => import('../components/Toast'));
 import './TimelinePage.css';
 
 const MOOD_COLORS = {
@@ -52,6 +54,7 @@ export default function TimelinePage() {
   const [editMode,     setEditMode]     = useState(false);
   const [showReel,     setShowReel]     = useState(false);
   const [search,       setSearch]       = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open on PC
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -167,7 +170,8 @@ export default function TimelinePage() {
       // Load face clusters to allow searching by AI-recognized person name
       let faceClusters = [];
       try {
-        const saved = localStorage.getItem('memoria_face_clusters');
+        const clustersKey = `memoria_face_clusters_${user?._id || 'guest'}`;
+        const saved = localStorage.getItem(clustersKey);
         if (saved) faceClusters = JSON.parse(saved);
       } catch (e) { }
 
@@ -249,163 +253,186 @@ export default function TimelinePage() {
         onVault={() => setVaultMode(true)}
         eventCount={events.length}
         events={events}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
-      <main className="timeline-main">
-        {/* Header */}
-        <div className="timeline-header">
-          <div>
-            <h1 className="timeline-heading">
-              <span className="font-display">{user?.name?.split(' ')[0]}'s</span> Timeline
-            </h1>
-            <p className="timeline-subheading">
-              {memCount === 0 ? 'Your story begins here.' : `${memCount} memor${memCount === 1 ? 'y' : 'ies'} captured`}
-            </p>
-          </div>
-          <div className="timeline-header-actions">
-            {/* Search bar */}
-            <div className="search-bar">
-              <span className="search-icon">⌕</span>
-              <input
-                className="search-input"
-                type="text"
-                placeholder="Search memories (Cmd+K)…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-              {search && (
-                <button className="search-clear" onClick={() => setSearch('')}>✕</button>
+      {sidebarOpen && (
+        <div className="mobile-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <Suspense fallback={<div className="timeline-loading">Loading component...</div>}>
+        <main className="timeline-main">
+          {/* Header */}
+          <div className="timeline-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {!sidebarOpen && (
+                <button 
+                  className="mobile-menu-toggle btn btn-ghost" 
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  ☰
+                </button>
               )}
+              <div>
+                <h1 className="timeline-heading">
+                  <span className="font-display">{user?.name?.split(' ')[0]}'s</span> Timeline
+                </h1>
+                <p className="timeline-subheading">
+                  {memCount === 0 ? 'Your story begins here.' : `${memCount} memor${memCount === 1 ? 'y' : 'ies'} captured`}
+                </p>
+              </div>
             </div>
-            <button className="btn btn-ghost" onClick={() => setShowReel(true)} title="Watch your highlight reel">
-              <span style={{ fontSize:'18px', lineHeight:1 }}>🎬</span> Highlights
-            </button>
-            <button className="btn btn-ghost" onClick={() => setShowBulkModal(true)} title="Bulk upload photos">
-              <span style={{ fontSize:'18px', lineHeight:1 }}>📸</span> Bulk Add
-            </button>
-            <button className="btn btn-primary" onClick={() => { setEditingEvent(null); setShowModal(true); }}>
-              <span style={{ fontSize:'18px', lineHeight:1 }}>+</span> Add Memory
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        {loading ? (
-          <div className="timeline-loading">
-            {[...Array(3)].map((_,i) => (
-              <div key={i} className="skeleton-card skeleton"
-                style={{ height:'180px', borderRadius:'16px', marginBottom:'24px', animationDelay:`${i*0.15}s` }} />
-            ))}
-          </div>
-        ) : memCount === 0 ? (
-          <div className="timeline-empty">
-            <div className="empty-icon animate-float">✦</div>
-            <h3>{search || filters.mood || filters.tag || filters.person ? 'No matches found' : 'No memories yet'}</h3>
-            <p>{search ? `Nothing matched "${search}". Try a different search.` : 'Start by adding your first memory.'}</p>
-            {!search && (
-              <button className="btn btn-primary btn-lg" onClick={() => setShowModal(true)}>
-                Add Your First Memory
+            <div className="timeline-header-actions">
+              <div className="search-bar">
+                <span className="search-icon">⌕</span>
+                <input
+                  className="search-input"
+                  type="text"
+                  placeholder="Search memories (Cmd+K)…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+                {search && (
+                  <button className="search-clear" onClick={() => setSearch('')}>✕</button>
+                )}
+              </div>
+              <button className="btn btn-ghost" onClick={() => setShowReel(true)} title="Watch your highlight reel">
+                🎬 Highlights
               </button>
-            )}
+              <button className="btn btn-ghost" onClick={() => setShowBulkModal(true)} title="Bulk upload photos">
+                📸 Bulk Add
+              </button>
+              <button className="btn btn-primary" onClick={() => { setEditingEvent(null); setShowModal(true); }}>
+                + Add Memory
+              </button>
+            </div>
           </div>
-        ) : view === 'node' ? (
-          <NodeCanvasView events={visibleEvents} editMode={editMode} onEdit={openEdit} />
-        ) : view === 'horizon' ? (
-          <HorizonView events={visibleEvents} editMode={editMode} onEdit={openEdit} />
-        ) : view === 'constellation' ? (
-          <ConstellationView events={visibleEvents} />
-        ) : view === 'globe' ? (
-          <GlobeView 
-            events={visibleEvents} 
-            onFilterLocation={(loc) => { setSearch(loc); setView('timeline'); }} 
-          />
-        ) : view === 'people' ? (
-          <PeopleView 
-            events={visibleEvents} 
-            onEdit={openEdit}
-            onDelete={handleDeleteEvent}
-          />
-        ) : view === 'about' ? (
-          <AboutMaker />
-        ) : (
-          <TimelineView
-            events={visibleEvents}
-            view={view}
-            editMode={editMode}
-            onEdit={openEdit}
-            onDelete={handleDeleteEvent}
-            onReorder={handleReorder}
-            onClickMedia={setLightboxEvent}
-            onSelectEvent={setSelectedEvent}
-          />
-        )}
-      </main>
 
-      {/* Right-side Stats Panel */}
-      <StatsPanel events={events} />
+          {/* Content */}
+          {loading ? (
+            <div className="timeline-loading">
+              {[...Array(3)].map((_,i) => (
+                <div key={i} className="skeleton-card skeleton"
+                  style={{ height:'180px', borderRadius:'16px', marginBottom:'24px', animationDelay:`${i*0.15}s` }} />
+              ))}
+            </div>
+          ) : (
+            <>
+              {view === 'node' ? (
+                <NodeCanvasView events={visibleEvents} editMode={editMode} onEdit={openEdit} />
+              ) : view === 'horizon' ? (
+                <HorizonView events={visibleEvents} editMode={editMode} onEdit={openEdit} />
+              ) : view === 'constellation' ? (
+                <ConstellationView events={visibleEvents} />
+              ) : view === 'globe' ? (
+                <GlobeView 
+                  events={visibleEvents} 
+                  onFilterLocation={(loc) => { setSearch(loc); setView('timeline'); }} 
+                />
+              ) : view === 'people' ? (
+                <PeopleView 
+                  events={visibleEvents} 
+                  onEdit={openEdit}
+                  onDelete={handleDeleteEvent}
+                />
+              ) : view === 'about' ? (
+                <AboutMaker />
+              ) : (
+                memCount === 0 ? (
+                  <div className="timeline-empty">
+                    <div className="empty-icon animate-float">✦</div>
+                    <h3>{search || filters.mood || filters.tag || filters.person ? 'No matches found' : 'No memories yet'}</h3>
+                    <p>{search ? `Nothing matched "${search}". Try a different search.` : 'Start by adding your first memory.'}</p>
+                    {!search && (
+                      <button className="btn btn-primary btn-lg" onClick={() => setShowModal(true)}>
+                        Add Your First Memory
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <TimelineView
+                    events={visibleEvents}
+                    view={view}
+                    editMode={editMode}
+                    onEdit={openEdit}
+                    onDelete={handleDeleteEvent}
+                    onReorder={handleReorder}
+                    onClickMedia={setLightboxEvent}
+                    onSelectEvent={setSelectedEvent}
+                  />
+                )
+              )}
+            </>
+          )}
+        </main>
 
-      {showModal && (
-        <EventModal
-          event={editingEvent}
-          allPeople={allPeople}
-          onSubmit={editingEvent
-            ? (data) => handleUpdateEvent(editingEvent._id, data)
-            : handleCreateEvent}
-          onClose={closeModal}
-        />
-      )}
+        {/* Right-side Stats Panel */}
+        <StatsPanel events={events} />
 
-      {showBulkModal && (
-        <BulkImportModal
-          onClose={() => setShowBulkModal(false)}
-          onComplete={() => {
-            setShowBulkModal(false);
-            fetchEvents();
-            showToast('Bulk import complete ✦');
-          }}
-        />
-      )}
-
-      {lightboxEvent && (
-        <Lightbox 
-          event={lightboxEvent} 
-          onClose={() => setLightboxEvent(null)}
-          onUpdateTitle={handleUpdateTitle}
-          onEdit={(ev) => {
-            setLightboxEvent(null);
-            openEdit(ev);
-          }}
-        />
-      )}
-
-      <AnimatePresence>
-        {selectedEvent && (
-          <MemoryDetail 
-            event={selectedEvent} 
-            allEvents={events}
-            onClose={() => setSelectedEvent(null)}
-            onEdit={openEdit}
-            onUpdateEvent={handleUpdateEvent}
+        {showModal && (
+          <EventModal
+            event={editingEvent}
+            allPeople={allPeople}
+            onSubmit={editingEvent
+              ? (data) => handleUpdateEvent(editingEvent._id, data)
+              : handleCreateEvent}
+            onClose={closeModal}
           />
         )}
-      </AnimatePresence>
 
-      {storyMode && <StoryMode events={events} onClose={() => setStoryMode(false)} />}
-      {showReel && <HighlightsReel events={events} onClose={() => setShowReel(false)} />}
-      {otdMode   && <OnThisDay events={events}  onClose={() => setOtdMode(false)} />}
-      {exportMode && <ExportBook events={events} year={new Date().getFullYear()} onClose={() => setExportMode(false)} />}
-      {vaultMode && (
-        <VaultOverlay
-          user={user}
-          onClose={() => setVaultMode(false)}
-          onUnlocked={() => {
-            setVaultMode(false);
-            setToast({ message: 'Vault Unlocked!', type: 'success' });
-            fetchEvents();
-          }}
-        />
-      )}
-      {toast && <Toast message={toast.message} type={toast.type} />}
+        {showBulkModal && (
+          <BulkImportModal
+            onClose={() => setShowBulkModal(false)}
+            onComplete={() => {
+              setShowBulkModal(false);
+              fetchEvents();
+              showToast('Bulk import complete ✦');
+            }}
+          />
+        )}
+
+        {lightboxEvent && (
+          <Lightbox 
+            event={lightboxEvent} 
+            onClose={() => setLightboxEvent(null)}
+            onUpdateTitle={handleUpdateTitle}
+            onEdit={(ev) => {
+              setLightboxEvent(null);
+              openEdit(ev);
+            }}
+          />
+        )}
+
+        <AnimatePresence>
+          {selectedEvent && (
+            <MemoryDetail 
+              event={selectedEvent} 
+              allEvents={events}
+              onClose={() => setSelectedEvent(null)}
+              onEdit={openEdit}
+              onUpdateEvent={handleUpdateEvent}
+            />
+          )}
+        </AnimatePresence>
+
+        {storyMode && <StoryMode events={events} onClose={() => setStoryMode(false)} />}
+        {showReel && <HighlightsReel events={events} onClose={() => setShowReel(false)} />}
+        {otdMode   && <OnThisDay events={events}  onClose={() => setOtdMode(false)} />}
+        {exportMode && <ExportBook events={events} year={new Date().getFullYear()} onClose={() => setExportMode(false)} />}
+        {vaultMode && (
+          <VaultOverlay
+            user={user}
+            onClose={() => setVaultMode(false)}
+            onUnlocked={() => {
+              setVaultMode(false);
+              setToast({ message: 'Vault Unlocked!', type: 'success' });
+              fetchEvents();
+            }}
+          />
+        )}
+        {toast && <Toast message={toast.message} type={toast.type} />}
+      </Suspense>
     </div>
   );
 }

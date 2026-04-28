@@ -138,6 +138,13 @@
   margin-bottom: 10px;
 }
 
+@media (max-width: 600px) {
+  .event-card-media { height: 180px; }
+  .event-card-title { font-size: 15px; }
+  .event-card-desc { font-size: 12px; }
+  .event-card-body { padding: 12px 14px 14px; }
+}
+
 .event-card-tags {
   display: flex;
   flex-wrap: wrap;
@@ -166,34 +173,42 @@
 .markdown-body a { color: var(--accent-indigo); text-decoration: none; }
 .markdown-body a:hover { text-decoration: underline; }
 
-/* People Toggle Button */
-.people-toggle-btn {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-muted);
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+/* People Badge Pill */
+.people-badge-pill {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  user-select: none;
 }
-.people-toggle-btn:hover {
-  background: var(--bg-card);
-  border-color: var(--accent-indigo);
-  color: var(--accent-indigo);
+
+.people-badge-pill:hover {
+  background: rgba(167, 139, 250, 0.15);
+  border-color: rgba(167, 139, 250, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-.people-toggle-btn.active {
-  background: var(--accent-indigo);
-  color: white;
-  border-color: var(--accent-indigo);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+
+.people-badge-pill.active {
+  background: #a78bfa;
+  color: #000;
+  border-color: #a78bfa;
+}
+
+.people-badge-pill .people-icon {
+  font-size: 12px;
+  filter: drop-shadow(0 0 2px rgba(167, 139, 250, 0.5));
 }
 
 /* People View */

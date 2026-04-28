@@ -135,7 +135,7 @@ async function extractExifFromFile(file) {
       exif: true,
       gps: true,
       iptc: true,
-      xmp: false,
+      xmp: true,
       icc: false,
       jfif: false,
       ihdr: false,
@@ -157,22 +157,28 @@ async function extractExifFromFile(file) {
       if (place) { result.location = place; result.found.push('location'); }
     }
 
+    // Metadata Title & Description
+    const metaTitle = exif.XPTitle || exif.ObjectName || exif.Title;
+    const metaDesc = exif.ImageDescription || exif.UserComment || exif.Caption || exif.XPSubject || exif.XPComment;
+
+    if (metaTitle) { result.title = metaTitle; result.found.push('title'); }
+    if (metaDesc) { result.description = metaDesc; result.found.push('description'); }
+
     // Camera model (for fun, we tag it)
     if (exif.Make || exif.Model) {
       const cam = [exif.Make, exif.Model].filter(Boolean).join(' ').trim();
       result.camera = cam;
     }
 
-    // IPTC caption / description
-    if (exif.Caption) { result.description = exif.Caption; result.found.push('description'); }
-
     // Infer mood
     const mood = inferMoodFromExif(exif);
     if (mood) { result.mood = mood; result.found.push('vibe'); }
 
-    // Build title
-    result.title = buildTitleFromExif(exif, result.location || null);
-    result.found.push('title');
+    // Build title (if not found in metadata)
+    if (!result.title) {
+      result.title = buildTitleFromExif(exif, result.location || null);
+      result.found.push('title (auto)');
+    }
 
     return result;
   } catch (e) {
@@ -215,6 +221,7 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
   const [exifScan,     setExifScan]     = useState(false);   // scanning in progress
   const [exifBanner,   setExifBanner]   = useState(null);    // { found: [], camera? }
   const [exifApplied,  setExifApplied]  = useState(false);
+  const [autoExif,     setAutoExif]     = useState(true); // Default to auto
 
   const fileRef = useRef(null);
   const [moods, setMoods] = useState(getMoods());
@@ -324,7 +331,12 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
       const exifData = await exifDataPending;
       setExifScan(false);
       if (exifData && exifData.found.length > 0) {
-        setExifBanner(exifData);
+        // If autoExif is on and it's a new memory, apply automatically
+        if (autoExif && !event) {
+          applyExif(exifData);
+        } else {
+          setExifBanner(exifData);
+        }
       }
     }
   };
@@ -475,23 +487,18 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
         )}
 
         {/* EXIF banner — shown after scan, before user applies */}
-        {exifBanner && !exifApplied && (
-          <div className="exif-banner">
+        {exifBanner && (
+          <div className="exif-banner animate-in">
             <div className="exif-banner-left">
-              <span className="exif-banner-icon">📷</span>
+              <span className="exif-banner-icon">🪄</span>
               <div>
-                <div className="exif-banner-title">Photo data found</div>
+                <div className="exif-banner-title">Metadata sync available</div>
                 <div className="exif-banner-fields">
                   {exifBanner.found.map(f => (
                     <span key={f} className="exif-field-chip">{f}</span>
                   ))}
                   {exifBanner.camera && (
                     <span className="exif-camera-chip">📸 {exifBanner.camera}</span>
-                  )}
-                  {exifBanner.gps && (
-                    <span className="exif-gps-chip">
-                      📍 {exifBanner.gps.lat.toFixed(4)}°, {exifBanner.gps.lon.toFixed(4)}°
-                    </span>
                   )}
                 </div>
               </div>
@@ -501,8 +508,9 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
                 type="button"
                 className="btn btn-primary btn-sm"
                 onClick={() => applyExif(exifBanner)}
+                style={{ background: 'var(--accent-indigo)', color: 'white' }}
               >
-                Apply
+                Sync & Apply
               </button>
               <button
                 type="button"
@@ -827,7 +835,16 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
                 <>
                   <span className="media-icon">📷</span>
                   <span>Drop photos here or click to browse</span>
-                  <span className="media-exif-hint">EXIF date &amp; GPS location will be read automatically</span>
+                  <div className="media-exif-control" onClick={e => e.stopPropagation()}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={autoExif} 
+                        onChange={e => setAutoExif(e.target.checked)} 
+                      />
+                      Auto-sync metadata (Date, Location, Title)
+                    </label>
+                  </div>
                 </>
               )}
               <input

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { isFutureLetter, daysUntilUnlock, inferWeather } from '../utils/memoryUtils';
+import { useAuth } from '../context/AuthContext';
 import { MOOD_EMOJIS as BASE_EMOJIS, MOOD_COLORS as BASE_COLORS } from '../utils/moodProvider';
 import './EventCard.css';
 
@@ -36,21 +37,40 @@ function renderAudio(audioUrl) {
 }
 
 export default function EventCard({ event, view, editMode, onEdit, onDelete, onClickMedia }) {
+  const { user } = useAuth();
   const cardRef = useRef(null);
   const [peopleInEvent, setPeopleInEvent] = useState([]);
   const [showPeople, setShowPeople] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   
+  // Lazy Loading / Virtualization: Only render complex parts when visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' } // Load slightly before coming into view
+    );
+    if (cardRef.current) observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   // Load people clusters
   useEffect(() => {
+    if (!isVisible) return;
     try {
-      const saved = localStorage.getItem('memoria_face_clusters');
+      const clustersKey = `memoria_face_clusters_${user?._id || 'guest'}`;
+      const saved = localStorage.getItem(clustersKey);
       if (saved) {
         const clusters = JSON.parse(saved);
         const matches = clusters.filter(c => c.eventIds.includes(event._id));
         setPeopleInEvent(matches);
       }
     } catch { }
-  }, [event._id]);
+  }, [event._id, isVisible, user?._id]);
   
   // Framer Motion values for 3D tilt
   const x = useMotionValue(0);
@@ -69,12 +89,11 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
   const glareY = useTransform(mouseYSpring, [-0.5, 0.5], ["100%", "0%"]);
 
   const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || !isVisible) return;
     const rect = cardRef.current.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
     
-    // Mouse position relative to center (-0.5 to 0.5)
     const mouseX = (e.clientX - rect.left) / width - 0.5;
     const mouseY = (e.clientY - rect.top) / height - 0.5;
     
@@ -95,19 +114,21 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
   const isDream = event.type === 'dream';
   
   return (
-    <div className={`event-card-container ${view} ${isDream ? 'dream-container' : ''}`} style={{ perspective: 1000 }}>
-      <motion.div
-        ref={cardRef}
-        className={`event-card glass-card ${isDream ? 'dream-card' : ''}`}
-        style={{
-          '--event-color': event.color || moodColor,
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d"
-        }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
+    <div className={`event-card-container ${view} ${isDream ? 'dream-container' : ''}`} style={{ perspective: 1000 }} ref={cardRef}>
+      {!isVisible ? (
+        <div className="skeleton-card" style={{ height: '180px', width: '100%', borderRadius: '16px' }} />
+      ) : (
+        <motion.div
+          className={`event-card glass-card ${isDream ? 'dream-card' : ''}`}
+          style={{
+            '--event-color': event.color || moodColor,
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d"
+          }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
         {/* Dynamic Glare/Shine */}
         <motion.div 
           className="event-card-glare"
@@ -149,11 +170,10 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               {peopleInEvent.length > 0 && (
                 <button 
-                  className={`people-toggle-btn ${showPeople ? 'active' : ''}`}
+                  className={`people-badge-pill ${showPeople ? 'active' : ''}`}
                   onClick={(e) => { e.stopPropagation(); setShowPeople(!showPeople); }}
-                  title="Show people in this memory"
                 >
-                  👥 {showPeople ? 'Story' : 'People'}
+                  <span className="people-icon">👥</span> PEOPLE
                 </button>
               )}
               <div className={`mood-badge mood-${event.mood}`}>
@@ -269,6 +289,7 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
         {/* Explore cue — shown on hover when card is clickable */}
         <div className="event-card-explore-cue">Explore →</div>
       </motion.div>
+      )}
     </div>
   );
 }

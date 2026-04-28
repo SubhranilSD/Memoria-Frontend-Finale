@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { findMergeSuggestions } from '../utils/faceUtils';
+import { useAuth } from '../context/AuthContext';
 import './FaceMergeAssistant.css';
 
 export default function FaceMergeAssistant({ onMergeComplete }) {
+  const { user } = useAuth();
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const CLUSTERS_KEY = `memoria_face_clusters_${user?._id || 'guest'}`;
+
   useEffect(() => {
-    const saved = localStorage.getItem('memoria_face_clusters');
+    const saved = localStorage.getItem(CLUSTERS_KEY);
     if (saved) {
       const clusters = JSON.parse(saved);
       const suggs = findMergeSuggestions(clusters);
       setSuggestions(suggs);
     }
     setLoading(false);
-  }, []);
+  }, [CLUSTERS_KEY]);
 
   const handleMerge = (source, target) => {
-    const saved = localStorage.getItem('memoria_face_clusters');
+    const saved = localStorage.getItem(CLUSTERS_KEY);
     if (!saved) return;
 
     let clusters = JSON.parse(saved);
@@ -33,7 +37,7 @@ export default function FaceMergeAssistant({ onMergeComplete }) {
     clusters = clusters.filter(c => c.id !== source.id && c.id !== target.id);
     clusters.push(mergedCluster);
 
-    localStorage.setItem('memoria_face_clusters', JSON.stringify(clusters));
+    localStorage.setItem(CLUSTERS_KEY, JSON.stringify(clusters));
     setSuggestions(prev => prev.filter(s => s.source.id !== source.id && s.target.id !== target.id));
     
     if (onMergeComplete) onMergeComplete();

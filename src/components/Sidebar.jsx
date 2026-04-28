@@ -9,6 +9,7 @@ export default function Sidebar({
   allTags, allPeople = [],
   editMode, setEditMode, onLogout, theme, toggleTheme,
   onStoryMode, onOnThisDay, onExport, onVault, eventCount, events = [],
+  isOpen, onClose
 }) {
   const [activeTab, setActiveTab] = useState('navigate');
   const moods = useMemo(() => getMoods(), []);
@@ -24,7 +25,10 @@ export default function Sidebar({
   events.forEach(e => { if (e.mood) moodCounts[e.mood] = (moodCounts[e.mood] || 0) + 1; });
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'is-open' : ''}`}>
+      {/* Mobile Close Button */}
+      <button className="sidebar-mobile-close" onClick={onClose}>✕</button>
+
       {/* Brand */}
       <div className="sidebar-brand" style={{ flexDirection: 'column', alignItems: 'flex-start', paddingBottom: '0' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>

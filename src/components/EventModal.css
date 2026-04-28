@@ -612,3 +612,23 @@
 .focal-point-marker::after {
   left: 50%; top: -5px; bottom: -5px; width: 1px;
 }
+
+/* EXIF Control */
+.media-exif-control {
+  margin-top: 8px;
+  background: rgba(0,0,0,0.15);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.2s ease;
+}
+.media-exif-control:hover {
+  background: rgba(0,0,0,0.25);
+  border-color: var(--accent-gold);
+}
+.media-exif-control input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent-gold);
+  cursor: pointer;
+}

@@ -1,8 +1,6 @@
 .auth-page {
   min-height: 100vh;
   display: flex;
-  justify-content: center; /* Center the right panel */
-  align-items: center;
   position: relative;
   overflow: hidden;
   background: var(--gradient-hero);
@@ -48,7 +46,13 @@
 
 /* Left panel */
 .auth-left {
-  display: none !important; /* Hide quote panel for centered look */
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  position: relative;
+  z-index: 1;
 }
 
 .auth-left-content { max-width: 400px; }
@@ -87,6 +91,15 @@
   gap: 24px;
   align-items: center;
 }
+.auth-timeline.auth-footer {
+  margin-top: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 40px;
+}
 .auth-timeline-dot {
   display: flex;
   flex-direction: column;
@@ -123,12 +136,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 20px; /* Removed top padding to allow margin: auto to work */
+  padding: 10vh 40px;
   position: relative;
   z-index: 1;
   overflow-y: auto;
   scrollbar-width: none;
-  height: 100vh;
 }
 .auth-right::-webkit-scrollbar { display: none; }
 
@@ -136,8 +148,6 @@
   width: 100%;
   max-width: 420px;
   padding: 36px;
-  margin-top: calc(50vh - 280px); /* Center vertically */
-  margin-bottom: 60px;
   animation: slideInRight 0.5s ease;
 }
 

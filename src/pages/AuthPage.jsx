@@ -249,28 +249,28 @@ export default function AuthPage() {
         </div>
         </div>
 
-        <div className="auth-footer-container animate-fadeIn" style={{ animationDelay: '1s' }}>
-          <div className="makers-note">
-            <div className="note-divider" />
-            <div className="note-content">
-              <span className="note-emoji">👋</span>
-              <p><strong>Hi, I'm Subhranil!</strong><br />
-              I built Memoria to help you cherish your story. If you're enjoying the experience, I'd love to hear from you!</p>
-              <div className="note-links">
-                <a href="https://github.com/SubhranilSD" target="_blank" rel="noreferrer">GitHub</a>
-                <span>•</span>
-                <a href="https://www.linkedin.com/in/subhranildutta/" target="_blank" rel="noreferrer">LinkedIn</a>
-              </div>
-            </div>
-          </div>
-
           <div className="auth-footer">
             <div className="sd-logo-container">
               <img src={sdLogo} alt="SD Logo" className="sd-logo-img" />
             </div>
             <p>Made with ❤️ by <span>Subhranil Dutta</span></p>
           </div>
-        </div>
+
+          <div className="auth-footer-container animate-fadeIn" style={{ animationDelay: '1s' }}>
+            <div className="makers-note">
+              <div className="note-divider" />
+              <div className="note-content">
+                <span className="note-emoji">👋</span>
+                <p><strong>Hi, I'm Subhranil!</strong><br />
+                I built Memoria to help you cherish your story. If you're enjoying the experience, I'd love to hear from you!</p>
+                <div className="note-links">
+                  <a href="https://github.com/SubhranilSD" target="_blank" rel="noreferrer">GitHub</a>
+                  <span>•</span>
+                  <a href="https://www.linkedin.com/in/subhranildutta/" target="_blank" rel="noreferrer">LinkedIn</a>
+                </div>
+              </div>
+            </div>
+          </div>
     </div>
   );
 }

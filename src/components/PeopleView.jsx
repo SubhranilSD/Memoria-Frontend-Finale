@@ -12,7 +12,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [selectedPerson, setSelectedPerson] = useState(null);
-  
+
   // Storage keys
   const CLUSTERS_KEY = `memoria_face_clusters_${user?._id || 'guest'}`;
   const GROUPS_KEY = `memoria_people_groups_${user?._id || 'guest'}`;
@@ -21,7 +21,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
 
   const [syncing, setSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState(null);
-  
+
   // Selection mode for Merge/Groups
   const [selectionMode, setSelectionMode] = useState(null); // 'merge' or 'group'
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -43,7 +43,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
         setClusters(JSON.parse(savedClusters));
         hasLocalData = true;
       }
-      
+
       const savedGroups = localStorage.getItem(GROUPS_KEY);
       if (savedGroups) setGroups(JSON.parse(savedGroups));
 
@@ -149,7 +149,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
   };
 
   const [scanStatus, setScanStatus] = useState('');
-  
+
   const handleScan = async () => {
     setLoading(true);
     setProgress(0);
@@ -199,13 +199,13 @@ export default function PeopleView({ events, onEdit, onDelete }) {
 
     const target = clusters.find(c => c.id === targetId);
     let updatedClusters = clusters.filter(c => !sourceIds.includes(c.id));
-    
+
     // Merge everything: eventIds, mediaUrls, and descriptors
     updatedClusters = updatedClusters.map(c => {
       if (c.id === targetId) {
         const mergedEventIds = new Set(c.eventIds);
         const mergedMediaUrls = new Set(c.mediaUrls || []);
-        
+
         // Use a weighted average for descriptors to maintain accuracy
         let totalDescriptors = 1;
         let avgDesc = new Float32Array(c.avgDescriptor);
@@ -215,7 +215,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
           if (s) {
             s.eventIds?.forEach(eid => mergedEventIds.add(eid));
             s.mediaUrls?.forEach(murl => mergedMediaUrls.add(murl));
-            
+
             // Average the descriptors
             if (s.avgDescriptor) {
               const sDesc = new Float32Array(s.avgDescriptor);
@@ -227,8 +227,8 @@ export default function PeopleView({ events, onEdit, onDelete }) {
           }
         });
 
-        return { 
-          ...c, 
+        return {
+          ...c,
           eventIds: Array.from(mergedEventIds),
           mediaUrls: Array.from(mergedMediaUrls),
           avgDescriptor: Array.from(avgDesc).map(n => parseFloat(n.toFixed(4)))
@@ -291,8 +291,8 @@ export default function PeopleView({ events, onEdit, onDelete }) {
     return (
       <div className="people-view-detail animate-fadeIn">
         <div className="people-detail-header">
-          <button 
-            className="btn btn-ghost" 
+          <button
+            className="btn btn-ghost"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -312,9 +312,9 @@ export default function PeopleView({ events, onEdit, onDelete }) {
           <div className="people-detail-actions">
             <div className="bday-input-group">
               <span>🎂 Birthday:</span>
-              <input 
-                type="date" 
-                value={birthdays[selectedPerson.id] || ''} 
+              <input
+                type="date"
+                value={birthdays[selectedPerson.id] || ''}
                 onChange={(e) => handleSetBirthday(selectedPerson.id, e.target.value)}
               />
             </div>
@@ -323,7 +323,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
             </button>
           </div>
         </div>
-        
+
         <div style={{ marginTop: '40px' }}>
           <TimelineView events={personEvents} onEdit={onEdit} onDelete={onDelete} />
         </div>
@@ -333,7 +333,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
 
   if (activeBdayFlow) {
     const { person, mode } = activeBdayFlow;
-    
+
     // Get specific photos person is in. 
     // Fallback for older clusters that only have eventIds:
     let targetPhotos = person.mediaUrls;
@@ -351,15 +351,15 @@ export default function PeopleView({ events, onEdit, onDelete }) {
             <h2 className="font-display">Highlight Reel: {person.name}</h2>
             <button className="btn btn-ghost" onClick={() => setActiveBdayFlow(null)}>✕ Close</button>
           </div>
-          
+
           <div className="bday-reel-container">
             {targetPhotos.length > 0 ? (
-              <HighlightsReel 
-                events={personEvents} 
+              <HighlightsReel
+                events={personEvents}
                 isBdayReel={true}
                 filterUrls={targetPhotos}
                 onComplete={() => setActiveBdayFlow({ person, mode: 'book' })}
-                onClose={() => setActiveBdayFlow(null)} 
+                onClose={() => setActiveBdayFlow(null)}
               />
             ) : (
               <div className="people-empty" style={{ color: 'white', background: 'transparent' }}>
@@ -425,13 +425,13 @@ export default function PeopleView({ events, onEdit, onDelete }) {
             Manage the people in your story. Group them, mark birthdays, and merge profiles.
           </p>
         </div>
-        
+
         <div className="people-header-actions">
           {!selectionMode ? (
             <>
-              <button 
-                className="btn btn-ghost btn-save-cloud" 
-                onClick={handleSaveToBackend} 
+              <button
+                className="btn btn-ghost btn-save-cloud"
+                onClick={handleSaveToBackend}
                 disabled={syncing || clusters.length === 0}
                 title={lastSynced ? `Last saved: ${lastSynced.toLocaleTimeString()}` : 'Save to cloud'}
               >
@@ -446,9 +446,9 @@ export default function PeopleView({ events, onEdit, onDelete }) {
           ) : (
             <div className="selection-toolbar animate-in">
               {selectionMode === 'group' && (
-                <input 
-                  type="text" 
-                  placeholder="Group Name..." 
+                <input
+                  type="text"
+                  placeholder="Group Name..."
                   className="input group-name-input"
                   value={groupName}
                   onChange={e => setGroupName(e.target.value)}
@@ -500,8 +500,8 @@ export default function PeopleView({ events, onEdit, onDelete }) {
       {!loading && clusters.length > 0 && (
         <div className="people-grid">
           {clusters.map(cluster => (
-            <div 
-              key={cluster.id} 
+            <div
+              key={cluster.id}
               className={`person-card ${selectedIds.has(cluster.id) ? 'selected' : ''}`}
               onClick={() => selectionMode && toggleSelect(cluster.id)}
             >
@@ -514,9 +514,9 @@ export default function PeopleView({ events, onEdit, onDelete }) {
                   </div>
                 )}
               </div>
-              
-              <input 
-                type="text" 
+
+              <input
+                type="text"
                 className="person-name-input"
                 value={cluster.name}
                 placeholder="Who is this?"
@@ -524,7 +524,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
                 onClick={e => e.stopPropagation()}
                 readOnly={selectionMode}
               />
-              
+
               {birthdays[cluster.id] && (
                 <div className="person-bday-badge">🎂 {new Date(birthdays[cluster.id]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
               )}

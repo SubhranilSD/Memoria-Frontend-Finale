@@ -45,30 +45,59 @@ export default function AboutMaker() {
   }
 
   return (
-    <div style={{
-      padding: '80px 40px',
-      maxWidth: '900px',
-      margin: '0 auto',
-      color: 'var(--text-primary)',
-      fontFamily: '"DM Sans", sans-serif',
-      perspective: '1000px'
-    }}>
+    <div className="about-maker-container">
+      <style>{`
+        .about-maker-container {
+          padding: 80px 40px;
+          maxWidth: 900px;
+          margin: 0 auto;
+          color: var(--text-primary);
+          font-family: "DM Sans", sans-serif;
+          perspective: 1000px;
+        }
+        .about-card {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-radius: 32px;
+          padding: 80px 40px;
+          box-shadow: 0 30px 60px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.08);
+          text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+        .about-photo-wrap {
+          width: 240px;
+          height: 240px;
+        }
+        .about-name {
+          font-size: 52px;
+        }
+        .about-socials {
+          gap: 24px;
+        }
+        .social-btn {
+          width: 64px;
+          height: 64px;
+        }
+
+        @media (max-width: 768px) {
+          .about-maker-container { padding: 40px 16px; }
+          .about-card { padding: 40px 20px; border-radius: 24px; }
+          .about-photo-wrap { width: 160px; height: 160px; }
+          .about-name { font-size: 32px; }
+          .about-socials { gap: 12px; }
+          .social-btn { width: 50px; height: 50px; border-radius: 14px; }
+          .social-btn svg { width: 24px; height: 24px; }
+          .about-text { font-size: 15px !important; }
+        }
+      `}</style>
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        style={{
-          background: 'rgba(255, 255, 255, 0.03)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderRadius: '32px',
-          padding: '80px 40px',
-          boxShadow: '0 30px 60px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
+        className="about-card"
       >
         {/* Animated Background Orbs */}
         <div style={{
@@ -105,9 +134,8 @@ export default function AboutMaker() {
           <motion.div
             onMouseMove={handleMouse}
             onMouseLeave={handleMouseLeave}
+            className="about-photo-wrap"
             style={{
-              width: '240px',
-              height: '240px',
               borderRadius: '50%',
               overflow: 'hidden',
               border: '4px solid rgba(255,255,255,0.15)',
@@ -158,9 +186,9 @@ export default function AboutMaker() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
+          className="about-name"
           style={{ 
             fontFamily: '"Playfair Display", serif', 
-            fontSize: '52px', 
             margin: '0 0 12px',
             background: 'linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%)',
             WebkitBackgroundClip: 'text',
@@ -192,6 +220,7 @@ export default function AboutMaker() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
+          className="about-text"
           style={{
             fontSize: '19px',
             lineHeight: '1.7',
@@ -210,10 +239,10 @@ export default function AboutMaker() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
+          className="about-socials"
           style={{
             display: 'flex',
             justifyContent: 'center',
-            gap: '24px',
             flexWrap: 'wrap',
             marginBottom: '60px'
           }}
@@ -226,9 +255,8 @@ export default function AboutMaker() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.15, y: -8, boxShadow: `0 15px 30px ${social.color}44` }}
               whileTap={{ scale: 0.95 }}
+              className="social-btn"
               style={{
-                width: '64px',
-                height: '64px',
                 borderRadius: '20px',
                 background: `linear-gradient(135deg, ${social.color}22, ${social.color}11)`,
                 border: `1px solid ${social.color}33`,

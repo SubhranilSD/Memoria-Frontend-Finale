@@ -32,6 +32,11 @@
   margin-top: 4px;
 }
 
+@media (max-width: 768px) {
+  .timeline-heading { font-size: 24px; }
+  .timeline-subheading { font-size: 12px; }
+}
+
 .timeline-loading { padding: 20px 0; }
 
 .timeline-empty {
@@ -64,15 +69,15 @@
 }
 
 @media (max-width: 768px) {
-  .timeline-main { padding: 16px 12px; }
-  .timeline-header { flex-direction: column; align-items: stretch; gap: 16px; }
+  .timeline-main { padding: 12px 10px; }
+  .timeline-header { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 24px; }
   .timeline-header-actions { 
     flex-wrap: wrap; 
-    justify-content: center;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 6px;
   }
-  .search-bar { width: 100%; max-width: none; }
-  .btn { font-size: 13px; padding: 10px 14px; }
+  .search-bar { width: 100%; max-width: none; height: 38px; }
+  .btn { font-size: 12px; padding: 8px 12px; }
 }
 
 /* Mobile Toggle */

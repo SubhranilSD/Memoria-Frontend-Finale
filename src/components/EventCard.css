@@ -139,10 +139,13 @@
 }
 
 @media (max-width: 600px) {
-  .event-card-media { height: 180px; }
-  .event-card-title { font-size: 15px; }
-  .event-card-desc { font-size: 12px; }
-  .event-card-body { padding: 12px 14px 14px; }
+  .event-card-media { height: 140px; }
+  .event-card-title { font-size: 14px; }
+  .event-card-desc { font-size: 11px; margin-bottom: 6px; }
+  .event-card-body { padding: 10px 12px 12px; }
+  .event-card-location { font-size: 11px; margin-bottom: 6px; }
+  .event-card-date { font-size: 10px; }
+  .tag { font-size: 9px; padding: 1px 4px; }
 }
 
 .event-card-tags {

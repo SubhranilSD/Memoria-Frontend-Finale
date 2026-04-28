@@ -11,6 +11,12 @@
   margin-bottom: 60px;
 }
 
+@media (max-width: 768px) {
+  .people-view { padding: 12px; }
+  .people-header { flex-direction: column; gap: 20px; margin-bottom: 30px; }
+  .people-header-actions { width: 100%; flex-wrap: wrap; }
+}
+
 .people-loading-state, .people-empty {
   text-align: center;
   padding: 80px 20px;
@@ -31,6 +37,10 @@
   gap: 32px;
 }
 
+@media (max-width: 600px) {
+  .people-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
+}
+
 .person-card {
   display: flex;
   flex-direction: column;
@@ -47,6 +57,13 @@
 }
 .person-avatar-wrap:hover {
   transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+  .person-avatar-wrap { width: 90px; height: 90px; }
+  .person-avatar { border-width: 2px; }
+  .person-count { width: 24px; height: 24px; font-size: 10px; }
+  .person-name-input { font-size: 13px; }
 }
 
 .person-avatar {

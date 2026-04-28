@@ -250,7 +250,7 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
               <span className="tag" style={{ background: 'var(--accent-indigo)', color: 'white', border: 'none' }}>🎙️ Voice Note</span>
             )}
             {event.isPrivate && (
-              <span className="tag" style={{ background: 'var(--accent-rose)', color: white, border: 'none' }}>🔒 Vault</span>
+              <span className="tag" style={{ background: 'var(--accent-rose)', color: 'white', border: 'none' }}>🔒 Vault</span>
             )}
             
             {/* Advanced: Biometrics */}

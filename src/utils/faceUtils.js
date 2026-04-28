@@ -141,7 +141,7 @@ function hashString(str) {
  * @param {number} [maxDim]
  * @returns {Promise<HTMLImageElement>}
  */
-function createOptimizedImage(url, maxDim = MAX_DIM) {
+export function createOptimizedImage(url, maxDim = MAX_DIM) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -179,7 +179,7 @@ function createOptimizedImage(url, maxDim = MAX_DIM) {
  * @param {{x:number,y:number,w:number,h:number}} box
  * @returns {string} data-URL
  */
-function createFaceCrop(img, box) {
+export function createFaceCrop(img, box) {
   const canvas = document.createElement('canvas');
   canvas.width = FACE_CROP_SIZE;
   canvas.height = FACE_CROP_SIZE;

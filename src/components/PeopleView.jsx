@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { loadFaceModels, processEventsForFaces } from '../utils/faceUtils';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { loadFaceModels, processEventsForFaces, createFaceCrop, createOptimizedImage } from '../utils/faceUtils';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import TimelineView from './TimelineView';
@@ -17,7 +17,6 @@ export default function PeopleView({ events, onEdit, onDelete }) {
   const CLUSTERS_KEY = `memoria_face_clusters_${user?._id || 'guest'}`;
   const GROUPS_KEY = `memoria_people_groups_${user?._id || 'guest'}`;
   const BDAYS_KEY = `memoria_people_birthdays_${user?._id || 'guest'}`;
-  const CACHE_KEY = 'memoria_face_descriptor_cache_v2';
 
   const [syncing, setSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState(null);
@@ -34,7 +33,48 @@ export default function PeopleView({ events, onEdit, onDelete }) {
   // Birthday Book / Reel state
   const [activeBdayFlow, setActiveBdayFlow] = useState(null); // { person, mode: 'reel' | 'book' }
 
-  // Load from local storage
+  // ─── THUMBNAIL RECONSTRUCTION ─────────────────────────────────────────────
+  // This state holds the generated object URLs so we can clean them up
+  const [reconstructedThumbs, setReconstructedThumbs] = useState({});
+
+  const reconstructedClusters = useMemo(() => {
+    return clusters.map(c => ({
+      ...c,
+      faceUrl: reconstructedThumbs[c.id] || c.faceUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=random&color=fff`
+    }));
+  }, [clusters, reconstructedThumbs]);
+
+  useEffect(() => {
+    // Generate thumbnails for clusters that have coordinate data but no local faceUrl
+    const generateThumbs = async () => {
+      const newThumbs = { ...reconstructedThumbs };
+      let changed = false;
+
+      for (const cluster of clusters) {
+        if (!reconstructedThumbs[cluster.id] && cluster.representativeMediaUrl && cluster.faceBox) {
+          try {
+            const img = await createOptimizedImage(cluster.representativeMediaUrl);
+            const thumbUrl = createFaceCrop(img, cluster.faceBox);
+            newThumbs[cluster.id] = thumbUrl;
+            changed = true;
+          } catch (e) {
+            console.warn(`Failed to reconstruct thumb for ${cluster.name}`, e);
+          }
+        }
+      }
+
+      if (changed) {
+        setReconstructedThumbs(newThumbs);
+      }
+    };
+
+    if (clusters.length > 0) {
+      generateThumbs();
+    }
+  }, [clusters]);
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // Load from local storage or backend
   const loadFromLocal = useCallback(async () => {
     let hasLocalData = false;
     try {
@@ -51,16 +91,18 @@ export default function PeopleView({ events, onEdit, onDelete }) {
       if (savedBdays) setBirthdays(JSON.parse(savedBdays));
     } catch (e) { }
 
-    // If no local data, try fetching from backend
-    if (!hasLocalData && user) {
+    // Always check backend for updates
+    if (user) {
       try {
         const res = await api.get('/people');
         if (res.data && res.data.clusters?.length > 0) {
           const { clusters: c, groups: g, birthdays: b } = res.data;
+          
+          // Only update if backend data is newer or local is empty
           setClusters(c);
           setGroups(g || []);
           setBirthdays(b || {});
-          // Cache locally
+          
           localStorage.setItem(CLUSTERS_KEY, JSON.stringify(c));
           if (g) localStorage.setItem(GROUPS_KEY, JSON.stringify(g));
           if (b) localStorage.setItem(BDAYS_KEY, JSON.stringify(b));
@@ -73,22 +115,9 @@ export default function PeopleView({ events, onEdit, onDelete }) {
   }, [CLUSTERS_KEY, GROUPS_KEY, BDAYS_KEY, user]);
 
   useEffect(() => {
-    // Pre-load models in background
     loadFaceModels();
     loadFromLocal();
   }, [loadFromLocal]);
-
-  // Sync across tabs
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === CLUSTERS_KEY || e.key === GROUPS_KEY || e.key === BDAYS_KEY) {
-        loadFromLocal();
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, [loadFromLocal, CLUSTERS_KEY, GROUPS_KEY, BDAYS_KEY]);
-
 
   const saveToLocal = (updatedClusters, updatedGroups, updatedBdays) => {
     if (updatedClusters !== undefined && updatedClusters !== null) {
@@ -105,36 +134,18 @@ export default function PeopleView({ events, onEdit, onDelete }) {
     }
   };
 
-  const shrinkThumbnail = async (dataUrl) => {
-    if (!dataUrl || !dataUrl.startsWith('data:image')) return dataUrl;
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const size = 80; // Small but clear enough for avatars
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, size, size);
-        resolve(canvas.toDataURL('image/jpeg', 0.5)); // Low quality to save space
-      };
-      img.onerror = () => resolve(dataUrl);
-      img.src = dataUrl;
-    });
-  };
-
   const handleSaveToBackend = async () => {
     if (!user) return;
     setSyncing(true);
     try {
-      // Shrink thumbnails before sending to stay under MongoDB's 16MB limit
-      const processedClusters = await Promise.all(clusters.map(async c => ({
-        ...c,
-        faceUrl: await shrinkThumbnail(c.faceUrl)
-      })));
+      // Stripping heavy base64 strings if any exist before sending to cloud
+      const cleanClusters = clusters.map(c => {
+        const { faceUrl, ...rest } = c;
+        return rest;
+      });
 
       await api.post('/people', {
-        clusters: processedClusters,
+        clusters: cleanClusters,
         groups,
         birthdays
       });
@@ -142,7 +153,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
       alert("People profiles saved securely to cloud ✦");
     } catch (err) {
       console.error("Cloud sync failed:", err);
-      alert("Failed to save to cloud. Try again later.");
+      alert("Failed to save to cloud. Payload might be too large.");
     } finally {
       setSyncing(false);
     }
@@ -166,19 +177,18 @@ export default function PeopleView({ events, onEdit, onDelete }) {
       if (p > 50) setScanStatus('Clustering similar faces...');
     });
     setScanStatus('Saving results...');
+    
+    // Before saving, ensure we don't bloat localStorage with too much heavy data
+    const optimizedResults = results.map(r => {
+      // Keep the faceUrl for local immediate feedback, but the "representative" info is most important
+      return r;
+    });
+
     try {
-      saveToLocal(results);
+      saveToLocal(optimizedResults);
     } catch (err) {
-      console.error("Failed to save results to localStorage:", err);
-      // If we run out of space, try clearing the descriptor cache as it's the largest part
-      if (err.name === 'QuotaExceededError') {
-        localStorage.removeItem(CACHE_KEY);
-        try {
-          saveToLocal(results);
-        } catch (e2) {
-          alert("Storage full! Even after clearing cache, data is too large for this browser.");
-        }
-      }
+      console.error("Failed to save results:", err);
+      alert("Local storage full! Scanning still completed, but some data might not persist.");
     }
     setLoading(false);
     setScanStatus('');
@@ -200,38 +210,23 @@ export default function PeopleView({ events, onEdit, onDelete }) {
     const target = clusters.find(c => c.id === targetId);
     let updatedClusters = clusters.filter(c => !sourceIds.includes(c.id));
 
-    // Merge everything: eventIds, mediaUrls, and descriptors
     updatedClusters = updatedClusters.map(c => {
       if (c.id === targetId) {
         const mergedEventIds = new Set(c.eventIds);
         const mergedMediaUrls = new Set(c.mediaUrls || []);
-
-        // Use a weighted average for descriptors to maintain accuracy
-        let totalDescriptors = 1;
-        let avgDesc = new Float32Array(c.avgDescriptor);
 
         sourceIds.forEach(sid => {
           const s = clusters.find(cl => cl.id === sid);
           if (s) {
             s.eventIds?.forEach(eid => mergedEventIds.add(eid));
             s.mediaUrls?.forEach(murl => mergedMediaUrls.add(murl));
-
-            // Average the descriptors
-            if (s.avgDescriptor) {
-              const sDesc = new Float32Array(s.avgDescriptor);
-              for (let k = 0; k < avgDesc.length; k++) {
-                avgDesc[k] = (avgDesc[k] * totalDescriptors + sDesc[k]) / (totalDescriptors + 1);
-              }
-              totalDescriptors++;
-            }
           }
         });
 
         return {
           ...c,
           eventIds: Array.from(mergedEventIds),
-          mediaUrls: Array.from(mergedMediaUrls),
-          avgDescriptor: Array.from(avgDesc).map(n => parseFloat(n.toFixed(4)))
+          mediaUrls: Array.from(mergedMediaUrls)
         };
       }
       return c;
@@ -264,12 +259,10 @@ export default function PeopleView({ events, onEdit, onDelete }) {
     const updated = clusters.map(c => c.id === id ? { ...c, name: newName } : c);
     saveToLocal(updated);
 
-    // Sync with database events if the name is real
     if (newName.trim() && newName.toLowerCase() !== 'unknown person') {
       const cluster = clusters.find(c => c.id === id);
       if (cluster) {
         try {
-          // Update each event this person appears in
           await Promise.all(cluster.eventIds.map(async (eid) => {
             const event = events.find(e => e._id === eid);
             if (event) {
@@ -285,25 +278,18 @@ export default function PeopleView({ events, onEdit, onDelete }) {
     }
   };
 
-  // If a person is selected, show their specific memories
   if (selectedPerson) {
     const personEvents = events.filter(e => selectedPerson.eventIds.includes(e._id));
+    const thumb = reconstructedThumbs[selectedPerson.id] || selectedPerson.faceUrl;
+
     return (
       <div className="people-view-detail animate-fadeIn">
         <div className="people-detail-header">
-          <button
-            className="btn btn-ghost"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setSelectedPerson(null);
-            }}
-            style={{ marginBottom: '10px' }}
-          >
+          <button className="btn btn-ghost" onClick={() => setSelectedPerson(null)} style={{ marginBottom: '10px' }}>
             ← Back to People
           </button>
           <div className="people-detail-title">
-            <img src={selectedPerson.faceUrl} alt="" className="people-detail-avatar" />
+            <img src={thumb} alt="" className="people-detail-avatar" />
             <div>
               <h2>{selectedPerson.name}</h2>
               <p>{personEvents.length} Memories together</p>
@@ -333,15 +319,11 @@ export default function PeopleView({ events, onEdit, onDelete }) {
 
   if (activeBdayFlow) {
     const { person, mode } = activeBdayFlow;
-
-    // Get specific photos person is in. 
-    // Fallback for older clusters that only have eventIds:
     let targetPhotos = person.mediaUrls;
     if (!targetPhotos || targetPhotos.length === 0) {
       const pEvents = events.filter(e => (person.eventIds || []).includes(e._id));
       targetPhotos = pEvents.map(e => e.media?.[0]?.url).filter(Boolean);
     }
-
     const personEvents = events.filter(e => e.media?.some(m => targetPhotos.includes(m.url)));
 
     if (mode === 'reel') {
@@ -351,7 +333,6 @@ export default function PeopleView({ events, onEdit, onDelete }) {
             <h2 className="font-display">Highlight Reel: {person.name}</h2>
             <button className="btn btn-ghost" onClick={() => setActiveBdayFlow(null)}>✕ Close</button>
           </div>
-
           <div className="bday-reel-container">
             {targetPhotos.length > 0 ? (
               <HighlightsReel
@@ -365,11 +346,10 @@ export default function PeopleView({ events, onEdit, onDelete }) {
               <div className="people-empty" style={{ color: 'white', background: 'transparent' }}>
                 <span style={{ fontSize: '48px' }}>🔍</span>
                 <h3>No Photos Found</h3>
-                <p>We couldn't find any specific photos for this person. Try re-scanning your library.</p>
+                <p>We couldn't find any specific photos for this person.</p>
               </div>
             )}
           </div>
-
           <div className="bday-reel-actions">
             <button className="btn btn-primary btn-lg" onClick={() => setActiveBdayFlow({ person, mode: 'book' })}>
               Skip to Birthday Book
@@ -499,7 +479,7 @@ export default function PeopleView({ events, onEdit, onDelete }) {
 
       {!loading && clusters.length > 0 && (
         <div className="people-grid">
-          {clusters.map(cluster => (
+          {reconstructedClusters.map(cluster => (
             <div
               key={cluster.id}
               className={`person-card ${selectedIds.has(cluster.id) ? 'selected' : ''}`}

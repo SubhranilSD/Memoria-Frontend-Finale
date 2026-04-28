@@ -58,10 +58,17 @@ function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 /** Parse DateTimeOriginal (e.g. "2023:07:14 18:32:00") → "2023-07-14" */
 function exifDateToInputDate(raw) {
   if (!raw) return null;
-  if (raw instanceof Date) return raw.toISOString().split('T')[0];
-  const str = String(raw).replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
-  const d = new Date(str);
-  return isNaN(d) ? null : d.toISOString().split('T')[0];
+  try {
+    const d = new Date(raw);
+    if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+    
+    // Fallback for string format "2023:07:14 18:32:00"
+    const str = String(raw).replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
+    const d2 = new Date(str);
+    return isNaN(d2.getTime()) ? null : d2.toISOString().split('T')[0];
+  } catch {
+    return null;
+  }
 }
 
 /** Infer a vibe from hour of day & camera model hints */
@@ -130,56 +137,76 @@ async function reverseGeocode(lat, lon) {
 /** Full EXIF read for a single File object → returns extracted fields */
 async function extractExifFromFile(file) {
   try {
-    const exif = await exifr.parse(file, {
-      tiff: true,
-      exif: true,
-      gps: true,
-      iptc: true,
-      xmp: true,
-      reviveValues: true,
-      translateValues: true
-    });
+    // 1. Parse EVERYTHING exifr can find
+    const exif = await exifr.parse(file, true); 
     if (!exif) return null;
 
     const result = { raw: exif, found: [] };
 
-    // Date - check multiple possible EXIF date fields
-    const rawDate = exif.DateTimeOriginal || exif.CreateDate || exif.ModifyDate || exif.DateTime;
-    const dateStr = exifDateToInputDate(rawDate);
-    if (dateStr) { result.date = dateStr; result.found.push('date'); }
+    // 2. EXHAUSTIVE DATE SEARCH
+    // Cameras store dates in many different fields; we check them all.
+    const datePriority = [
+      exif.DateTimeOriginal,
+      exif.CreateDate,
+      exif.ModifyDate,
+      exif.DateTime,
+      exif.GPSDateStamp,
+      exif.DateCreated,
+      exif.DigitalCreationDate
+    ];
+    
+    let foundDate = null;
+    for (const d of datePriority) {
+      if (d) {
+        const parsed = exifDateToInputDate(d);
+        if (parsed) { foundDate = parsed; break; }
+      }
+    }
+    
+    if (foundDate) {
+      result.date = foundDate;
+      result.found.push('date');
+    }
 
-    // GPS → reverse geocode
+    // 3. LOCATION & GPS
     if (exif.latitude != null && exif.longitude != null) {
       result.gps = { lat: exif.latitude, lon: exif.longitude };
       const place = await reverseGeocode(exif.latitude, exif.longitude);
-      if (place) { result.location = place; result.found.push('location'); }
+      if (place) {
+        result.location = place;
+        result.found.push('location');
+      }
     }
 
-    // Metadata Title & Description
-    const metaTitle = exif.XPTitle || exif.ObjectName || exif.Title;
-    const metaDesc = exif.ImageDescription || exif.UserComment || exif.Caption || exif.XPSubject || exif.XPComment;
+    // 4. TITLE & DESCRIPTION
+    const metaTitle = exif.XPTitle || exif.ObjectName || exif.Title || exif.Headline;
+    const metaDesc = exif.ImageDescription || exif.UserComment || exif.Caption || exif.XPSubject || exif.XPComment || exif.Description;
 
     if (metaTitle) { result.title = metaTitle; result.found.push('title'); }
     if (metaDesc) { result.description = metaDesc; result.found.push('description'); }
 
-    // Camera model (for fun, we tag it)
+    // 5. CAMERA & GEAR
     if (exif.Make || exif.Model) {
-      const cam = [exif.Make, exif.Model].filter(Boolean).join(' ').trim();
-      result.camera = cam;
+      result.camera = [exif.Make, exif.Model].filter(Boolean).join(' ').trim();
     }
 
-    // Infer mood
+    // 6. MOOD / VIBE INFERENCE
+    // If we have a date, we can infer mood from time of day
     const mood = inferMoodFromExif(exif);
-    if (mood) { result.mood = mood; result.found.push('vibe'); }
+    if (mood) {
+      result.mood = mood;
+      result.found.push('vibe');
+    }
 
-    // Build title (if not found in metadata)
+    // 7. AUTO-TITLE GENERATOR (Fallback)
     if (!result.title) {
       result.title = buildTitleFromExif(exif, result.location || null);
       result.found.push('title (auto)');
     }
 
     return result;
-  } catch (e) {
+  } catch (err) {
+    console.error('[Metadata] Extraction failed:', err);
     return null;
   }
 }
@@ -219,7 +246,7 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
   const [exifScan,     setExifScan]     = useState(false);   // scanning in progress
   const [exifBanner,   setExifBanner]   = useState(null);    // { found: [], camera? }
   const [exifApplied,  setExifApplied]  = useState(false);
-  const [autoExif,     setAutoExif]     = useState(true); // Default to auto
+  const [autoExif,     setAutoExif]     = useState(false); // Default to false so user sees the "APPLY" bar
 
   const fileRef = useRef(null);
   const [moods, setMoods] = useState(getMoods());
@@ -263,6 +290,13 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
     setTimeout(() => setAutofilled(false), 1200);
   };
 
+  const fileToBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+
   /* ── Apply EXIF data from banner ── */
   const applyExif = (exifData) => {
     setForm(f => ({
@@ -286,56 +320,46 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
     setExifBanner(null);
     setExifApplied(false);
 
-    // Scan first image for EXIF (do this in parallel with upload)
-    const firstImage = [...files].find(f => f.type.startsWith('image/'));
-    let exifDataPending = null;
+    const fileList = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (!fileList.length) { setUploading(false); return; }
 
-    if (firstImage) { 
-      setExifScan(true);
-      exifDataPending = extractExifFromFile(firstImage); // promise
+    // Scan first image for EXIF (non-blocking start)
+    setExifScan(true);
+    const exifDataPromise = extractExifFromFile(fileList[0]);
+
+    try {
+      // Process all images in parallel
+      const results = await Promise.all(fileList.map(async (file) => {
+        try {
+          const base64 = await fileToBase64(file);
+          
+          // Start upload and face detection in parallel for this image
+          const [uploadRes, focalPoint] = await Promise.all([
+            api.post('/upload', { base64, filename: file.name }),
+            detectFocalPoint(base64)
+          ]);
+
+          return { ...uploadRes.data, focalPoint };
+        } catch (err) {
+          console.error(`Failed to process ${file.name}:`, err);
+          return null;
+        }
+      }));
+
+      const successfulMedia = results.filter(Boolean);
+      setForm(f => ({ ...f, media: [...f.media, ...successfulMedia] }));
+    } catch (err) {
+      console.error("Batch upload failed:", err);
+    } finally {
+      setUploading(false);
     }
-
-    // Upload loop
-    const newMedia = [];
-    for (const file of files) {
-      if (!file.type.startsWith('image/')) continue;
-      const reader = new FileReader();
-      await new Promise(resolve => {
-        reader.onload = async (e) => {
-          try {
-            const res = await api.post('/upload', { base64: e.target.result, filename: file.name });
-            
-            // Detect faces for auto-focus/crop
-            const focalPoint = await detectFocalPoint(e.target.result);
-            
-            newMedia.push({
-              ...res.data,
-              focalPoint
-            });
-          } catch (err) {
-            console.error("Upload/Detection failed", err);
-          }
-          resolve();
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    setForm(f => ({ ...f, media: [...f.media, ...newMedia] }));
-    setUploading(false);
 
     // Await EXIF result
-    if (exifDataPending) {
-      const exifData = await exifDataPending;
-      setExifScan(false);
-      if (exifData && exifData.found.length > 0) {
-        // If autoExif is on and it's a new memory, apply automatically
-        if (autoExif && !event) {
-          applyExif(exifData);
-        } else {
-          setExifBanner(exifData);
-        }
-      }
+    const exifData = await exifDataPromise;
+    setExifScan(false);
+    if (exifData && exifData.found.length > 0) {
+      if (autoExif && !event) applyExif(exifData);
+      else setExifBanner(exifData);
     }
   };
 
@@ -484,40 +508,25 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
           </div>
         )}
 
-        {/* EXIF banner — shown after scan, before user applies */}
+        {/* EXIF notification bar — shown after scan */}
         {exifBanner && (
-          <div className="exif-banner animate-in">
-            <div className="exif-banner-left">
-              <span className="exif-banner-icon">🪄</span>
-              <div>
-                <div className="exif-banner-title">Metadata sync available</div>
-                <div className="exif-banner-fields">
-                  {exifBanner.found.map(f => (
-                    <span key={f} className="exif-field-chip">{f}</span>
-                  ))}
-                  {exifBanner.camera && (
-                    <span className="exif-camera-chip">📸 {exifBanner.camera}</span>
-                  )}
+          <div className="meta-notification-bar animate-slideDown">
+            <div className="meta-bar-content">
+              <span className="meta-bar-icon">📷</span>
+              <div className="meta-bar-info">
+                <span className="meta-bar-text">Photo history found!</span>
+                <div className="meta-bar-chips">
+                  {exifBanner.found.map(f => <span key={f} className="meta-chip">{f}</span>)}
                 </div>
               </div>
             </div>
-            <div className="exif-banner-actions">
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={() => applyExif(exifBanner)}
-                style={{ background: 'var(--accent-indigo)', color: 'white' }}
-              >
-                Sync & Apply
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => setExifBanner(null)}
-              >
-                Dismiss
-              </button>
-            </div>
+            <button
+              type="button"
+              className="meta-apply-btn"
+              onClick={() => applyExif(exifBanner)}
+            >
+              APPLY METADATA
+            </button>
           </div>
         )}
 

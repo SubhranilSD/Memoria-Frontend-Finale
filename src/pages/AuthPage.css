@@ -123,12 +123,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Still allows scrolling to note */
-  padding: 10vh 20px;
+  padding: 0 20px; /* Removed top padding to allow margin: auto to work */
   position: relative;
   z-index: 1;
   overflow-y: auto;
   scrollbar-width: none;
+  height: 100vh;
 }
 .auth-right::-webkit-scrollbar { display: none; }
 
@@ -136,6 +136,8 @@
   width: 100%;
   max-width: 420px;
   padding: 36px;
+  margin-top: calc(50vh - 280px); /* Center vertically */
+  margin-bottom: 60px;
   animation: slideInRight 0.5s ease;
 }
 

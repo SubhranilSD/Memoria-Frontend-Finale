@@ -108,11 +108,11 @@ export default function LandingPage() {
             <div className="note-content">
               <span className="note-emoji">👋</span>
               <p><strong>Hi, I'm Subhranil!</strong><br />
-              I built Memoria to help you cherish your story. If you're enjoying the experience, I'd love to hear from you!</p>
+                I built Memoria to help you cherish your story. If you're enjoying the experience, I'd love to hear from you!</p>
               <div className="note-links">
                 <a href="https://github.com/SubhranilSD" target="_blank" rel="noreferrer">GitHub</a>
                 <span>•</span>
-                <a href="https://www.linkedin.com/in/subhranildutta/" target="_blank" rel="noreferrer">LinkedIn</a>
+                <a href="https://www.linkedin.com/in/subhranil-dutta-4718423a2" target="_blank" rel="noreferrer">LinkedIn</a>
               </div>
             </div>
           </div>

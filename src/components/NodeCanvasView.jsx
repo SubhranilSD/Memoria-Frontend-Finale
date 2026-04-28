@@ -198,7 +198,7 @@ function EventNode({ event, pos, size, onDragEnd, onEdit, editMode, isSelected, 
   const hasDesc  = event.description?.length > 0;
 
   const handleMouseDown = useCallback((e) => {
-    e.stopPropagation();
+    // We don't stop propagation so the canvas can track multi-touch pinch
     dragging.current  = true;
     hasDragged.current = false;
     startMouse.current = { x: e.clientX, y: e.clientY };
@@ -327,7 +327,9 @@ function EventNode({ event, pos, size, onDragEnd, onEdit, editMode, isSelected, 
 export default function NodeCanvasView({ events, editMode, onEdit }) {
   const canvasRef  = useRef(null);
   const isPanning  = useRef(false);
-  const panStart   = useRef({ x:0, y:0 });
+  const panStart   = useRef({ x: 0, y: 0 });
+  const activePointers = useRef(new Map());
+  const lastPinchDist = useRef(0);
 
   const [viewport,  setViewport]  = useState({ x:0, y:0, scale:1 });
   const [positions, setPositions] = useState(() => computeInitialPositions(events));
@@ -433,25 +435,81 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
     return m;
   }, [sorted]);
 
-  /* ── Pan ── */
-  const onCanvasMouseDown = useCallback((e) => {
-    const cls = e.target.classList;
-    if (!cls.contains('nc-canvas') && !cls.contains('nc-canvas-svg') && !cls.contains('nc-world-bg')) return;
-    isPanning.current = true;
-    panStart.current = { x: e.clientX - viewport.x, y: e.clientY - viewport.y };
-    setSelectedId(null);
-    const onMove = (mv) => {
-      if (!isPanning.current) return;
-      setViewport(v => ({ ...v, x: mv.clientX - panStart.current.x, y: mv.clientY - panStart.current.y }));
-    };
-    const onUp = () => {
-      isPanning.current = false;
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
+  /* ── Pointer Handling (Pan & Pinch) ── */
+  const onPointerDown = useCallback((e) => {
+    // Track all pointers for multi-touch support
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    // Only prevent default if it's not an interactive element like a button inside the node
+    const isInteractive = e.target.closest('button') || e.target.closest('a');
+    if (!isInteractive) e.preventDefault();
+
+    const isNode = e.target.closest('.nc-node');
+    if (activePointers.current.size === 1) {
+      isPanning.current = true;
+      panStart.current = { x: e.clientX - viewport.x, y: e.clientY - viewport.y };
+      if (!isNode) setSelectedId(null);
+    } else if (activePointers.current.size === 2) {
+      isPanning.current = false; // Stop panning when pinching
+      const pts = Array.from(activePointers.current.values());
+      lastPinchDist.current = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    }
   }, [viewport.x, viewport.y]);
+
+  const onPointerMove = useCallback((e) => {
+    if (!activePointers.current.has(e.pointerId)) return;
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (activePointers.current.size === 1 && isPanning.current) {
+      setViewport(v => ({
+        ...v,
+        x: e.clientX - panStart.current.x,
+        y: e.clientY - panStart.current.y
+      }));
+    } else if (activePointers.current.size === 2) {
+      const pts = Array.from(activePointers.current.values());
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      const factor = dist / lastPinchDist.current;
+      
+      if (Math.abs(1 - factor) > 0.01) {
+        const midX = (pts[0].x + pts[1].x) / 2;
+        const midY = (pts[0].y + pts[1].y) / 2;
+        const rect = canvasRef.current?.getBoundingClientRect();
+        
+        const worldX = (midX - (rect?.left || 0) - viewport.x) / viewport.scale;
+        const worldY = (midY - (rect?.top || 0) - viewport.y) / viewport.scale;
+
+        setViewport(v => {
+          const newScale = Math.max(0.15, Math.min(4, v.scale * factor));
+          return {
+            scale: newScale,
+            x: midX - (rect?.left || 0) - worldX * newScale,
+            y: midY - (rect?.top || 0) - worldY * newScale,
+          };
+        });
+        lastPinchDist.current = dist;
+      }
+    }
+  }, [viewport]);
+
+  const onPointerUp = useCallback((e) => {
+    activePointers.current.delete(e.pointerId);
+    if (activePointers.current.size < 2) lastPinchDist.current = 0;
+    if (activePointers.current.size === 0) isPanning.current = false;
+  }, []);
+
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerUp);
+    el.addEventListener('pointercancel', onPointerUp);
+    return () => {
+      el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerup', onPointerUp);
+      el.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, [onPointerMove, onPointerUp]);
 
   /* ── Zoom (cursor-anchored) ── */
   const onWheel = useCallback((e) => {
@@ -536,7 +594,7 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
       </div>
 
       {/* Canvas */}
-      <div ref={canvasRef} className="nc-canvas" onPointerDown={onCanvasMouseDown} onClick={() => setSelectedId(null)}>
+      <div ref={canvasRef} className="nc-canvas" onPointerDown={onPointerDown} onClick={() => setSelectedId(null)}>
         <div
           className="nc-world"
           style={{ transform: `translate(${viewport.x}px,${viewport.y}px) scale(${viewport.scale})`, transformOrigin:'0 0' }}

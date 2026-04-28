@@ -30,18 +30,19 @@ export default function StatsExportModal({ stats, events, onClose }) {
     try {
       const element = printRef.current;
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 1.5, // Reduced from 2 for speed/size balance
         useCORS: true,
-        backgroundColor: theme === 'simple' ? '#ffffff' : '#0c0a08'
+        backgroundColor: theme === 'simple' ? '#ffffff' : '#0c0a08',
+        logging: false,
       });
       
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.85); // Switched to JPEG for smaller file size
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Memoria_Stats_${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+      pdf.save(`Memoria_Yearbook_${new Date().getFullYear()}.pdf`);
     } catch (err) {
       console.error("PDF Export failed", err);
       alert("Failed to export PDF. Please try again.");
@@ -116,7 +117,7 @@ export default function StatsExportModal({ stats, events, onClose }) {
               />
             </div>
 
-            <div className="sem-config-section">
+            <div className="sem-config-section sem-mobile-hidden">
               <label className="sem-label">3. Content Modules</label>
               <div className="sem-toggles">
                 {Object.keys(sections).map(s => (
@@ -132,13 +133,16 @@ export default function StatsExportModal({ stats, events, onClose }) {
               </div>
             </div>
 
-            <button 
-              className={`sem-export-btn ${isExporting ? 'loading' : ''}`}
-              onClick={handleExport}
-              disabled={isExporting}
-            >
-              {isExporting ? 'Generating PDF...' : 'Download PDF Report'}
-            </button>
+            <div className="sem-actions">
+              <button 
+                className={`sem-export-btn ${isExporting ? 'loading' : ''}`}
+                onClick={handleExport}
+                disabled={isExporting}
+              >
+                {isExporting ? 'Creating...' : 'Export PDF'}
+              </button>
+              <p className="sem-note">A4 Landscape Format · High Quality</p>
+            </div>
           </div>
 
           {/* Right: Preview */}

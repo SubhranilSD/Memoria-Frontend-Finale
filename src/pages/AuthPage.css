@@ -283,8 +283,18 @@
 
 @media (max-width: 900px) {
   .auth-left { display: none; }
-  .auth-right { flex: 1; padding: 20px; }
-  .auth-card { padding: 24px; }
+  .auth-right { 
+    flex: 1 1 100% !important; 
+    padding: 40px 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .auth-card { 
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 24px !important; 
+    margin: 0 auto !important;
+  }
 }
 
 .password-input-wrapper {

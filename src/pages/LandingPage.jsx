@@ -36,7 +36,7 @@ export default function LandingPage() {
           </h1>
           <p className="hero-subtitle">
             Memoria is a premium, visual timeline for the moments that shaped you.
-            Capture, organize, and relive your story — with the beauty it deserves.
+            Capture, organize, and relive your story with the beauty it deserves.
           </p>
           <div className="hero-actions">
             <button className="btn btn-primary btn-lg" onClick={() => navigate('/auth?mode=register')}>

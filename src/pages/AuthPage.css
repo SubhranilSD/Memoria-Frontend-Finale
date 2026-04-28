@@ -1,6 +1,8 @@
 .auth-page {
   min-height: 100vh;
   display: flex;
+  justify-content: center; /* Center the right panel */
+  align-items: center;
   position: relative;
   overflow: hidden;
   background: var(--gradient-hero);
@@ -46,13 +48,7 @@
 
 /* Left panel */
 .auth-left {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60px;
-  position: relative;
-  z-index: 1;
+  display: none !important; /* Hide quote panel for centered look */
 }
 
 .auth-left-content { max-width: 400px; }
@@ -123,10 +119,12 @@
 /* Right panel */
 .auth-right {
   flex: 0 0 480px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10vh 40px;
+  justify-content: flex-start; /* Still allows scrolling to note */
+  padding: 10vh 20px;
   position: relative;
   z-index: 1;
   overflow-y: auto;

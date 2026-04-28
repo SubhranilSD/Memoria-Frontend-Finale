@@ -126,7 +126,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80px 40px;
+  padding: 10vh 40px;
   position: relative;
   z-index: 1;
   overflow-y: auto;
@@ -277,52 +277,55 @@
   .auth-card { padding: 24px; }
 }
 
+.auth-footer-container {
+  margin-top: 40vh; /* Pushes the note way down */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  padding-bottom: 60px;
+}
+
 .auth-footer {
-  margin-top: 60px;
-  padding-bottom: 40px;
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.05em;
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-  width: 100%;
+  opacity: 0.6;
+  transition: all 0.3s ease;
 }
 
-.auth-footer:hover { opacity: 1; }
+.auth-footer:hover { opacity: 1; transform: translateY(-2px); }
 
-.sd-logo {
-  width: 28px;
-  height: 28px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+.sd-logo-container {
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 12px;
-  color: var(--accent-gold);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  font-family: 'DM Mono', monospace;
-  position: relative;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.sd-logo::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(45deg, transparent 40%, rgba(196,129,58,0.2) 50%, transparent 60%);
-  animation: logo-shimmer 3s infinite linear;
+.sd-logo-container:hover {
+  border-color: var(--accent-gold);
+  transform: scale(1.1) rotate(5deg);
 }
 
-@keyframes logo-shimmer {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100%); }
+.sd-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(1.2);
 }
 
 .auth-footer p span {
@@ -331,37 +334,45 @@
 }
 
 .makers-note {
-  margin-top: 80px;
+  margin-top: 0;
   width: 100%;
-  max-width: 320px;
   text-align: center;
-  animation: fadeIn 1s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUpFade 1s ease forwards;
+  animation-delay: 1.2s;
+}
+
+@keyframes slideUpFade {
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .note-divider {
   height: 1px;
-  width: 60px;
+  width: 40px;
   background: var(--border-color);
-  margin: 0 auto 30px;
+  margin: 0 auto 20px;
+  opacity: 0.5;
 }
 
 .note-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .note-emoji {
-  font-size: 24px;
-  margin-bottom: 4px;
+  font-size: 18px;
+  margin-bottom: 0;
 }
 
 .makers-note p {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.6;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
   margin: 0;
+  max-width: 280px;
 }
 
 .note-links {

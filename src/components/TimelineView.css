@@ -40,12 +40,23 @@
 }
 
 @media (max-width: 768px) {
-  .timeline-line { left: 20px; transform: none; }
-  .timeline-item { margin-bottom: 32px; padding: 0 0 0 45px !important; flex-direction: row !important; }
-  .timeline-dot-wrapper { left: 20px; transform: translateX(-50%); top: 15px; }
-  .timeline-dot { width: 28px; height: 28px; }
-  .timeline-dot-emoji { font-size: 13px; }
-  .timeline-connector { display: none; }
+  .timeline-view { padding: 10px 0 40px; }
+  .timeline-line { left: 50% !important; transform: translateX(-50%) !important; display: block !important; }
+  .timeline-item { 
+    margin-bottom: 20px !important; 
+    padding-right: calc(50% + 10px) !important; 
+    padding-left: 0 !important;
+    flex-direction: row !important; 
+  }
+  .timeline-item.right {
+    padding-left: calc(50% + 10px) !important;
+    padding-right: 0 !important;
+    flex-direction: row-reverse !important;
+  }
+  .timeline-dot-wrapper { left: 50% !important; transform: translateX(-50%) !important; top: 10px !important; }
+  .timeline-dot { width: 18px !important; height: 18px !important; }
+  .timeline-dot-emoji { font-size: 9px !important; }
+  .timeline-connector { width: 8px !important; top: 18px !important; }
 }
 
 .timeline-dot-wrapper {

@@ -144,7 +144,84 @@
   color: black;
 }
 
+/* Navigation Arrows */
+.hr-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hr-nav-btn:hover {
+  background: white;
+  color: black;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.hr-nav-btn:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+.hr-prev { left: 40px; }
+.hr-next { right: 40px; }
+
+.nav-arrow {
+  font-size: 32px;
+  line-height: 1;
+  margin-top: -4px;
+}
+
 @media (max-width: 768px) {
-  .hr-title { font-size: 32px; }
-  .hr-container { border-radius: 0; }
+  .hr-container { 
+    border-radius: 20px; 
+    max-width: 90vw;
+    max-height: 70vh;
+  }
+  .hr-title { font-size: 28px; }
+  .hr-location { font-size: 14px; }
+  .hr-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .hr-prev { left: 10px; }
+  .hr-next { right: 10px; }
+  .hr-close {
+    top: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  .hr-progress-container {
+    bottom: 20px;
+    gap: 6px;
+  }
+  .hr-progress-bar {
+    width: 30px;
+    height: 3px;
+  }
+  .hr-content {
+    padding: 20px;
+    margin-bottom: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hr-container {
+    max-height: 60vh;
+  }
+  .hr-nav-btn {
+    opacity: 0.5; /* Subtle arrows on tiny screens */
+  }
 }

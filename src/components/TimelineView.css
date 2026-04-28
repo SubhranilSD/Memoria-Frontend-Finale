@@ -40,23 +40,21 @@
 }
 
 @media (max-width: 768px) {
-  .timeline-view { padding: 10px 0 40px; }
-  .timeline-line { left: 50% !important; transform: translateX(-50%) !important; display: block !important; }
+  .timeline-view { padding: 2px 0 10px !important; }
+  .timeline-line { left: 50% !important; transform: translateX(-50%) !important; display: block !important; width: 1px !important; }
   .timeline-item { 
-    margin-bottom: 20px !important; 
-    padding-right: calc(50% + 10px) !important; 
+    margin-bottom: 8px !important; 
+    padding-right: calc(50% + 5px) !important; 
     padding-left: 0 !important;
-    flex-direction: row !important; 
   }
   .timeline-item.right {
-    padding-left: calc(50% + 10px) !important;
+    padding-left: calc(50% + 5px) !important;
     padding-right: 0 !important;
-    flex-direction: row-reverse !important;
   }
-  .timeline-dot-wrapper { left: 50% !important; transform: translateX(-50%) !important; top: 10px !important; }
-  .timeline-dot { width: 18px !important; height: 18px !important; }
-  .timeline-dot-emoji { font-size: 9px !important; }
-  .timeline-connector { width: 8px !important; top: 18px !important; }
+  .timeline-dot-wrapper { left: 50% !important; transform: translateX(-50%) !important; top: 4px !important; }
+  .timeline-dot { width: 10px !important; height: 10px !important; }
+  .timeline-dot-emoji { font-size: 6px !important; }
+  .timeline-connector { width: 4px !important; top: 9px !important; }
 }
 
 .timeline-dot-wrapper {

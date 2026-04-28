@@ -124,12 +124,15 @@
 .auth-right {
   flex: 0 0 480px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 40px;
+  padding: 80px 40px;
   position: relative;
   z-index: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
+.auth-right::-webkit-scrollbar { display: none; }
 
 .auth-card {
   width: 100%;
@@ -270,5 +273,116 @@
 
 @media (max-width: 900px) {
   .auth-left { display: none; }
-  .auth-right { flex: 1; }
+  .auth-right { flex: 1; padding: 20px; }
+  .auth-card { padding: 24px; }
+}
+
+.auth-footer {
+  margin-top: 60px;
+  padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+  width: 100%;
+}
+
+.auth-footer:hover { opacity: 1; }
+
+.sd-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--accent-gold);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-family: 'DM Mono', monospace;
+  position: relative;
+  overflow: hidden;
+}
+
+.sd-logo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 40%, rgba(196,129,58,0.2) 50%, transparent 60%);
+  animation: logo-shimmer 3s infinite linear;
+}
+
+@keyframes logo-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.auth-footer p span {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.makers-note {
+  margin-top: 80px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  animation: fadeIn 1s ease;
+}
+
+.note-divider {
+  height: 1px;
+  width: 60px;
+  background: var(--border-color);
+  margin: 0 auto 30px;
+}
+
+.note-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.note-emoji {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.makers-note p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.note-links {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.note-links a {
+  color: var(--accent-gold);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.note-links a:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.note-links span {
+  color: var(--text-muted);
 }

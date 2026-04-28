@@ -1,0 +1,123 @@
+/* ══════════════════════════════════
+   VAULT OVERLAY
+   ══════════════════════════════════ */
+
+.vault-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vault-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+}
+
+.vault-modal {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.vault-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.vault-close:hover { background: var(--border-color); color: var(--text-primary); }
+
+.vault-header { margin-bottom: 30px; }
+.vault-icon { font-size: 40px; margin-bottom: 12px; }
+.vault-header h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin: 0 0 8px; color: var(--text-primary); }
+.vault-header p { font-size: 13px; color: var(--text-secondary); margin: 0; }
+
+.vault-dots {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.vault-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  transition: all 0.2s ease;
+}
+
+.vault-dot.filled {
+  background: var(--accent-indigo);
+  border-color: var(--accent-indigo);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+
+.vault-dot.error {
+  border-color: var(--accent-rose);
+}
+.vault-dot.filled.error {
+  background: var(--accent-rose);
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.4);
+}
+
+.vault-error {
+  color: var(--accent-rose);
+  font-size: 12px;
+  margin-bottom: 20px;
+  height: 14px;
+}
+
+.vault-numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.vault-num-btn {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.1s;
+}
+
+.vault-num-btn:hover { background: var(--border-strong); }
+.vault-num-btn:active { transform: scale(0.95); }
+
+.vault-num-btn.action {
+  background: var(--accent-indigo);
+  color: white;
+  border: none;
+}
+.vault-num-btn.action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

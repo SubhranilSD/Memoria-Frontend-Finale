@@ -1,0 +1,168 @@
+/* Timeline layout */
+.timeline-view {
+  position: relative;
+  padding: 20px 0 60px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--timeline-line);
+  transform: translateX(-50%);
+  border-radius: 999px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 48px;
+  position: relative;
+  animation: fadeIn 0.6s ease both;
+}
+
+.timeline-item.left {
+  flex-direction: row;
+  padding-right: calc(50% + 40px);
+}
+
+.timeline-item.right {
+  flex-direction: row-reverse;
+  padding-left: calc(50% + 40px);
+}
+
+.timeline-dot-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.timeline-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px currentColor;
+  position: relative;
+  z-index: 2;
+  cursor: default;
+}
+
+.timeline-dot-emoji {
+  font-size: 16px;
+  line-height: 1;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.3));
+}
+
+.timeline-dot-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  opacity: 0.3;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+.timeline-connector {
+  position: absolute;
+  top: 38px; /* Centered relative to the 36px dot */
+  height: 2px;
+  width: 32px;
+  background: rgba(255,255,255,0.15);
+  z-index: 1;
+}
+
+.right-connector {
+  left: calc(50% + 18px);
+}
+
+.left-connector {
+  right: calc(50% + 18px);
+}
+
+.timeline-card-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.drag-handle {
+  position: absolute;
+  top: 8px;
+  right: -28px;
+  font-size: 18px;
+  color: var(--text-muted);
+  cursor: grab;
+  z-index: 10;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.drag-handle:hover { color: var(--accent-gold); }
+.drag-handle:active { cursor: grabbing; }
+
+.timeline-item.dragging .timeline-card-wrapper {
+  transform: rotate(1.5deg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Branching Timeline Clusters */
+.branch-cluster {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 24px;
+  /* hide scrollbar */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.branch-cluster::-webkit-scrollbar {
+  display: none;
+}
+
+.branch-item {
+  flex: 0 0 400px; /* fixed width for cards inside a branch */
+  max-width: 90vw;
+  position: relative;
+  transition: transform 0.3s;
+}
+.branch-item:hover {
+  transform: translateY(-8px);
+}
+
+.branch-indicator {
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+  padding: 0 12px;
+  pointer-events: none;
+}
+
+/* Grid view */
+.grid-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding-bottom: 40px;
+}
+
+.grid-item {
+  transition: transform 0.2s ease;
+}
+.grid-item.dragging {
+  transform: rotate(2deg);
+  z-index: 100;
+}

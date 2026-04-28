@@ -1,0 +1,125 @@
+.timeline-page {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.timeline-main {
+  flex: 1;
+  padding: 36px 40px;
+  overflow-y: auto;
+  min-height: 100vh;
+  background: var(--gradient-hero);
+}
+
+.timeline-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  gap: 20px;
+}
+
+.timeline-heading {
+  font-size: 32px;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.timeline-subheading {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.timeline-loading { padding: 20px 0; }
+
+.timeline-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 40px;
+  gap: 16px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  color: var(--accent-gold);
+  line-height: 1;
+}
+
+.timeline-empty h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  color: var(--text-primary);
+}
+
+.timeline-empty p {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 360px;
+  line-height: 1.65;
+}
+
+@media (max-width: 768px) {
+  .timeline-main { padding: 20px 16px; }
+  .timeline-header { flex-direction: column; }
+}
+
+/* Search bar */
+.timeline-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0 12px;
+  gap: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 220px;
+}
+
+.search-bar:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-gold) 12%, transparent);
+}
+
+.search-icon {
+  color: var(--text-muted);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-primary);
+  padding: 9px 0;
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+
+.search-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.search-clear:hover { color: var(--text-primary); }

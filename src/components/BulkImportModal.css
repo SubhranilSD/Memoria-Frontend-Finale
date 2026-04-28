@@ -1,0 +1,229 @@
+.bulk-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.bulk-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  padding: 40px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+.bulk-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.bulk-close:hover { color: var(--text-primary); }
+.bulk-close:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.bulk-dropzone {
+  border: 2px dashed var(--border-strong);
+  border-radius: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: var(--bg-secondary);
+}
+.bulk-dropzone:hover, .bulk-dropzone.dragover {
+  border-color: var(--accent-indigo);
+  background: rgba(91, 114, 196, 0.1);
+}
+
+.bulk-drop-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.bulk-mode-selector {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.bulk-mode-btn {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  background: var(--bg-secondary);
+  transition: all 0.2s;
+}
+.bulk-mode-btn input {
+  margin-top: 4px;
+}
+.bulk-mode-btn div {
+  display: flex;
+  flex-direction: column;
+}
+.bulk-mode-btn strong {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+.bulk-mode-btn span {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.bulk-mode-btn:hover {
+  border-color: var(--border-strong);
+}
+.bulk-mode-btn.active {
+  border-color: var(--accent-indigo);
+  background: rgba(91, 114, 196, 0.05);
+  box-shadow: 0 0 0 1px var(--accent-indigo);
+}
+
+.bulk-progress-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  max-width: 400px;
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  margin: 16px auto;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-indigo);
+  transition: width 0.3s ease;
+}
+
+.bulk-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-bottom: 24px;
+}
+
+.bulk-preview-card {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.bulk-preview-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.bulk-preview-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 160px;
+}
+.bulk-preview-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bulk-preview-img-count {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+}
+
+.bulk-preview-info {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bulk-inline-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 6px 10px;
+  font-size: 13px;
+  width: 100%;
+}
+.bulk-inline-input.small {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.bulk-preview-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.bulk-preview-meta span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bulk-remove-item {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+.bulk-remove-item:hover {
+  background: var(--accent-rose);
+}
+
+.bulk-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}

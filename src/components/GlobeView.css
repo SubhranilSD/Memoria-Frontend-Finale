@@ -1,0 +1,115 @@
+/* ══════════════════════════════════
+   GLOBE VIEW
+   ══════════════════════════════════ */
+
+.globe-wrapper {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 160px);
+  min-height: 500px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: #000;
+}
+
+.globe-overlay-hud {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 10;
+  pointer-events: none;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.globe-overlay-hud h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  margin: 0 0 4px;
+}
+
+.globe-overlay-hud p {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Detail Card */
+.globe-detail {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  width: 320px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+}
+
+.globe-detail-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+
+.globe-detail-bar { height: 4px; width: 100%; }
+
+.globe-detail-content {
+  padding: 20px;
+  color: white;
+}
+
+.globe-detail-content h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  margin: 0 0 6px;
+  color: white;
+}
+
+.globe-detail-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 8px;
+}
+
+.globe-detail-loc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 12px;
+}
+
+.globe-detail-content p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+}
+
+.globe-detail-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}

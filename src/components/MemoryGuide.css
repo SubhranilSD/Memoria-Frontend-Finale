@@ -1,0 +1,59 @@
+.memory-guide-card {
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(196, 129, 58, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mg-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mg-icon {
+  font-size: 20px;
+}
+
+.mg-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: var(--accent-indigo);
+}
+
+.mg-title {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: white;
+}
+
+.mg-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.mg-action-btn {
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mg-action-btn:hover {
+  background: var(--accent-indigo);
+  border-color: var(--accent-indigo);
+}

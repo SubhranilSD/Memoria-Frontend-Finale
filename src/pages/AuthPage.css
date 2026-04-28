@@ -91,15 +91,6 @@
   gap: 24px;
   align-items: center;
 }
-.auth-timeline.auth-footer {
-  margin-top: 40px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 40px;
-}
 .auth-timeline-dot {
   display: flex;
   flex-direction: column;
@@ -141,6 +132,35 @@
   z-index: 1;
   overflow-y: auto;
   scrollbar-width: none;
+}
+
+.auth-back-btn {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.auth-back-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.05);
+  transform: translateX(-4px);
+}
+
+.back-arrow {
+  font-size: 16px;
+  line-height: 1;
 }
 .auth-right::-webkit-scrollbar { display: none; }
 
@@ -282,18 +302,46 @@
 }
 
 @media (max-width: 900px) {
-  .auth-left { display: none; }
+  .auth-page {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .auth-left { 
+    display: none !important; 
+  }
   .auth-right { 
-    flex: 1 1 100% !important; 
-    padding: 40px 16px !important;
+    flex: 1 1 auto !important; 
     width: 100% !important;
     max-width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    padding: 60px 20px !important; /* Adjusted top padding for back button */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    overflow-y: visible !important;
+  }
+  .auth-back-btn {
+    top: 15px !important;
+    left: 15px !important;
   }
   .auth-card { 
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 420px !important;
     padding: 24px !important; 
     margin: 0 auto !important;
+    animation: none !important; /* Disable animations on mobile to prevent layout jumps */
+    transform: none !important;
+  }
+  .auth-footer-container {
+    margin-top: 40px !important; /* Bring note closer on mobile */
+    padding-bottom: 40px !important;
+  }
+  .makers-note {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -330,7 +378,7 @@
 }
 
 .auth-footer-container {
-  margin-top: 40vh; /* Pushes the note way down */
+  margin-top: 60vh; /* Original scroll-reveal distance */
   display: flex;
   flex-direction: column;
   align-items: center;

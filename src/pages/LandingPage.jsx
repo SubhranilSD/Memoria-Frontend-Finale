@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import './LandingPage.css';
+import sdLogo from '../assets/sd-logo.png';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -95,8 +96,34 @@ export default function LandingPage() {
       </section>
 
       <footer className="landing-footer">
-        <span className="logo-star">✦</span>
-        <span>Memoria — Your Life, Your Story</span>
+        <div className="footer-top">
+          <div className="landing-logo-group">
+            <span className="logo-star">✦</span>
+            <span>Memoria — Your Life, Your Story</span>
+          </div>
+        </div>
+
+        <div className="landing-maker-section">
+          <div className="makers-note">
+            <div className="note-content">
+              <span className="note-emoji">👋</span>
+              <p><strong>Hi, I'm Subhranil!</strong><br />
+              I built Memoria to help you cherish your story. If you're enjoying the experience, I'd love to hear from you!</p>
+              <div className="note-links">
+                <a href="https://github.com/SubhranilSD" target="_blank" rel="noreferrer">GitHub</a>
+                <span>•</span>
+                <a href="https://www.linkedin.com/in/subhranildutta/" target="_blank" rel="noreferrer">LinkedIn</a>
+              </div>
+            </div>
+          </div>
+
+          <div className="sd-branding">
+            <div className="sd-logo-container">
+              <img src={sdLogo} alt="SD Logo" className="sd-logo-img" />
+            </div>
+            <p>Made with ❤️ by <span>Subhranil Dutta</span></p>
+          </div>
+        </div>
       </footer>
     </div>
   );

@@ -227,15 +227,93 @@
 
 /* Footer */
 .landing-footer {
-  text-align: center;
-  padding: 30px;
+  padding: 80px 20px;
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
   border-top: 1px solid var(--border-color);
-  font-size: 13px;
-  color: var(--text-muted);
+  text-align: center;
+}
+
+.footer-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.landing-logo-group {
   display: flex;
   align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.landing-maker-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  max-width: 500px;
+}
+
+.makers-note p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 10px 0;
+}
+
+.note-links {
+  display: flex;
+  gap: 16px;
   justify-content: center;
+  margin-top: 12px;
+}
+
+.note-links a {
+  color: var(--accent-gold);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sd-branding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  width: 200px;
+}
+
+.sd-logo-container {
+  width: 60px;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.sd-logo-container:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.sd-logo-img {
+  width: 100%;
+  height: auto;
+  mix-blend-mode: screen;
+}
+
+.sd-branding p {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sd-branding p span {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 @media (max-width: 900px) {

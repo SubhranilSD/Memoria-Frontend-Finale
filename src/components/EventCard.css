@@ -139,9 +139,12 @@
 }
 
 @media (max-width: 600px) {
-  .event-card-media { height: 45px !important; }
+  .event-card-media { 
+    aspect-ratio: 1 / 1 !important; 
+    height: auto !important;
+  }
   .event-card-title { font-size: 8px !important; margin-bottom: 1px !important; line-height: 1 !important; }
-  .event-card-desc { font-size: 6px !important; line-height: 1.2 !important; -webkit-line-clamp: 1 !important; margin-bottom: 2px !important; }
+  .event-card-desc { font-size: 6px !important; line-height: 1.2 !important; -webkit-line-clamp: 2 !important; margin-bottom: 2px !important; }
   .event-card-body { padding: 4px 6px !important; }
   .event-card-location { font-size: 6px !important; margin-bottom: 1px !important; }
   .event-card-date { font-size: 6px !important; margin-bottom: 0px !important; opacity: 0.8; }

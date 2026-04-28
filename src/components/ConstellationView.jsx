@@ -42,100 +42,62 @@ function computeLinks(events) {
   return links;
 }
 
-/* ── Simple force simulation (no d3 dependency) ── */
-function useForceSimulation(events, links, canvasW, canvasH) {
-  const [nodes, setNodes] = useState({});
-  const frameRef = useRef(null);
-  const velocities = useRef({});
-  const running = useRef(true);
+/* ── Background Stars ── */
+const BackgroundStars = ({ width, height }) => {
+  const stars = useMemo(() => {
+    return Array.from({ length: 150 }).map(() => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 1.5,
+      opacity: Math.random() * 0.4 + 0.1,
+      duration: Math.random() * 3 + 2
+    }));
+  }, [width, height]);
 
-  useEffect(() => {
-    // Initialize positions in a circle
-    const initial = {};
-    const vels = {};
-    const cx = canvasW / 2, cy = canvasH / 2;
-    const radius = Math.min(canvasW, canvasH) * 0.35;
-    events.forEach((ev, i) => {
-      const angle = (i / events.length) * Math.PI * 2;
-      initial[ev._id] = { x: cx + Math.cos(angle) * radius + (Math.random() - 0.5) * 40, y: cy + Math.sin(angle) * radius + (Math.random() - 0.5) * 40 };
-      vels[ev._id] = { vx: 0, vy: 0 };
-    });
-    velocities.current = vels;
-    setNodes(initial);
-    running.current = true;
+  return (
+    <g className="bg-stars">
+      {stars.map((star, i) => (
+        <motion.circle
+          key={i}
+          cx={star.x}
+          cy={star.y}
+          r={star.size}
+          fill="white"
+          initial={{ opacity: star.opacity }}
+          animate={{ opacity: [star.opacity, star.opacity * 0.3, star.opacity] }}
+          transition={{ duration: star.duration, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ))}
+    </g>
+  );
+};
 
-    let tick = 0;
-    const maxTicks = 200;
-    const simulate = () => {
-      if (!running.current || tick >= maxTicks) return;
-      tick++;
-      const alpha = 1 - tick / maxTicks;
-      const damping = 0.92;
-      const repulsion = 3000;
-      const attraction = 0.008;
-      const centerPull = 0.002;
-
-      setNodes(prev => {
-        const next = {};
-        const ids = Object.keys(prev);
-
-        // Reset forces
-        const forces = {};
-        ids.forEach(id => { forces[id] = { fx: 0, fy: 0 }; });
-
-        // Repulsion (all pairs)
-        for (let i = 0; i < ids.length; i++) {
-          for (let j = i + 1; j < ids.length; j++) {
-            const a = prev[ids[i]], b = prev[ids[j]];
-            let dx = b.x - a.x, dy = b.y - a.y;
-            const dist = Math.max(Math.sqrt(dx*dx + dy*dy), 10);
-            const force = repulsion / (dist * dist) * alpha;
-            const fx = (dx / dist) * force;
-            const fy = (dy / dist) * force;
-            forces[ids[i]].fx -= fx; forces[ids[i]].fy -= fy;
-            forces[ids[j]].fx += fx; forces[ids[j]].fy += fy;
-          }
-        }
-
-        // Attraction (links)
-        links.forEach(link => {
-          const a = prev[link.source], b = prev[link.target];
-          if (!a || !b) return;
-          const dx = b.x - a.x, dy = b.y - a.y;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          const force = attraction * link.strength * alpha;
-          const fx = dx * force, fy = dy * force;
-          if (forces[link.source]) { forces[link.source].fx += fx; forces[link.source].fy += fy; }
-          if (forces[link.target]) { forces[link.target].fx -= fx; forces[link.target].fy -= fy; }
-        });
-
-        // Center gravity
-        ids.forEach(id => {
-          const p = prev[id];
-          forces[id].fx += (cx - p.x) * centerPull * alpha;
-          forces[id].fy += (cy - p.y) * centerPull * alpha;
-        });
-
-        // Apply
-        ids.forEach(id => {
-          const p = prev[id];
-          const v = velocities.current[id] || { vx: 0, vy: 0 };
-          v.vx = (v.vx + forces[id].fx) * damping;
-          v.vy = (v.vy + forces[id].fy) * damping;
-          next[id] = { x: p.x + v.vx, y: p.y + v.vy };
-          velocities.current[id] = v;
-        });
-        return next;
-      });
-
-      frameRef.current = requestAnimationFrame(simulate);
-    };
-    frameRef.current = requestAnimationFrame(simulate);
-
-    return () => { running.current = false; cancelAnimationFrame(frameRef.current); };
-  }, [events, links, canvasW, canvasH]);
-
-  return nodes;
+/* ── Compute chronological layout ── */
+function computeTimelinePositions(events, w, h) {
+  if (events.length === 0) return {};
+  const sorted = [...events].sort((a,b) => new Date(a.date) - new Date(b.date));
+  const minDate = new Date(sorted[0].date).getTime();
+  const maxDate = new Date(sorted[sorted.length-1].date).getTime();
+  const timeRange = Math.max(maxDate - minDate, 1);
+  
+  const positions = {};
+  const padding = 100;
+  
+  sorted.forEach((ev, i) => {
+    const timeRatio = (new Date(ev.date).getTime() - minDate) / timeRange;
+    
+    // Create a wave/constellation pattern
+    // X progresses with time
+    const x = padding + timeRatio * (w - padding * 2);
+    
+    // Y oscillates to create a natural constellation look
+    const angle = timeRatio * Math.PI * 4; // 2 full waves
+    const y = h / 2 + Math.sin(angle + i) * (h * 0.25) + (Math.random() - 0.5) * 40;
+    
+    positions[ev._id] = { x, y, index: i };
+  });
+  
+  return positions;
 }
 
 /* ── Main ── */
@@ -157,7 +119,7 @@ export default function ConstellationView({ events }) {
   }, []);
 
   const links = useMemo(() => computeLinks(events), [events]);
-  const nodes = useForceSimulation(events, links, dims.w, dims.h);
+  const nodes = useMemo(() => computeTimelinePositions(events, dims.w, dims.h), [events, dims.w, dims.h]);
   const evMap = useMemo(() => { const m = {}; events.forEach(ev => { m[ev._id] = ev; }); return m; }, [events]);
 
   const selectedEv = selected ? evMap[selected] : null;
@@ -188,11 +150,13 @@ export default function ConstellationView({ events }) {
 
       <svg className="cv-svg" width={dims.w} height={dims.h}>
         <defs>
-          <filter id="cv-glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          <filter id="cv-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
+
+        <BackgroundStars width={dims.w} height={dims.h} />
 
         {/* Links */}
         {links.map((link, i) => {
@@ -206,17 +170,39 @@ export default function ConstellationView({ events }) {
             <g key={`${link.source}-${link.target}`}>
               <defs>
                 <linearGradient id={gradId} x1={a.x} y1={a.y} x2={b.x} y2={b.y} gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor={colorA} stopOpacity={isHighlighted ? 0.6 : 0.15} />
-                  <stop offset="100%" stopColor={colorB} stopOpacity={isHighlighted ? 0.6 : 0.15} />
+                  <stop offset="0%" stopColor={colorA} stopOpacity={isHighlighted ? 0.4 : 0.08} />
+                  <stop offset="100%" stopColor={colorB} stopOpacity={isHighlighted ? 0.4 : 0.08} />
                 </linearGradient>
               </defs>
-              <line
+              <motion.line
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 1.5, delay: i * 0.01 }}
                 x1={a.x} y1={a.y} x2={b.x} y2={b.y}
                 stroke={`url(#${gradId})`}
-                strokeWidth={isHighlighted ? 2 : Math.min(link.strength * 0.3, 1.5)}
+                strokeWidth={isHighlighted ? 2 : 1}
                 className={isHighlighted ? 'cv-link--active' : ''}
               />
             </g>
+          );
+        })}
+
+        {/* Main chronological path */}
+        {events.length > 1 && [...events].sort((a,b) => new Date(a.date) - new Date(b.date)).map((ev, i, arr) => {
+          if (i === 0) return null;
+          const a = nodes[arr[i-1]._id];
+          const b = nodes[ev._id];
+          if (!a || !b) return null;
+          return (
+            <motion.line
+              key={`path-${i}`}
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 0.2 }}
+              x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+              stroke="white"
+              strokeWidth="0.5"
+              strokeDasharray="4 4"
+            />
           );
         })}
 
@@ -228,41 +214,52 @@ export default function ConstellationView({ events }) {
           const isActive = hovered === ev._id || (hovered && hoveredLinks.has(ev._id));
           const isSelected = selected === ev._id;
           const linkCount = links.filter(l => l.source === ev._id || l.target === ev._id).length;
-          const r = Math.min(8 + linkCount * 1.5, 18);
+          const r = Math.min(4 + linkCount, 10);
 
           return (
-            <g key={ev._id}
+            <motion.g key={ev._id}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: (pos.index || 0) * 0.05 }}
               onClick={() => setSelected(prev => prev === ev._id ? null : ev._id)}
               onMouseEnter={() => setHovered(ev._id)}
               onMouseLeave={() => setHovered(null)}
               style={{ cursor: 'pointer' }}
             >
-              {/* Outer glow */}
-              {(isActive || isSelected) && (
-                <circle cx={pos.x} cy={pos.y} r={r + 8} fill={color} opacity={0.12} filter="url(#cv-glow)" />
-              )}
-              {/* Outer ring */}
-              <circle cx={pos.x} cy={pos.y} r={r + 3}
-                fill="none" stroke={color} strokeWidth="1" strokeOpacity={isActive ? 0.6 : 0.2}
+              {/* Pulsing Outer Glow */}
+              <motion.circle 
+                cx={pos.x} cy={pos.y} r={r + 15} 
+                fill={color} 
+                animate={{ opacity: [0.05, 0.15, 0.05], scale: [1, 1.2, 1] }}
+                transition={{ duration: 3 + Math.random() * 2, repeat: Infinity }}
+                filter="url(#cv-glow)"
               />
-              {/* Main dot */}
-              <circle cx={pos.x} cy={pos.y} r={r}
-                fill={color} opacity={isActive || isSelected ? 0.9 : 0.55}
-                filter={isActive ? 'url(#cv-glow)' : undefined}
+              
+              {/* Main Dot */}
+              <circle cx={pos.x} cy={pos.y} r={isSelected ? r + 3 : r}
+                fill={color} 
+                className="cv-node-main"
+                style={{ filter: 'url(#cv-glow)' }}
               />
-              {/* Core white dot */}
-              <circle cx={pos.x} cy={pos.y} r={Math.max(r * 0.35, 2)}
-                fill="white" opacity={0.8}
-              />
+              
+              {/* Core Star */}
+              <circle cx={pos.x} cy={pos.y} r={2} fill="white" opacity={0.9} />
+
               {/* Label */}
               {(isActive || isSelected) && (
-                <text x={pos.x} y={pos.y - r - 8} textAnchor="middle"
-                  fill="var(--text-primary)" fontSize="11" fontWeight="600"
-                  fontFamily="'DM Sans', sans-serif">
-                  {ev.title?.slice(0, 20)}
-                </text>
+                <motion.g initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                  <text x={pos.x} y={pos.y - r - 12} textAnchor="middle"
+                    fill="white" fontSize="10" fontWeight="500"
+                    style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                    {ev.title}
+                  </text>
+                  <text x={pos.x} y={pos.y - r - 2} textAnchor="middle"
+                    fill="rgba(255,255,255,0.6)" fontSize="8">
+                    {new Date(ev.date).toLocaleDateString()}
+                  </text>
+                </motion.g>
               )}
-            </g>
+            </motion.g>
           );
         })}
       </svg>

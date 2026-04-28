@@ -12,6 +12,7 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login, register } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -159,15 +160,25 @@ export default function AuthPage() {
                     </button>
                   )}
                 </div>
-                <input
-                  className="input"
-                  type="password"
-                  placeholder={mode === 'register' ? 'At least 6 characters' : '••••••••'}
-                  value={form.password}
-                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                  required
-                  minLength={6}
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    className="input"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder={mode === 'register' ? 'At least 6 characters' : '••••••••'}
+                    value={form.password}
+                    onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                    required
+                    minLength={6}
+                  />
+                  <button 
+                    type="button" 
+                    className="password-toggle" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex="-1"
+                  >
+                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -260,7 +271,6 @@ export default function AuthPage() {
             <p>Made with ❤️ by <span>Subhranil Dutta</span></p>
           </div>
         </div>
-      </div>
     </div>
   );
 }

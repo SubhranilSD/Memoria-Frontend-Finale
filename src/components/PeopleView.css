@@ -156,32 +156,6 @@
   align-items: center;
 }
 
-.btn-save-cloud {
-  background: var(--bg-card);
-  border: 1px solid var(--accent-indigo) !important;
-  color: var(--accent-indigo) !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 12px rgba(91, 114, 196, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-save-cloud:hover:not(:disabled) {
-  background: var(--accent-indigo);
-  color: white !important;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(91, 114, 196, 0.2);
-}
-
-.btn-save-cloud:active {
-  transform: translateY(0);
-}
-
-.btn-save-cloud:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  border-color: var(--border-color) !important;
-  color: var(--text-muted) !important;
-}
 
 .selection-toolbar {
   background: var(--bg-card);

@@ -3,42 +3,42 @@
 
 /* ===== CSS VARIABLES ===== */
 :root {
-  /* Light Mode */
-  --bg-primary: #faf8f5;
-  --bg-secondary: #f2ede8;
-  --bg-card: rgba(255, 255, 255, 0.75);
-  --bg-card-hover: rgba(255, 255, 255, 0.92);
-  --bg-glass: rgba(255, 255, 255, 0.6);
-  --bg-modal: rgba(250, 248, 245, 0.97);
-  --bg-input: rgba(255, 255, 255, 0.9);
-  --bg-sidebar: rgba(242, 237, 232, 0.95);
+  /* Light Mode - Luxury Golden & White Aesthetic */
+  --bg-primary: #ffffff;
+  --bg-secondary: #fcfaf7;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-card-hover: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-modal: #ffffff;
+  --bg-input: #ffffff;
+  --bg-sidebar: #fdfbf8;
 
-  --text-primary: #1a1410;
-  --text-secondary: #5a4f46;
-  --text-muted: #9c8f86;
-  --text-inverse: #faf8f5;
+  --text-primary: #0a0a0a;
+  --text-secondary: #3d3832;
+  --text-muted: #807a72;
+  --text-inverse: #ffffff;
 
-  --border-color: rgba(90, 79, 70, 0.12);
-  --border-strong: rgba(90, 79, 70, 0.25);
-  --border-focus: rgba(180, 120, 60, 0.5);
+  --border-color: rgba(197, 160, 89, 0.18);
+  --border-strong: rgba(197, 160, 89, 0.3);
+  --border-focus: #c5a059;
 
-  --accent-gold: #c4813a;
-  --accent-gold-light: #e8a85a;
-  --accent-rose: #c46080;
-  --accent-sage: #6b8f71;
-  --accent-indigo: #5b72c4;
-  --accent-amber: #d4922a;
+  --accent-gold: #c5a059;
+  --accent-gold-light: #dec18c;
+  --accent-rose: #d67a9a;
+  --accent-sage: #8ab692;
+  --accent-indigo: #7a8ed6;
+  --accent-amber: #f2a63d;
 
-  --shadow-sm: 0 1px 4px rgba(26, 20, 16, 0.06), 0 2px 8px rgba(26, 20, 16, 0.04);
-  --shadow-md: 0 4px 16px rgba(26, 20, 16, 0.08), 0 8px 32px rgba(26, 20, 16, 0.04);
-  --shadow-lg: 0 8px 32px rgba(26, 20, 16, 0.12), 0 16px 64px rgba(26, 20, 16, 0.06);
-  --shadow-glow: 0 0 40px rgba(196, 129, 58, 0.15);
+  --shadow-sm: 0 2px 8px rgba(197, 160, 89, 0.06);
+  --shadow-md: 0 8px 32px rgba(197, 160, 89, 0.1);
+  --shadow-lg: 0 16px 56px rgba(197, 160, 89, 0.15);
+  --shadow-glow: 0 0 50px rgba(197, 160, 89, 0.12);
 
-  --timeline-line: linear-gradient(to bottom, transparent, #c4813a 10%, #c46080 50%, #5b72c4 90%, transparent);
+  --timeline-line: linear-gradient(to bottom, transparent, #c5a059 15%, #f2a63d 50%, #c5a059 85%, transparent);
 
-  --gradient-hero: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(196, 129, 58, 0.12) 0%, transparent 70%),
-                   radial-gradient(ellipse 60% 40% at 80% 80%, rgba(196, 96, 128, 0.08) 0%, transparent 60%),
-                   linear-gradient(135deg, #faf8f5 0%, #f5ede4 50%, #ede5f0 100%);
+  --gradient-hero: radial-gradient(circle at 50% -20%, rgba(197, 160, 89, 0.12) 0%, transparent 70%),
+                   radial-gradient(circle at 100% 100%, rgba(242, 166, 61, 0.08) 0%, transparent 60%),
+                   linear-gradient(to bottom, #ffffff, #fcfaf7);
 }
 
 [data-theme="dark"] {

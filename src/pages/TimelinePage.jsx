@@ -97,7 +97,7 @@ export default function TimelinePage() {
       const res = await api.post('/events', data);
       setEvents(prev => [res.data, ...prev]);
       showToast('Memory added ✦');
-      setShowModal(false);
+      // Removed setShowModal(false) to allow the modal to show its success state
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to create', 'error');
     }

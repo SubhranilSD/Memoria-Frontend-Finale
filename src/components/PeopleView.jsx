@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { loadFaceModels, processEventsForFaces, createFaceCrop, createOptimizedImage } from '../utils/faceUtils';
+import { loadFaceModels, processEventsForFaces, createFaceCrop, createOptimizedImage, saveFaceToDisk, getFaceFromDisk } from '../utils/faceUtils';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import TimelineView from './TimelineView';
@@ -40,7 +40,8 @@ export default function PeopleView({ events, onEdit, onDelete }) {
   const reconstructedClusters = useMemo(() => {
     return clusters.map(c => ({
       ...c,
-      faceUrl: reconstructedThumbs[c.id] || c.faceUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=random&color=fff`
+      // Priority: 1. Reconstructed Thumb (Local) -> 2. Existing faceUrl (if valid) -> 3. Avatar (Fallback)
+      faceUrl: reconstructedThumbs[c.id] || (c.faceUrl && c.faceUrl.length > 50 ? c.faceUrl : null) || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=random&color=fff`
     }));
   }, [clusters, reconstructedThumbs]);
 
@@ -51,14 +52,23 @@ export default function PeopleView({ events, onEdit, onDelete }) {
       let changed = false;
 
       for (const cluster of clusters) {
-        if (!reconstructedThumbs[cluster.id] && cluster.representativeMediaUrl && cluster.faceBox) {
-          try {
-            const img = await createOptimizedImage(cluster.representativeMediaUrl);
-            const thumbUrl = createFaceCrop(img, cluster.faceBox);
-            newThumbs[cluster.id] = thumbUrl;
+        if (!newThumbs[cluster.id]) {
+          // 1. Check disk cache first
+          const saved = await getFaceFromDisk(cluster.id);
+          if (saved) {
+            newThumbs[cluster.id] = saved;
             changed = true;
-          } catch (e) {
-            console.warn(`Failed to reconstruct thumb for ${cluster.name}`, e);
+          } else if (cluster.representativeMediaUrl && cluster.faceBox) {
+            // 2. Reconstruct if missing
+            try {
+              const img = await createOptimizedImage(cluster.representativeMediaUrl);
+              const thumbUrl = createFaceCrop(img, cluster.faceBox);
+              newThumbs[cluster.id] = thumbUrl;
+              saveFaceToDisk(cluster.id, thumbUrl); // Cache for later
+              changed = true;
+            } catch (e) {
+              console.warn(`Failed to reconstruct thumb for ${cluster.name}`, e);
+            }
           }
         }
       }
@@ -122,7 +132,20 @@ export default function PeopleView({ events, onEdit, onDelete }) {
   const saveToLocal = (updatedClusters, updatedGroups, updatedBdays) => {
     if (updatedClusters !== undefined && updatedClusters !== null) {
       setClusters(updatedClusters);
-      localStorage.setItem(CLUSTERS_KEY, JSON.stringify(updatedClusters));
+      
+      // Save heavy images to IndexedDB and strip them from localStorage payload
+      updatedClusters.forEach(c => {
+        if (c.faceUrl && c.faceUrl.length > 50) {
+          saveFaceToDisk(c.id, c.faceUrl);
+        }
+      });
+
+      const minimal = updatedClusters.map(({ faceUrl, ...rest }) => rest);
+      try {
+        localStorage.setItem(CLUSTERS_KEY, JSON.stringify(minimal));
+      } catch (e) {
+        console.error("Storage save failed", e);
+      }
     }
     if (updatedGroups !== undefined && updatedGroups !== null) {
       setGroups(updatedGroups);
@@ -134,40 +157,16 @@ export default function PeopleView({ events, onEdit, onDelete }) {
     }
   };
 
-  const handleSaveToBackend = async () => {
-    if (!user) return;
-    setSyncing(true);
-    try {
-      // Stripping heavy base64 strings if any exist before sending to cloud
-      const cleanClusters = clusters.map(c => {
-        const { faceUrl, ...rest } = c;
-        return rest;
-      });
-
-      await api.post('/people', {
-        clusters: cleanClusters,
-        groups,
-        birthdays
-      });
-      setLastSynced(new Date());
-      alert("People profiles saved securely to cloud ✦");
-    } catch (err) {
-      console.error("Cloud sync failed:", err);
-      alert("Failed to save to cloud. Payload might be too large.");
-    } finally {
-      setSyncing(false);
-    }
-  };
 
   const [scanStatus, setScanStatus] = useState('');
 
   const handleScan = async () => {
+    if (loading) return;
     setLoading(true);
     setProgress(0);
     setScanStatus('Initializing AI Engine...');
     const modelsReady = await loadFaceModels();
     if (!modelsReady) {
-      alert("Failed to load AI Face Models.");
       setLoading(false);
       return;
     }
@@ -176,19 +175,48 @@ export default function PeopleView({ events, onEdit, onDelete }) {
       setProgress(Math.round(p));
       if (p > 50) setScanStatus('Clustering similar faces...');
     });
-    setScanStatus('Saving results...');
+    setScanStatus('Finalizing Profiles...');
     
-    // Before saving, ensure we don't bloat localStorage with too much heavy data
-    const optimizedResults = results.map(r => {
-      // Keep the faceUrl for local immediate feedback, but the "representative" info is most important
-      return r;
+    // ─── NAME PERSISTENCE LOGIC ───
+    // Match new results with existing named clusters
+    const finalResults = results.map(newC => {
+      if (!newC.avgDescriptor) return newC;
+      
+      let bestMatch = null;
+      let minDistance = 0.55; // Same threshold as faceUtils
+
+      clusters.forEach(oldC => {
+        if (oldC.name && oldC.name !== 'Unknown Person' && oldC.avgDescriptor) {
+          // Calculate distance (simple euclidean distance)
+          const d1 = new Float32Array(newC.avgDescriptor);
+          const d2 = new Float32Array(oldC.avgDescriptor);
+          let dist = 0;
+          for (let i = 0; i < d1.length; i++) dist += (d1[i] - d2[i]) ** 2;
+          dist = Math.sqrt(dist);
+
+          if (dist < minDistance) {
+            minDistance = dist;
+            bestMatch = oldC;
+          }
+        }
+      });
+
+      if (bestMatch) {
+        return { 
+          ...newC, 
+          id: bestMatch.id, 
+          name: bestMatch.name, 
+          // Keep the old faceUrl if the new one is missing or fallback
+          faceUrl: newC.faceUrl || bestMatch.faceUrl 
+        };
+      }
+      return newC;
     });
 
     try {
-      saveToLocal(optimizedResults);
+      saveToLocal(finalResults);
     } catch (err) {
       console.error("Failed to save results:", err);
-      alert("Local storage full! Scanning still completed, but some data might not persist.");
     }
     setLoading(false);
     setScanStatus('');
@@ -409,14 +437,6 @@ export default function PeopleView({ events, onEdit, onDelete }) {
         <div className="people-header-actions">
           {!selectionMode ? (
             <>
-              <button
-                className="btn btn-ghost btn-save-cloud"
-                onClick={handleSaveToBackend}
-                disabled={syncing || clusters.length === 0}
-                title={lastSynced ? `Last saved: ${lastSynced.toLocaleTimeString()}` : 'Save to cloud'}
-              >
-                {syncing ? 'Saving...' : '💾 Save Faces'}
-              </button>
               <button className="btn btn-ghost" onClick={() => setSelectionMode('merge')}>🔗 Merge Profiles</button>
               <button className="btn btn-ghost" onClick={() => setSelectionMode('group')}>👥 Make Group</button>
               <button className="btn btn-primary" onClick={handleScan} disabled={loading}>

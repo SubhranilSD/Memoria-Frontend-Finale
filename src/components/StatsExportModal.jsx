@@ -70,7 +70,10 @@ export default function StatsExportModal({ stats, events, onClose }) {
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
       >
         <div className="sem-header">
-          <h2>Export Memory Stats</h2>
+          <div className="sem-header-left">
+            <h2>Export Memory Report</h2>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 0' }}>Professional PDF generation for your journaling journey</p>
+          </div>
           <button className="sem-close" onClick={onClose}>✕</button>
         </div>
 
@@ -78,7 +81,7 @@ export default function StatsExportModal({ stats, events, onClose }) {
           {/* Left: Configuration */}
           <div className="sem-config">
             <div className="sem-config-section">
-              <label className="sem-label">Select Theme</label>
+              <label className="sem-label">1. Visual Theme</label>
               <div className="sem-themes">
                 {THEMES.map(t => (
                   <div 
@@ -97,7 +100,7 @@ export default function StatsExportModal({ stats, events, onClose }) {
             </div>
 
             <div className="sem-config-section">
-              <label className="sem-label">Edit Content</label>
+              <label className="sem-label">2. Report Branding</label>
               <input 
                 type="text" 
                 value={title} 
@@ -114,7 +117,7 @@ export default function StatsExportModal({ stats, events, onClose }) {
             </div>
 
             <div className="sem-config-section">
-              <label className="sem-label">Toggle Sections</label>
+              <label className="sem-label">3. Content Modules</label>
               <div className="sem-toggles">
                 {Object.keys(sections).map(s => (
                   <label key={s} className="sem-toggle">
@@ -140,15 +143,15 @@ export default function StatsExportModal({ stats, events, onClose }) {
 
           {/* Right: Preview */}
           <div className="sem-preview">
-            <label className="sem-label">Preview</label>
+            <label className="sem-label">Document Preview</label>
             <div className="sem-preview-container">
               <div 
                 ref={printRef} 
                 className={`sem-print-area theme-${theme}`}
               >
                 <div className="spa-header">
-                  <div className="spa-logo">Memoria ◎</div>
-                  <h1>{title}</h1>
+                  <div className="spa-logo">Memoria ◎ Digital Legacy</div>
+                  <h1>{title || 'My Life in Memories'}</h1>
                   <p>{subtitle}</p>
                 </div>
 
@@ -166,7 +169,7 @@ export default function StatsExportModal({ stats, events, onClose }) {
 
                 {sections.heatmap && (
                   <div className="spa-section">
-                    <h3>Activity Patterns</h3>
+                    <h3>Activity Patterns (Heatmap)</h3>
                     <div className="spa-heatmap">
                       {stats.heatmap.map((c, i) => (
                         <div key={i} className="spa-hm-cell">
@@ -180,37 +183,40 @@ export default function StatsExportModal({ stats, events, onClose }) {
                   </div>
                 )}
 
-                {sections.moods && (
-                  <div className="spa-section">
-                    <h3>Emotional Landscape</h3>
-                    <div className="spa-mood-list">
-                      {Object.entries(stats.moodCounts).filter(([,v]) => v > 0).map(([m, c]) => (
-                        <div key={m} className="spa-mood-row">
-                          <span className="capitalize">{m}</span>
-                          <div className="spa-bar-wrap">
-                            <div className="spa-bar" style={{ width: `${(c/events.length)*100}%` }} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+                  {sections.moods && (
+                    <div className="spa-section">
+                      <h3>Emotional Landscape</h3>
+                      <div className="spa-mood-list">
+                        {Object.entries(stats.moodCounts).filter(([,v]) => v > 0).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([m, c]) => (
+                          <div key={m} className="spa-mood-row">
+                            <span className="capitalize">{m}</span>
+                            <div className="spa-bar-wrap">
+                              <div className="spa-bar" style={{ width: `${(c/events.length)*100}%` }} />
+                            </div>
+                            <span style={{ textAlign: 'right' }}>{c}</span>
                           </div>
-                          <span>{c}</span>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {sections.people && (
-                  <div className="spa-section">
-                    <h3>Top Connections</h3>
-                    <div className="spa-pill-cloud">
-                      {stats.topPeople.map(([name, count]) => (
-                        <span key={name} className="spa-pill">{name} ({count})</span>
-                      ))}
+                  {sections.people && (
+                    <div className="spa-section">
+                      <h3>Top Connections</h3>
+                      <div className="spa-pill-cloud">
+                        {stats.topPeople.slice(0, 10).map(([name, count]) => (
+                          <span key={name} className="spa-pill">{name} ×{count}</span>
+                        ))}
+                        {stats.topPeople.length === 0 && <p style={{ fontSize: '11px', opacity: 0.5 }}>No tagged people found</p>}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {sections.insights && (
                   <div className="spa-section">
-                    <h3>Key Insights</h3>
+                    <h3>Narrative Insights</h3>
                     <ul className="spa-insights">
                       <li>
                         <strong>Consistency</strong>
@@ -233,7 +239,7 @@ export default function StatsExportModal({ stats, events, onClose }) {
                 )}
 
                 <div className="spa-footer">
-                  Generated by Memoria · {new Date().toLocaleDateString()}
+                  This report was automatically generated by Memoria · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </div>
               </div>
             </div>

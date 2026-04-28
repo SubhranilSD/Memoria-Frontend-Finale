@@ -247,6 +247,7 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
   const [exifBanner,   setExifBanner]   = useState(null);    // { found: [], camera? }
   const [exifApplied,  setExifApplied]  = useState(false);
   const [autoExif,     setAutoExif]     = useState(false); // Default to false so user sees the "APPLY" bar
+  const [isSuccess,    setIsSuccess]    = useState(false); // New success state
 
   const fileRef = useRef(null);
   const [moods, setMoods] = useState(getMoods());
@@ -456,12 +457,15 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSuccess) { onClose(); return; }
+    
     if (!form.title.trim() || !form.date) { setError('Title and date are required'); return; }
     setLoading(true);
     setError('');
     try {
       const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
       await onSubmit({ ...form, tags });
+      setIsSuccess(true); // Show success state
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong');
     } finally {
@@ -951,9 +955,13 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
           {error && <div className="auth-error" style={{ marginBottom: '16px' }}><span>⚠</span> {error}</div>}
 
           <div className="modal-footer">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? '…' : event ? 'Save Changes' : 'Add Memory'}
+            {!isSuccess && <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>}
+            <button 
+              type="submit" 
+              className={`btn ${isSuccess ? 'btn-success-timeline' : 'btn-primary'}`} 
+              disabled={loading}
+            >
+              {loading ? '…' : isSuccess ? 'See Timeline ✦' : event ? 'Save Changes' : 'Add Memory'}
             </button>
           </div>
         </form>

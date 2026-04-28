@@ -86,13 +86,12 @@ function computeTimelinePositions(events, w, h) {
   sorted.forEach((ev, i) => {
     const timeRatio = (new Date(ev.date).getTime() - minDate) / timeRange;
     
-    // Create a wave/constellation pattern
-    // X progresses with time
+    // Horizontal progression
     const x = padding + timeRatio * (w - padding * 2);
     
-    // Y oscillates to create a natural constellation look
-    const angle = timeRatio * Math.PI * 4; // 2 full waves
-    const y = h / 2 + Math.sin(angle + i) * (h * 0.25) + (Math.random() - 0.5) * 40;
+    // Wave oscillation for a natural look
+    const angle = timeRatio * Math.PI * 4;
+    const y = h / 2 + Math.sin(angle + i) * (h * 0.22) + (Math.random() - 0.5) * 40;
     
     positions[ev._id] = { x, y, index: i };
   });

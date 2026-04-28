@@ -170,10 +170,12 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               {peopleInEvent.length > 0 && (
                 <button 
-                  className={`people-badge-pill ${showPeople ? 'active' : ''}`}
+                  className={`people-count-badge ${showPeople ? 'active' : ''}`}
                   onClick={(e) => { e.stopPropagation(); setShowPeople(!showPeople); }}
+                  title={peopleInEvent.map(p => p.name).join(', ')}
                 >
-                  <span className="people-icon">👥</span> PEOPLE
+                  <span className="people-icon">👥</span>
+                  <span className="people-count-n">{peopleInEvent.length}</span>
                 </button>
               )}
               <div className={`mood-badge mood-${event.mood}`}>

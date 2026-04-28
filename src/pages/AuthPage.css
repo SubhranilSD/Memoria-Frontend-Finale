@@ -419,7 +419,7 @@
   width: 100%;
   height: auto;
   filter: brightness(1.1);
-  mix-blend-mode: screen; /* Makes black background transparent if it's white-on-black */
+  mix-blend-mode: var(--logo-blend, screen);
 }
 
 .auth-footer p span {

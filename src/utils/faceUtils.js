@@ -20,7 +20,7 @@ import * as faceapi from '@vladmandic/face-api';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-const CACHE_KEY = 'memoria_face_descriptor_cache_v2'; // bump key = fresh start
+const CACHE_KEY = 'memoria_face_descriptor_cache_v4'; // bump key = fresh start
 const MAX_DIM = 800;   // px — images larger than this are downscaled before AI
 const DETECT_SIZE = 320;   // TinyFaceDetector inputSize
 const FOCAL_SIZE = 224;   // inputSize for focal-point detection (lighter)
@@ -115,6 +115,62 @@ export async function loadFaceModels() {
   })();
 
   return modelLoadPromise;
+}
+
+// ─── IndexedDB Persistent Image Store ──────────────────────────────────────────
+
+const DB_NAME = 'MemoriaFaceDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'face_thumbnails';
+
+/** @returns {Promise<IDBDatabase>} */
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      if (!request.result.objectStoreNames.contains(STORE_NAME)) {
+        request.result.createObjectStore(STORE_NAME);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/** 
+ * Saves a face Base64/Blob to IndexedDB 
+ * @param {string} id - Person/Cluster ID
+ * @param {string} dataUrl - Base64 image
+ */
+export async function saveFaceToDisk(id, dataUrl) {
+  if (!id || !dataUrl) return;
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).put(dataUrl, id);
+    return new Promise((resolve) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve(); // fail silently
+    });
+  } catch (e) { console.warn('IndexedDB save failed', e); }
+}
+
+/** 
+ * Retrieves a face from IndexedDB 
+ * @param {string} id - Person/Cluster ID
+ * @returns {Promise<string|null>}
+ */
+export async function getFaceFromDisk(id) {
+  if (!id) return null;
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const request = tx.objectStore(STORE_NAME).get(id);
+    return new Promise((resolve) => {
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => resolve(null);
+    });
+  } catch (e) { return null; }
 }
 
 // ─── Utilities ─────────────────────────────────────────────────────────────────
@@ -392,6 +448,8 @@ export async function processEventsForFaces(events, onProgress) {
    *   avgDescriptor: Float32Array,
    *   mediaUrls:     Set<string>,
    *   eventIds:      Set<string>,
+   *   faceBox:       object,
+   *   representativeMediaUrl: string
    * }} InternalCluster
    */
   /** @type {InternalCluster[]} */
@@ -434,6 +492,8 @@ export async function processEventsForFaces(events, onProgress) {
         avgDescriptor: new Float32Array(fd), // own copy — don't share reference
         mediaUrls: new Set([face.mediaUrl]),
         eventIds: new Set([face.eventId]),
+        faceBox: face.box,
+        representativeMediaUrl: face.mediaUrl
       });
     }
 
@@ -449,6 +509,8 @@ export async function processEventsForFaces(events, onProgress) {
       id: c.id,
       name: c.name,
       faceUrl: c.faceUrl,
+      faceBox: c.faceBox,
+      representativeMediaUrl: c.representativeMediaUrl,
       photoCount: c.mediaUrls.size,
       mediaUrls: Array.from(c.mediaUrls),
       eventIds: Array.from(c.eventIds),

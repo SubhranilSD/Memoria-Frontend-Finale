@@ -139,19 +139,23 @@
 }
 
 @media (max-width: 600px) {
+  .event-card {
+    aspect-ratio: 4 / 5;
+    min-height: unset;
+  }
   .event-card-media { 
-    aspect-ratio: 3 / 4 !important; 
+    aspect-ratio: 1 / 1 !important; 
     height: auto !important;
   }
-  .event-card-title { font-size: 10px !important; margin-bottom: 2px !important; line-height: 1.1 !important; }
-  .event-card-desc { font-size: 8px !important; line-height: 1.3 !important; -webkit-line-clamp: 3 !important; margin-bottom: 4px !important; }
-  .event-card-body { padding: 6px 8px !important; }
-  .event-card-location { font-size: 7px !important; margin-bottom: 2px !important; }
-  .event-card-date { font-size: 7px !important; margin-bottom: 0px !important; opacity: 0.8; }
+  .event-card-title { font-size: 12px !important; margin-bottom: 4px !important; line-height: 1.2 !important; }
+  .event-card-desc { font-size: 10px !important; line-height: 1.4 !important; -webkit-line-clamp: 2 !important; margin-bottom: 6px !important; }
+  .event-card-body { padding: 10px 12px !important; }
+  .event-card-location { font-size: 9px !important; margin-bottom: 4px !important; }
+  .event-card-date { font-size: 9px !important; margin-bottom: 2px !important; opacity: 0.8; }
   .tag { font-size: 6px !important; padding: 1px 3px !important; border-radius: 2px !important; }
   .mood-badge { font-size: 6px !important; padding: 1px 4px !important; }
   .event-card { border-radius: 8px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important; }
-  .people-badge-pill { display: none !important; }
+  .people-count-badge { padding: 2px 6px !important; }
   .event-card-explore-cue { display: none !important; }
 }
 
@@ -184,41 +188,43 @@
 .markdown-body a:hover { text-decoration: underline; }
 
 /* People Badge Pill */
-.people-badge-pill {
+/* People Count Badge */
+.people-count-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.45);
-  color: #a78bfa;
-  border: 1px solid rgba(167, 139, 250, 0.25);
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  gap: 5px;
+  background: color-mix(in srgb, var(--bg-card) 40%, transparent);
+  color: var(--accent-indigo);
+  border: 1px solid color-mix(in srgb, var(--accent-indigo) 20%, transparent);
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s ease;
   backdrop-filter: blur(8px);
-  text-transform: uppercase;
-  user-select: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.people-badge-pill:hover {
-  background: rgba(167, 139, 250, 0.15);
-  border-color: rgba(167, 139, 250, 0.5);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+.people-count-badge:hover {
+  background: color-mix(in srgb, var(--accent-indigo) 10%, var(--bg-card));
+  border-color: var(--accent-indigo);
+  transform: translateY(-2px);
 }
 
-.people-badge-pill.active {
-  background: #a78bfa;
-  color: #000;
-  border-color: #a78bfa;
+.people-count-badge.active {
+  background: var(--accent-indigo);
+  color: white;
+  border-color: var(--accent-indigo);
 }
 
-.people-badge-pill .people-icon {
-  font-size: 12px;
-  filter: drop-shadow(0 0 2px rgba(167, 139, 250, 0.5));
+.people-count-badge .people-icon {
+  font-size: 13px;
+}
+
+.people-count-n {
+  font-family: 'DM Mono', monospace;
+  letter-spacing: -0.5px;
 }
 
 /* People View */
@@ -281,9 +287,9 @@
 
 /* ── Dream Card Style (Idea 10 - PROPER) ── */
 .dream-card {
-  background: rgba(139, 92, 246, 0.08) !important;
+  background: color-mix(in srgb, var(--accent-indigo) 12%, var(--bg-card)) !important;
   backdrop-filter: blur(12px) saturate(150%) !important;
-  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  border: 1px solid color-mix(in srgb, var(--accent-indigo) 40%, transparent) !important;
   position: relative;
   animation: dream-drift 10s ease-in-out infinite alternate;
 }
@@ -312,9 +318,9 @@
 }
 
 .dream-card .event-card-title {
-  color: #d8b4fe;
+  color: var(--accent-indigo);
   font-style: italic;
-  text-shadow: 0 0 8px rgba(217, 70, 239, 0.5);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--accent-indigo) 40%, transparent);
   animation: title-glitch 4s linear infinite;
 }
 
@@ -327,9 +333,9 @@
 
 /* Biometric Vibe Sync (Idea 6 - PROPER) */
 .bio-tag {
-  background: rgba(244, 63, 94, 0.12) !important;
-  border: 1px solid rgba(244, 63, 94, 0.3) !important;
-  color: #fb7185 !important;
+  background: color-mix(in srgb, var(--accent-rose) 15%, var(--bg-card)) !important;
+  border: 1px solid color-mix(in srgb, var(--accent-rose) 40%, transparent) !important;
+  color: var(--accent-rose) !important;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -375,9 +381,9 @@
 .portal-chip {
   font-size: 10px;
   font-weight: 700;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
+  background: color-mix(in srgb, var(--accent-indigo) 12%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--accent-indigo) 30%, transparent);
+  color: var(--accent-indigo);
   padding: 2px 10px;
   border-radius: 999px;
   display: flex;

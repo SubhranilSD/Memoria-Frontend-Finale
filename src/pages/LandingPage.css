@@ -303,7 +303,12 @@
 .sd-logo-img {
   width: 100%;
   height: auto;
-  mix-blend-mode: screen;
+  filter: brightness(1.1);
+  mix-blend-mode: var(--logo-blend, screen);
+}
+
+[data-theme="light"] {
+  --logo-blend: multiply;
 }
 
 .sd-branding p {

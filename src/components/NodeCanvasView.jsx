@@ -10,8 +10,8 @@ const MOOD_COLORS = {
   joyful:'#f59e0b', nostalgic:'#8b5cf6', proud:'#10b981', sad:'#6b7280',
   excited:'#ef4444', peaceful:'#06b6d4', grateful:'#ec4899', adventurous:'#f97316',
 };
-const NODE_W = 182;
-const NODE_H = 140;
+const NODE_W = window.innerWidth < 768 ? 130 : 182;
+const NODE_H = window.innerWidth < 768 ? 100 : 140;
 const MINIMAP_W = 150;
 const MINIMAP_H = 95;
 
@@ -186,7 +186,7 @@ function MiniMap({ events, positions, sizes, viewport, canvasEl, connections }) 
 }
 
 /* ── Event node ── */
-function EventNode({ event, pos, size, onDragEnd, onEdit, editMode, isSelected, onSelect, rank }) {
+function EventNode({ event, pos, size, onDragEnd, onEdit, editMode, isSelected, isLinking, onSelect, rank }) {
   const dragging = useRef(false);
   const startMouse = useRef({ x:0, y:0 });
   const startPos   = useRef({ x:0, y:0 });
@@ -217,18 +217,18 @@ function EventNode({ event, pos, size, onDragEnd, onEdit, editMode, isSelected, 
       const dy = up.clientY - startMouse.current.y;
       if (!hasDragged.current) { onSelect(event._id); }
       else { onDragEnd(event._id, { x: startPos.current.x + dx, y: startPos.current.y + dy }); }
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
     };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
   }, [event._id, pos, onDragEnd, onSelect]);
 
   return (
     <div
-      className={`nc-node ${isSelected ? 'nc-node--selected' : ''} ${hasMedia ? 'nc-node--has-media' : ''}`}
+      className={`nc-node ${isSelected ? 'nc-node--selected' : ''} ${isLinking ? 'nc-node--linking' : ''} ${hasMedia ? 'nc-node--has-media' : ''}`}
       style={{ left: pos.x, top: pos.y, '--node-color': color, width: size.w, height: size.h }}
-      onMouseDown={handleMouseDown}
+      onPointerDown={handleMouseDown}
     >
       {/* Rank badge */}
       <div className="nc-node-rank">#{rank}</div>
@@ -334,6 +334,19 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
   const [selectedId, setSelectedId] = useState(null);
   const [showMinimap, setShowMinimap] = useState(true);
 
+  /* Manual Links (stored in localStorage) */
+  const [manualLinks, setManualLinks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('memoria_manual_links');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [linkingId, setLinkingId] = useState(null); // ID of first node selected for linking
+
+  useEffect(() => {
+    localStorage.setItem('memoria_manual_links', JSON.stringify(manualLinks));
+  }, [manualLinks]);
+
   /* Node sizes (memoised per event id) */
   const sizes = useMemo(() => {
     const s = {};
@@ -359,9 +372,11 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
   /* Sorted chronologically for connections & ranking */
   const sorted = useMemo(() => [...events].sort((a,b) => new Date(a.date)-new Date(b.date)), [events]);
 
-  /* Connections: chronological pairs with time diff & colors */
+  /* Connections: chronological pairs + manual links */
   const connections = useMemo(() => {
     const pairs = [];
+    
+    // 1. Chronological links
     for (let i = 0; i < sorted.length - 1; i++) {
       const a = sorted[i], b = sorted[i+1];
       if (!positions[a._id] || !positions[b._id]) continue;
@@ -375,8 +390,26 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
         timeDiffDays: diff,
       });
     }
+
+    // 2. Manual links
+    manualLinks.forEach(link => {
+      const a = events.find(e => e._id === link.fromId);
+      const b = events.find(e => e._id === link.toId);
+      if (a && b && positions[a._id] && positions[b._id]) {
+        pairs.push({
+          id: `manual-${link.fromId}-${link.toId}`,
+          from: { ...positions[a._id], ...sizes[a._id] },
+          to:   { ...positions[b._id], ...sizes[b._id] },
+          colorA: a.color || MOOD_COLORS[a.mood] || '#c4813a',
+          colorB: b.color || MOOD_COLORS[b.mood] || '#c4813a',
+          timeDiffDays: 0,
+          isManual: true
+        });
+      }
+    });
+
     return pairs;
-  }, [sorted, positions, sizes]);
+  }, [sorted, positions, sizes, manualLinks, events]);
 
   /* Year group centroids for floating labels */
   const yearLabels = useMemo(() => {
@@ -413,11 +446,11 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
     };
     const onUp = () => {
       isPanning.current = false;
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
     };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
   }, [viewport.x, viewport.y]);
 
   /* ── Zoom (cursor-anchored) ── */
@@ -485,6 +518,13 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
         <span className="nc-scale-label">{Math.round(viewport.scale*100)}%</span>
         <button className="nc-ctrl-btn" onClick={() => setViewport(v => ({...v, scale: Math.max(0.25, v.scale*0.87)}))} title="Zoom out">−</button>
         <div className="nc-ctrl-divider" />
+        <button className={`nc-ctrl-btn ${linkingId ? 'nc-ctrl-btn--linking' : ''}`} 
+          onClick={() => {
+            if (linkingId) setLinkingId(null);
+            else setLinkingId('INIT');
+          }} 
+          title="Connect Memories">🔗</button>
+        <div className="nc-ctrl-divider" />
         <button className={`nc-ctrl-btn ${showMinimap ? 'nc-ctrl-btn--active' : ''}`}
           onClick={() => setShowMinimap(m => !m)} title="Toggle minimap">◫</button>
         <span className="nc-ctrl-info">{events.length} nodes</span>
@@ -496,7 +536,7 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
       </div>
 
       {/* Canvas */}
-      <div ref={canvasRef} className="nc-canvas" onMouseDown={onCanvasMouseDown} onClick={() => setSelectedId(null)}>
+      <div ref={canvasRef} className="nc-canvas" onPointerDown={onCanvasMouseDown} onClick={() => setSelectedId(null)}>
         <div
           className="nc-world"
           style={{ transform: `translate(${viewport.x}px,${viewport.y}px) scale(${viewport.scale})`, transformOrigin:'0 0' }}
@@ -531,7 +571,25 @@ export default function NodeCanvasView({ events, editMode, onEdit }) {
                 onEdit={onEdit}
                 editMode={editMode}
                 isSelected={selectedId === event._id}
-                onSelect={id => setSelectedId(prev => prev === id ? null : id)}
+                isLinking={linkingId === event._id || (linkingId === 'INIT' && !selectedId)}
+                onSelect={id => {
+                  if (linkingId) {
+                    if (linkingId === 'INIT') {
+                      setLinkingId(id);
+                    } else if (linkingId !== id) {
+                      setManualLinks(prev => {
+                        const exists = prev.find(l => (l.fromId === linkingId && l.toId === id) || (l.fromId === id && l.toId === linkingId));
+                        if (exists) return prev;
+                        return [...prev, { fromId: linkingId, toId: id }];
+                      });
+                      setLinkingId(null);
+                    } else {
+                      setLinkingId(null);
+                    }
+                  } else {
+                    setSelectedId(prev => prev === id ? null : id);
+                  }
+                }}
                 rank={rankMap[event._id] || 0}
               />
             );

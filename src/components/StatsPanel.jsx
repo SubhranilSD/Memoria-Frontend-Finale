@@ -214,22 +214,11 @@ export default function StatsPanel({ events=[] }) {
                     <motion.button
                       className="sp-export-trigger"
                       onClick={() => setShowExport(true)}
-                      whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.1)' }}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '12px',
-                        padding: '8px 16px',
-                        color: 'white',
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}
                     >
-                      <span>📥</span> Export PDF
+                      <span className="sp-export-icon">📥</span>
+                      <span className="sp-export-text">Export PDF</span>
                     </motion.button>
                   )}
                   <motion.button

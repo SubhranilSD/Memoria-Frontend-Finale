@@ -63,6 +63,33 @@
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-user:hover {
+  border-color: var(--accent-gold);
+  background: var(--bg-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-user-edit-hint {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 14px;
+  color: var(--accent-gold);
+  opacity: 0;
+  transition: all 0.2s ease;
+  transform: translateX(10px);
+}
+
+.sidebar-user:hover .sidebar-user-edit-hint {
+  opacity: 0.6;
+  transform: translateX(0);
 }
 
 .sidebar-avatar {

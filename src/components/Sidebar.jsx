@@ -9,7 +9,7 @@ export default function Sidebar({
   allTags, allPeople = [],
   editMode, setEditMode, onLogout, theme, toggleTheme,
   onStoryMode, onOnThisDay, onExport, onVault, eventCount, events = [],
-  isOpen, onClose
+  isOpen, onClose, onEditProfile
 }) {
   const [activeTab, setActiveTab] = useState('navigate');
   const moods = useMemo(() => getMoods(), []);
@@ -39,7 +39,7 @@ export default function Sidebar({
       </div>
 
       {/* User card */}
-      <div className="sidebar-user">
+      <div className="sidebar-user" onClick={onEditProfile} title="Edit Profile" style={{ cursor: 'pointer' }}>
         <div className="sidebar-avatar">
           {user?.avatar
             ? <img src={user.avatar} alt={user.name} />
@@ -49,6 +49,7 @@ export default function Sidebar({
           <div className="sidebar-user-name">{user?.name}</div>
           <div className="sidebar-user-count">{eventCount} {eventCount === 1 ? 'memory' : 'memories'}</div>
         </div>
+        <div className="sidebar-user-edit-hint">✎</div>
       </div>
 
       {/* Quick stats strip */}

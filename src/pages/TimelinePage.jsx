@@ -26,6 +26,7 @@ const HorizStreamView = lazy(() => import('../components/HorizStreamView'));
 const MemoryDetail = lazy(() => import('../components/MemoryDetail'));
 const HighlightsReel = lazy(() => import('../components/HighlightsReel'));
 const Toast = lazy(() => import('../components/Toast'));
+const ProfileModal = lazy(() => import('../components/ProfileModal'));
 import './TimelinePage.css';
 
 const MOOD_COLORS = {
@@ -55,6 +56,8 @@ export default function TimelinePage() {
   const [showReel, setShowReel] = useState(false);
   const [search, setSearch] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open on PC
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const { setUser } = useAuth();
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -255,6 +258,7 @@ export default function TimelinePage() {
         events={events}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onEditProfile={() => setShowProfileModal(true)}
       />
 
       {sidebarOpen && (
@@ -428,6 +432,16 @@ export default function TimelinePage() {
               setVaultMode(false);
               setToast({ message: 'Vault Unlocked!', type: 'success' });
               fetchEvents();
+            }}
+          />
+        )}
+        {showProfileModal && (
+          <ProfileModal
+            user={user}
+            onClose={() => setShowProfileModal(false)}
+            onUpdate={(updated) => {
+              setUser(updated);
+              showToast('Profile updated ✦');
             }}
           />
         )}

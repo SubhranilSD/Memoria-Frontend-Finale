@@ -140,8 +140,11 @@
 
 @media (max-width: 600px) {
   .event-card {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: auto;
     min-height: unset;
+    width: 92% !important;
+    margin: 0 auto !important;
+    transform: scale(0.96);
   }
   .event-card-media { 
     aspect-ratio: 1 / 1 !important; 

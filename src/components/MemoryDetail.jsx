@@ -7,13 +7,13 @@ import { MOOD_COLORS as BASE_COLORS, MOOD_EMOJIS as BASE_EMOJIS } from '../utils
 import './MemoryDetail.css';
 
 const MOOD_PROSE = {
-  joyful:      'A golden moment bathed in warmth — pure, unfiltered happiness.',
-  nostalgic:   'Tinged with the bittersweet ache of time well lived.',
-  proud:       'A milestone hard-earned; a chapter you\'ll revisit with pride.',
-  sad:         'A heavy moment, but part of the full tapestry of your story.',
-  excited:     'Electricity in the air — the precipice of something new.',
-  peaceful:    'Stillness. A breath held perfectly in place.',
-  grateful:    'Counting blessings, one heartbeat at a time.',
+  joyful: 'A golden moment bathed in warmth — pure, unfiltered happiness.',
+  nostalgic: 'Tinged with the bittersweet ache of time well lived.',
+  proud: 'A milestone hard-earned; a chapter you\'ll revisit with pride.',
+  sad: 'A heavy moment, but part of the full tapestry of your story.',
+  excited: 'Electricity in the air — the precipice of something new.',
+  peaceful: 'Stillness. A breath held perfectly in place.',
+  grateful: 'Counting blessings, one heartbeat at a time.',
   adventurous: 'Uncharted territory, met with courage and curiosity.',
 };
 
@@ -33,11 +33,11 @@ function getTimeOfDay(dateStr) {
   if (!dateStr) return null;
   const h = new Date(dateStr).getHours();
   if (isNaN(h)) return null;
-  if (h < 5)  return { label: 'Deep Night',  icon: '🌑', hue: '#1a1b3a' };
-  if (h < 10) return { label: 'Morning',     icon: '🌅', hue: '#f59e0b' };
-  if (h < 14) return { label: 'Midday',      icon: '☀️',  hue: '#fbbf24' };
-  if (h < 18) return { label: 'Afternoon',   icon: '🌤',  hue: '#fb923c' };
-  if (h < 21) return { label: 'Evening',     icon: '🌆', hue: '#f97316' };
+  if (h < 5) return { label: 'Deep Night', icon: '🌑', hue: '#1a1b3a' };
+  if (h < 10) return { label: 'Morning', icon: '🌅', hue: '#f59e0b' };
+  if (h < 14) return { label: 'Midday', icon: '☀️', hue: '#fbbf24' };
+  if (h < 18) return { label: 'Afternoon', icon: '🌤', hue: '#fb923c' };
+  if (h < 21) return { label: 'Evening', icon: '🌆', hue: '#f97316' };
   return { label: 'Night', icon: '🌙', hue: '#8b5cf6' };
 }
 function getDaysSince(dateStr) {
@@ -47,7 +47,7 @@ function getDaysSince(dateStr) {
   const days = Math.floor(diff / 86400000);
   if (days === 0) return 'Today';
   if (days === 1) return '1 day ago';
-  if (days < 30)  return `${days} days ago`;
+  if (days < 30) return `${days} days ago`;
   if (days < 365) return `${Math.floor(days / 30)} months ago`;
   const yrs = Math.floor(days / 365);
   return `${yrs} year${yrs > 1 ? 's' : ''} ago`;
@@ -84,7 +84,7 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
   const allMedia = event.media || [];
   const mediaCount = allMedia.length;
   const hasMedia = mediaCount > 0;
-  
+
   const currentComp = localComposition || allMedia[activeImg]?.focalPoint || { x: 50, y: 50, scale: 1, aspectRatio: 'original' };
 
   const updateComposition = (updates) => {
@@ -121,9 +121,9 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
   const saveComposition = () => {
     if (localComposition) {
       const newMedia = [...allMedia];
-      newMedia[activeImg] = { 
-        ...newMedia[activeImg], 
-        focalPoint: { ...newMedia[activeImg]?.focalPoint, ...localComposition } 
+      newMedia[activeImg] = {
+        ...newMedia[activeImg],
+        focalPoint: { ...newMedia[activeImg]?.focalPoint, ...localComposition }
       };
       onUpdateEvent(event._id, { media: newMedia });
       setLocalComposition(null);
@@ -136,18 +136,18 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
     // Actually, let's just update local and save on MouseUp of the slider if possible.
     // For simplicity, let's just save.
     const newMedia = [...allMedia];
-    newMedia[activeImg] = { 
-      ...newMedia[activeImg], 
-      focalPoint: { ...(newMedia[activeImg]?.focalPoint || {}), scale: val } 
+    newMedia[activeImg] = {
+      ...newMedia[activeImg],
+      focalPoint: { ...(newMedia[activeImg]?.focalPoint || {}), scale: val }
     };
     onUpdateEvent(event._id, { media: newMedia });
   };
 
   const handleAspectChange = (aspect) => {
     const newMedia = [...allMedia];
-    newMedia[activeImg] = { 
-      ...newMedia[activeImg], 
-      focalPoint: { ...(newMedia[activeImg]?.focalPoint || {}), aspectRatio: aspect } 
+    newMedia[activeImg] = {
+      ...newMedia[activeImg],
+      focalPoint: { ...(newMedia[activeImg]?.focalPoint || {}), aspectRatio: aspect }
     };
     onUpdateEvent(event._id, { media: newMedia });
   };
@@ -164,13 +164,13 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
     } catch { }
   }, [event._id, user?._id]);
 
-  const color      = event.color || MOOD_COLORS[event.mood] || '#c4813a';
-  const moodEmoji  = MOOD_EMOJIS[event.mood] || '✨';
-  const moodProse  = MOOD_PROSE[event.mood] || `A moment of ${event.mood}.`;
-  const weather    = inferWeather(event.date, event.location);
-  const isFuture   = isFutureLetter(event);
-  const timeOfDay  = getTimeOfDay(event.date);
-  const daysSince  = getDaysSince(event.date);
+  const color = event.color || MOOD_COLORS[event.mood] || '#c4813a';
+  const moodEmoji = MOOD_EMOJIS[event.mood] || '✨';
+  const moodProse = MOOD_PROSE[event.mood] || `A moment of ${event.mood}.`;
+  const weather = inferWeather(event.date, event.location);
+  const isFuture = isFutureLetter(event);
+  const timeOfDay = getTimeOfDay(event.date);
+  const daysSince = getDaysSince(event.date);
 
   const wordCount = event.description ? event.description.split(/\s+/).filter(Boolean).length : 0;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
@@ -196,13 +196,13 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
 
         <div className="md-top-actions">
           <div className="md-tabs">
-            <button 
+            <button
               className={`md-tab-btn ${activeTab === 'details' ? 'active' : ''}`}
               onClick={() => setActiveTab('details')}
             >
               📖 Story
             </button>
-            <button 
+            <button
               className={`md-tab-btn ${activeTab === 'composition' ? 'active' : ''}`}
               onClick={() => setActiveTab('composition')}
             >
@@ -221,14 +221,14 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
           {activeTab === 'composition' ? (
             <div className="md-composition-tab">
               <div className="md-media-panel">
-                <div 
+                <div
                   ref={imgWrapRef}
                   className={`md-main-img-wrap aspect-${allMedia[activeImg]?.focalPoint?.aspectRatio || 'original'}`}
                   onMouseDown={handleMouseDown}
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
-                  style={allMedia[activeImg]?.focalPoint?.aspectRatio === 'custom' ? { 
+                  style={allMedia[activeImg]?.focalPoint?.aspectRatio === 'custom' ? {
                     aspectRatio: allMedia[activeImg]?.focalPoint?.customAspect || 1,
                   } : {}}
                 >
@@ -237,7 +237,7 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
                     src={allMedia[activeImg]?.url}
                     alt=""
                     className="md-main-img"
-                    style={{ 
+                    style={{
                       objectPosition: `${currentComp.x}% ${currentComp.y}%`,
                       transform: `scale(${currentComp.scale})`
                     }}
@@ -245,16 +245,16 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
                   <div className="md-focus-ring" style={{ left: `${currentComp.x}%`, top: `${currentComp.y}%` }} />
                   <div className="md-img-overlay" style={{ background: `linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.8))` }} />
                 </div>
-                
+
                 <div className="md-composition-controls">
                   <div className="md-control-group">
                     <label>Zoom & Pan</label>
                     <div className="md-zoom-slider-wrap">
                       <span>1x</span>
-                      <input 
+                      <input
                         type="range" min="1" max="4" step="0.1"
-                        value={currentComp.scale} 
-                        onChange={(e) => handleScaleChange(parseFloat(e.target.value))} 
+                        value={currentComp.scale}
+                        onChange={(e) => handleScaleChange(parseFloat(e.target.value))}
                       />
                       <span>4x</span>
                     </div>
@@ -264,7 +264,7 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
                     <label>Crop / Aspect Ratio</label>
                     <div className="md-aspect-grid">
                       {['original', '1:1', '4:5', '2:3', '3:2', '16:9', '21:9'].map(ratio => (
-                        <button 
+                        <button
                           key={ratio}
                           className={`md-aspect-pill ${allMedia[activeImg]?.focalPoint?.aspectRatio === ratio ? 'active' : ''}`}
                           onClick={() => handleAspectChange(ratio)}
@@ -303,7 +303,7 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
                         src={allMedia[activeImg]?.url}
                         alt=""
                         className="md-main-img"
-                        style={{ 
+                        style={{
                           objectPosition: `${allMedia[activeImg]?.focalPoint?.x || 50}% ${allMedia[activeImg]?.focalPoint?.y || 50}%`,
                           transform: `scale(${allMedia[activeImg]?.focalPoint?.scale || 1})`
                         }}
@@ -360,11 +360,11 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
 
                   <div className="md-stats-grid">
                     {[
-                      { icon: '🖼', label: 'Photos',  val: mediaCount || '—' },
-                      { icon: '📝', label: 'Words',   val: wordCount  || '—' },
-                      { icon: '⏱', label: 'Read',    val: wordCount > 0 ? `${readTime}m` : '—' },
-                      { icon: '🏷', label: 'Tags',    val: event.tags?.length || 0 },
-                      { icon: '👥', label: 'People',  val: event.people?.length || 0 },
+                      { icon: '🖼', label: 'Photos', val: mediaCount || '—' },
+                      { icon: '📝', label: 'Words', val: wordCount || '—' },
+                      { icon: '⏱', label: 'Read', val: wordCount > 0 ? `${readTime}m` : '—' },
+                      { icon: '🏷', label: 'Tags', val: event.tags?.length || 0 },
+                      { icon: '👥', label: 'People', val: event.people?.length || 0 },
                     ].map((s, i) => (
                       <div key={s.label} className="md-stat-tile">
                         <span className="md-stat-icon">{s.icon}</span>
@@ -491,8 +491,8 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
                         <div className="md-people-list">
                           {event.people.map(p => {
                             const cluster = faceClusters.find(c => c.name === p);
-                            const relatedMemories = allEvents.filter(e => 
-                              e._id !== event._id && 
+                            const relatedMemories = allEvents.filter(e =>
+                              e._id !== event._id &&
                               (e.people || []).includes(p) &&
                               e.media?.[0]?.url
                             ).slice(0, 5);
@@ -506,7 +506,7 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
                                   }
                                   <span className="md-person-name">{p}</span>
                                 </div>
-                                
+
                                 {relatedMemories.length > 0 && (
                                   <div className="md-related-photos">
                                     {relatedMemories.map(rm => (
@@ -556,8 +556,8 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
 
 function getSeason(dateStr) {
   const m = new Date(dateStr).getMonth();
-  if (m >= 2 && m <= 4)  return '🌸 Spring';
-  if (m >= 5 && m <= 7)  return '☀️ Summer';
+  if (m >= 2 && m <= 4) return '🌸 Spring';
+  if (m >= 5 && m <= 7) return '☀️ Summer';
   if (m >= 8 && m <= 10) return '🍂 Autumn';
   return '❄️ Winter';
 }

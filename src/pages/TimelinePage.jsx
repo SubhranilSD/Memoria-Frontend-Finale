@@ -29,40 +29,40 @@ const Toast = lazy(() => import('../components/Toast'));
 import './TimelinePage.css';
 
 const MOOD_COLORS = {
-  joyful:'#f59e0b', nostalgic:'#8b5cf6', proud:'#10b981', sad:'#6b7280',
-  excited:'#ef4444', peaceful:'#06b6d4', grateful:'#ec4899', adventurous:'#f97316',
+  joyful: '#f59e0b', nostalgic: '#8b5cf6', proud: '#10b981', sad: '#6b7280',
+  excited: '#ef4444', peaceful: '#06b6d4', grateful: '#ec4899', adventurous: '#f97316',
 };
 
 export default function TimelinePage() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  const [events,       setEvents]       = useState([]);
-  const [loading,      setLoading]      = useState(true);
-  const [view,         setView]         = useState('timeline');
-  const [showModal,    setShowModal]    = useState(false);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState('timeline');
+  const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [lightboxEvent, setLightboxEvent] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [storyMode,    setStoryMode]    = useState(false);
-  const [otdMode,      setOtdMode]      = useState(false);
-  const [exportMode,   setExportMode]   = useState(false);
-  const [vaultMode,    setVaultMode]    = useState(false);
-  const [toast,        setToast]        = useState(null);
-  const [filters,      setFilters]      = useState({ mood:'', tag:'', person:'', sort:'date', order:'desc' });
-  const [editMode,     setEditMode]     = useState(false);
-  const [showReel,     setShowReel]     = useState(false);
-  const [search,       setSearch]       = useState('');
+  const [storyMode, setStoryMode] = useState(false);
+  const [otdMode, setOtdMode] = useState(false);
+  const [exportMode, setExportMode] = useState(false);
+  const [vaultMode, setVaultMode] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [filters, setFilters] = useState({ mood: '', tag: '', person: '', sort: 'date', order: 'desc' });
+  const [editMode, setEditMode] = useState(false);
+  const [showReel, setShowReel] = useState(false);
+  const [search, setSearch] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open on PC
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filters.mood)   params.set('mood', filters.mood);
-      if (filters.tag)    params.set('tag',  filters.tag);
-      params.set('sort',  filters.sort);
+      if (filters.mood) params.set('mood', filters.mood);
+      if (filters.tag) params.set('tag', filters.tag);
+      params.set('sort', filters.sort);
       params.set('order', filters.order);
       const res = await api.get(`/events?${params}`);
       setEvents(res.data);
@@ -87,7 +87,7 @@ export default function TimelinePage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const showToast = (msg, type='success') => {
+  const showToast = (msg, type = 'success') => {
     setToast({ message: msg, type });
     setTimeout(() => setToast(null), 3500);
   };
@@ -107,12 +107,12 @@ export default function TimelinePage() {
     try {
       const res = await api.put(`/events/${id}`, data);
       setEvents(prev => prev.map(e => e._id === id ? res.data : e));
-      
+
       // Update the active detail view if it's the same event
       if (selectedEvent && selectedEvent._id === id) {
         setSelectedEvent(res.data);
       }
-      
+
       showToast('Memory updated');
       setEditingEvent(null);
     } catch {
@@ -157,7 +157,7 @@ export default function TimelinePage() {
   const closeModal = () => { setShowModal(false); setEditingEvent(null); };
 
   /* Derived lists */
-  const allTags   = useMemo(() => [...new Set(events.flatMap(e => e.tags   || []))], [events]);
+  const allTags = useMemo(() => [...new Set(events.flatMap(e => e.tags || []))], [events]);
   const allPeople = useMemo(() => [...new Set(events.flatMap(e => e.people || []))], [events]);
 
   /* Client-side search + person filter (layered on top of server filters) */
@@ -166,7 +166,7 @@ export default function TimelinePage() {
     if (filters.person) list = list.filter(e => (e.people || []).includes(filters.person));
     if (search.trim()) {
       const q = search.toLowerCase();
-      
+
       // Load face clusters to allow searching by AI-recognized person name
       let faceClusters = [];
       try {
@@ -178,7 +178,7 @@ export default function TimelinePage() {
       // Support multi-person search using comma separation
       if (q.includes(',')) {
         const queryNames = q.split(',').map(n => n.trim()).filter(Boolean);
-        
+
         // Find matching clusters for EACH query name
         const matchingClusterGroups = queryNames.map(name => {
           return faceClusters.filter(c => c.name.toLowerCase().includes(name));
@@ -214,7 +214,7 @@ export default function TimelinePage() {
         ) return true;
 
         // Match face cluster name
-        const personMatch = faceClusters.some(c => 
+        const personMatch = faceClusters.some(c =>
           c.name.toLowerCase().includes(q) && c.eventIds.includes(e._id)
         );
         return personMatch;
@@ -230,7 +230,7 @@ export default function TimelinePage() {
     if (!visibleEvents.length) return 'transparent';
     const counts = {};
     visibleEvents.forEach(e => { if (e.mood) counts[e.mood] = (counts[e.mood] || 0) + 1; });
-    const topMood = Object.entries(counts).sort((a,b) => b[1]-a[1])[0];
+    const topMood = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
     if (!topMood) return 'transparent';
     const color = MOOD_COLORS[topMood[0]];
     // Create a subtle radial gradient string for the background
@@ -241,12 +241,12 @@ export default function TimelinePage() {
     <div className="timeline-page" style={{ background: dynamicBgColor }}>
       <Sidebar
         user={user}
-        view={view}         setView={setView}
-        filters={filters}   setFilters={setFilters}
-        allTags={allTags}   allPeople={allPeople}
+        view={view} setView={setView}
+        filters={filters} setFilters={setFilters}
+        allTags={allTags} allPeople={allPeople}
         editMode={editMode} setEditMode={setEditMode}
         onLogout={logout}
-        theme={theme}       toggleTheme={toggleTheme}
+        theme={theme} toggleTheme={toggleTheme}
         onStoryMode={() => setStoryMode(true)}
         onOnThisDay={() => setOtdMode(true)}
         onExport={() => setExportMode(true)}
@@ -267,8 +267,8 @@ export default function TimelinePage() {
           <div className="timeline-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {!sidebarOpen && (
-                <button 
-                  className="mobile-menu-toggle btn btn-ghost" 
+                <button
+                  className="mobile-menu-toggle btn btn-ghost"
                   onClick={() => setSidebarOpen(true)}
                 >
                   ☰
@@ -312,9 +312,9 @@ export default function TimelinePage() {
           {/* Content */}
           {loading ? (
             <div className="timeline-loading">
-              {[...Array(3)].map((_,i) => (
+              {[...Array(3)].map((_, i) => (
                 <div key={i} className="skeleton-card skeleton"
-                  style={{ height:'180px', borderRadius:'16px', marginBottom:'24px', animationDelay:`${i*0.15}s` }} />
+                  style={{ height: '180px', borderRadius: '16px', marginBottom: '24px', animationDelay: `${i * 0.15}s` }} />
               ))}
             </div>
           ) : (
@@ -326,13 +326,13 @@ export default function TimelinePage() {
               ) : view === 'constellation' ? (
                 <ConstellationView events={visibleEvents} />
               ) : view === 'globe' ? (
-                <GlobeView 
-                  events={visibleEvents} 
-                  onFilterLocation={(loc) => { setSearch(loc); setView('timeline'); }} 
+                <GlobeView
+                  events={visibleEvents}
+                  onFilterLocation={(loc) => { setSearch(loc); setView('timeline'); }}
                 />
               ) : view === 'people' ? (
-                <PeopleView 
-                  events={visibleEvents} 
+                <PeopleView
+                  events={visibleEvents}
                   onEdit={openEdit}
                   onDelete={handleDeleteEvent}
                 />
@@ -393,8 +393,8 @@ export default function TimelinePage() {
         )}
 
         {lightboxEvent && (
-          <Lightbox 
-            event={lightboxEvent} 
+          <Lightbox
+            event={lightboxEvent}
             onClose={() => setLightboxEvent(null)}
             onUpdateTitle={handleUpdateTitle}
             onEdit={(ev) => {
@@ -406,8 +406,8 @@ export default function TimelinePage() {
 
         <AnimatePresence>
           {selectedEvent && (
-            <MemoryDetail 
-              event={selectedEvent} 
+            <MemoryDetail
+              event={selectedEvent}
               allEvents={events}
               onClose={() => setSelectedEvent(null)}
               onEdit={openEdit}
@@ -418,7 +418,7 @@ export default function TimelinePage() {
 
         {storyMode && <StoryMode events={events} onClose={() => setStoryMode(false)} />}
         {showReel && <HighlightsReel events={events} onClose={() => setShowReel(false)} />}
-        {otdMode   && <OnThisDay events={events}  onClose={() => setOtdMode(false)} />}
+        {otdMode && <OnThisDay events={events} onClose={() => setOtdMode(false)} />}
         {exportMode && <ExportBook events={events} year={new Date().getFullYear()} onClose={() => setExportMode(false)} />}
         {vaultMode && (
           <VaultOverlay

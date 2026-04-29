@@ -106,23 +106,23 @@ export default function HorizStreamView({ events, onSelectEvent }) {
           >
             <defs>
               <linearGradient id="hsGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stopColor="#8b5cf6" stopOpacity="0.5" />
-                <stop offset="20%"  stopColor="#f59e0b" stopOpacity="0.9" />
-                <stop offset="50%"  stopColor="#ffffff" stopOpacity="1"   />
-                <stop offset="80%"  stopColor="#ef4444" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.5" />
+                <stop offset="20%" stopColor="#f59e0b" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="#ffffff" stopOpacity="1" />
+                <stop offset="80%" stopColor="#ef4444" stopOpacity="0.8" />
                 <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.5" />
               </linearGradient>
               <linearGradient id="hsGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stopColor="#8b5cf6" stopOpacity="0.12" />
-                <stop offset="30%"  stopColor="#f59e0b" stopOpacity="0.22" />
-                <stop offset="50%"  stopColor="#ffffff" stopOpacity="0.28" />
-                <stop offset="70%"  stopColor="#ef4444" stopOpacity="0.18" />
+                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.12" />
+                <stop offset="30%" stopColor="#f59e0b" stopOpacity="0.22" />
+                <stop offset="50%" stopColor="#ffffff" stopOpacity="0.28" />
+                <stop offset="70%" stopColor="#ef4444" stopOpacity="0.18" />
                 <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.12" />
               </linearGradient>
               <linearGradient id="hsTendril" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stopColor="#8b5cf6" stopOpacity="0.0" />
-                <stop offset="35%"  stopColor="#f59e0b" stopOpacity="0.28" />
-                <stop offset="55%"  stopColor="#ffffff" stopOpacity="0.45" />
+                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.0" />
+                <stop offset="35%" stopColor="#f59e0b" stopOpacity="0.28" />
+                <stop offset="55%" stopColor="#ffffff" stopOpacity="0.45" />
                 <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
               </linearGradient>
 

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import * as exifr from 'exifr';
 import api from '../utils/api';
 import { sentimentScore, sentimentToMood } from '../utils/memoryUtils';
@@ -11,7 +12,7 @@ import './EventModal.css';
 env.allowLocalModels = false;
 env.useBrowserCache = true;
 
-const COLORS = ['#c4813a','#c46080','#5b72c4','#6b8f71','#e8a85a','#8b5cf6','#06b6d4','#ef4444'];
+const COLORS = ['#c4813a', '#c46080', '#5b72c4', '#6b8f71', '#e8a85a', '#8b5cf6', '#06b6d4', '#ef4444'];
 
 const today = () => new Date().toISOString().split('T')[0];
 
@@ -61,7 +62,7 @@ function exifDateToInputDate(raw) {
   try {
     const d = new Date(raw);
     if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
-    
+
     // Fallback for string format "2023:07:14 18:32:00"
     const str = String(raw).replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
     const d2 = new Date(str);
@@ -78,8 +79,8 @@ function inferMoodFromExif(exif) {
   const d = dt instanceof Date ? dt : new Date(String(dt).replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3'));
   if (isNaN(d)) return null;
   const hour = d.getHours();
-  if (hour >= 5  && hour < 8)  return 'peaceful';
-  if (hour >= 8  && hour < 12) return 'joyful';
+  if (hour >= 5 && hour < 8) return 'peaceful';
+  if (hour >= 8 && hour < 12) return 'joyful';
   if (hour >= 12 && hour < 16) return 'excited';
   if (hour >= 16 && hour < 19) return 'adventurous';
   if (hour >= 19 && hour < 22) return 'nostalgic';
@@ -99,18 +100,18 @@ function buildTitleFromExif(exif, location) {
   const month = d ? d.toLocaleDateString('en-US', { month: 'long' }) : null;
 
   const timeOfDay = hour == null ? null
-    : hour < 6  ? 'before dawn'
-    : hour < 10 ? 'morning'
-    : hour < 13 ? 'midday'
-    : hour < 17 ? 'afternoon'
-    : hour < 20 ? 'evening'
-    : 'night';
+    : hour < 6 ? 'before dawn'
+      : hour < 10 ? 'morning'
+        : hour < 13 ? 'midday'
+          : hour < 17 ? 'afternoon'
+            : hour < 20 ? 'evening'
+              : 'night';
 
   if (location && timeOfDay && month) return `${month} ${timeOfDay} in ${location}`;
-  if (location && timeOfDay)          return `A ${timeOfDay} in ${location}`;
-  if (location && month)              return `${month} in ${location}`;
-  if (timeOfDay && month)             return `${month} ${timeOfDay}`;
-  if (location)                       return `A moment in ${location}`;
+  if (location && timeOfDay) return `A ${timeOfDay} in ${location}`;
+  if (location && month) return `${month} in ${location}`;
+  if (timeOfDay && month) return `${month} ${timeOfDay}`;
+  if (location) return `A moment in ${location}`;
   return pickRandom(AUTOFILL_TITLES);
 }
 
@@ -138,7 +139,7 @@ async function reverseGeocode(lat, lon) {
 async function extractExifFromFile(file) {
   try {
     // 1. Parse EVERYTHING exifr can find
-    const exif = await exifr.parse(file, true); 
+    const exif = await exifr.parse(file, true);
     if (!exif) return null;
 
     const result = { raw: exif, found: [] };
@@ -154,7 +155,7 @@ async function extractExifFromFile(file) {
       exif.DateCreated,
       exif.DigitalCreationDate
     ];
-    
+
     let foundDate = null;
     for (const d of datePriority) {
       if (d) {
@@ -162,7 +163,7 @@ async function extractExifFromFile(file) {
         if (parsed) { foundDate = parsed; break; }
       }
     }
-    
+
     if (foundDate) {
       result.date = foundDate;
       result.found.push('date');
@@ -216,38 +217,38 @@ async function extractExifFromFile(file) {
    ══════════════════════════════════════════ */
 export default function EventModal({ event, onSubmit, onClose, allPeople = [] }) {
   const [form, setForm] = useState({
-    title:       event?.title || '',
+    title: event?.title || '',
     description: event?.description || '',
-    date:        event?.date ? new Date(event.date).toISOString().split('T')[0] : today(),
-    location:    event?.location || '',
-    mood:        event?.mood || 'joyful',
-    tags:        event?.tags?.join(', ') || '',
-    color:       event?.color || '#c4813a',
-    isPrivate:   event?.isPrivate || false,
-    media:       event?.media || [],
-    people:      event?.people || [],
-    audioUrl:    event?.audioUrl || '',
-    unlockDate:  event?.unlockDate ? new Date(event.unlockDate).toISOString().split('T')[0] : '',
+    date: event?.date ? new Date(event.date).toISOString().split('T')[0] : today(),
+    location: event?.location || '',
+    mood: event?.mood || 'joyful',
+    tags: event?.tags?.join(', ') || '',
+    color: event?.color || '#c4813a',
+    isPrivate: event?.isPrivate || false,
+    media: event?.media || [],
+    people: event?.people || [],
+    audioUrl: event?.audioUrl || '',
+    unlockDate: event?.unlockDate ? new Date(event.unlockDate).toISOString().split('T')[0] : '',
     coordinates: event?.coordinates || null,
-    type:        event?.type || 'event',
-    biometrics:  event?.biometrics || { heartRate: null, stressLevel: null },
+    type: event?.type || 'event',
+    biometrics: event?.biometrics || { heartRate: null, stressLevel: null },
     collaborators: event?.collaborators || [],
   });
-  const [tagInput,      setTagInput]      = useState(event?.tags?.join(', ') || '');
-  const [personInput,   setPersonInput]   = useState('');
+  const [tagInput, setTagInput] = useState(event?.tags?.join(', ') || '');
+  const [personInput, setPersonInput] = useState('');
   const [personSuggest, setPersonSuggest] = useState(false);
-  const [uploading,     setUploading]     = useState(false);
-  const [loading,       setLoading]       = useState(false);
-  const [error,       setError]       = useState('');
-  const [autofilled,  setAutofilled]  = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [autofilled, setAutofilled] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
 
   // EXIF state
-  const [exifScan,     setExifScan]     = useState(false);   // scanning in progress
-  const [exifBanner,   setExifBanner]   = useState(null);    // { found: [], camera? }
-  const [exifApplied,  setExifApplied]  = useState(false);
-  const [autoExif,     setAutoExif]     = useState(false); // Default to false so user sees the "APPLY" bar
-  const [isSuccess,    setIsSuccess]    = useState(false); // New success state
+  const [exifScan, setExifScan] = useState(false);   // scanning in progress
+  const [exifBanner, setExifBanner] = useState(null);    // { found: [], camera? }
+  const [exifApplied, setExifApplied] = useState(false);
+  const [autoExif, setAutoExif] = useState(false); // Default to false so user sees the "APPLY" bar
+  const [isSuccess, setIsSuccess] = useState(false); // New success state
 
   const fileRef = useRef(null);
   const [moods, setMoods] = useState(getMoods());
@@ -257,9 +258,9 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
   const handleAddMood = () => {
     if (!newMood.label.trim()) return;
     const value = newMood.label.toLowerCase().replace(/\s+/g, '-');
-    const moodObj = { 
-      value, 
-      label: newMood.label, 
+    const moodObj = {
+      value,
+      label: newMood.label,
       emoji: newMood.emoji,
       color: pickRandom(COLORS)
     };
@@ -298,15 +299,42 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
     reader.onerror = error => reject(error);
   });
 
+  const compressImage = (file, maxWidth = 1600, quality = 0.8) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = (maxWidth / width) * height;
+            width = maxWidth;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+      };
+    });
+  };
+
   /* ── Apply EXIF data from banner ── */
   const applyExif = (exifData) => {
     setForm(f => ({
       ...f,
-      ...(exifData.date     ? { date: exifData.date } : {}),
+      ...(exifData.date ? { date: exifData.date } : {}),
       ...(exifData.location ? { location: exifData.location } : {}),
-      ...(exifData.gps      ? { coordinates: exifData.gps } : {}),
-      ...(exifData.mood     ? { mood: exifData.mood } : {}),
-      ...(exifData.title    ? { title: exifData.title } : {}),
+      ...(exifData.gps ? { coordinates: exifData.gps } : {}),
+      ...(exifData.mood ? { mood: exifData.mood } : {}),
+      ...(exifData.title ? { title: exifData.title } : {}),
       ...(exifData.description && !f.description ? { description: exifData.description } : {}),
     }));
     setExifApplied(true);
@@ -332,12 +360,10 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
       // Process all images in parallel
       const results = await Promise.all(fileList.map(async (file) => {
         try {
-          const base64 = await fileToBase64(file);
-          
-          // Start upload and face detection in parallel for this image
+          const compressedBase64 = await compressImage(file);
           const [uploadRes, focalPoint] = await Promise.all([
-            api.post('/upload', { base64, filename: file.name }),
-            detectFocalPoint(base64)
+            api.post('/upload', { base64: compressedBase64, filename: file.name }),
+            detectFocalPoint(compressedBase64)
           ]);
 
           return { ...uploadRes.data, focalPoint };
@@ -381,13 +407,13 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
 
   const handleAutoDescribe = async () => {
     if (!form.media || form.media.length === 0) return;
-    
+
     setAiGenerating(true);
     try {
       // 1. Generate AI caption
       const captioner = await pipeline('image-to-text', 'Xenova/vit-gpt2-image-captioning');
       const result = await captioner(form.media[0].url);
-      
+
       let aiCaption = '';
       if (result && result.length > 0 && result[0].generated_text) {
         aiCaption = result[0].generated_text.trim();
@@ -395,7 +421,7 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
 
       // 2. Build cohesive statement from people's names and AI caption
       let fullDescription = '';
-      const peopleList = form.people.length > 0 
+      const peopleList = form.people.length > 0
         ? (form.people.length === 1 ? form.people[0] : `${form.people.slice(0, -1).join(', ')} and ${form.people.slice(-1)}`)
         : null;
 
@@ -419,9 +445,9 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
         fullDescription = fullDescription.charAt(0).toUpperCase() + fullDescription.slice(1);
         if (!fullDescription.endsWith('.')) fullDescription += '.';
 
-        setForm(prev => ({ 
-          ...prev, 
-          description: prev.description ? `${prev.description}\n\n${fullDescription}` : fullDescription 
+        setForm(prev => ({
+          ...prev,
+          description: prev.description ? `${prev.description}\n\n${fullDescription}` : fullDescription
         }));
       }
     } catch (err) {
@@ -458,7 +484,7 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSuccess) { onClose(); return; }
-    
+
     if (!form.title.trim() || !form.date) { setError('Title and date are required'); return; }
     setLoading(true);
     setError('');
@@ -488,7 +514,7 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
               className={`btn btn-primary btn-sm magic-btn ${aiGenerating ? 'loading' : ''}`}
               onClick={handleMagicAutofill}
               disabled={aiGenerating}
-              style={{ 
+              style={{
                 background: 'linear-gradient(135deg, var(--accent-indigo), var(--accent-rose))',
                 border: 'none',
                 color: 'white',
@@ -513,41 +539,21 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
         )}
 
         {/* EXIF notification bar — shown after scan */}
-        {exifBanner && (
-          <div className="meta-notification-bar animate-slideDown">
-            <div className="meta-bar-content">
-              <span className="meta-bar-icon">📷</span>
-              <div className="meta-bar-info">
-                <span className="meta-bar-text">Photo history found!</span>
-                <div className="meta-bar-chips">
-                  {exifBanner.found.map(f => <span key={f} className="meta-chip">{f}</span>)}
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              className="meta-apply-btn"
-              onClick={() => applyExif(exifBanner)}
-            >
-              APPLY METADATA
-            </button>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit}>
 
           {/* Memory Type Selector (Dream vs Real) */}
           <div className="form-group" style={{ marginBottom: '24px' }}>
             <div className="type-toggle-container">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={`type-btn ${form.type === 'event' ? 'active' : ''}`}
                 onClick={() => setForm(f => ({ ...f, type: 'event' }))}
               >
                 ☀️ Real Moment
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={`type-btn ${form.type === 'dream' ? 'active' : ''} type-btn-dream`}
                 onClick={() => setForm(f => ({ ...f, type: 'dream' }))}
               >
@@ -599,9 +605,9 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <label className="input-label" style={{ margin: 0 }}>Description</label>
               {form.media?.length > 0 && (
-                <button 
-                  type="button" 
-                  className="btn btn-ghost btn-sm" 
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
                   onClick={handleAutoDescribe}
                   disabled={aiGenerating}
                   style={{ color: 'var(--accent-indigo)', fontSize: '12px', padding: '4px 8px' }}
@@ -623,9 +629,9 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
           <div className="form-group">
             <div className="input-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>Vibe / Mood</span>
-              <button 
-                type="button" 
-                className="btn btn-ghost btn-sm" 
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
                 style={{ fontSize: '11px', padding: '2px 8px' }}
                 onClick={() => {
                   const score = sentimentScore(form.description);
@@ -662,17 +668,17 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
 
             {showCustomMood && (
               <div className="custom-mood-input animate-in">
-                <input 
-                  type="text" 
-                  placeholder="Emoji (e.g. 🦊)" 
+                <input
+                  type="text"
+                  placeholder="Emoji (e.g. 🦊)"
                   className="mood-emoji-input"
                   value={newMood.emoji}
                   onChange={e => setNewMood(n => ({ ...n, emoji: e.target.value }))}
                   maxLength={2}
                 />
-                <input 
-                  type="text" 
-                  placeholder="Mood name..." 
+                <input
+                  type="text"
+                  placeholder="Mood name..."
                   className="mood-label-input"
                   value={newMood.label}
                   onChange={e => setNewMood(n => ({ ...n, label: e.target.value }))}
@@ -704,33 +710,33 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
             <div className="biometric-row">
               <div className="bio-input-wrap">
                 <span className="bio-icon">❤️</span>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   placeholder="BPM"
-                  value={form.biometrics.heartRate || ''} 
+                  value={form.biometrics.heartRate || ''}
                   onChange={e => setForm(f => ({ ...f, biometrics: { ...f.biometrics, heartRate: e.target.value } }))}
                 />
               </div>
               <div className="bio-input-wrap">
                 <span className="bio-icon">🔥</span>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   placeholder="Stress %"
-                  value={form.biometrics.stressLevel || ''} 
+                  value={form.biometrics.stressLevel || ''}
                   onChange={e => setForm(f => ({ ...f, biometrics: { ...f.biometrics, stressLevel: e.target.value } }))}
                 />
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-ghost btn-sm bio-sync-btn"
                 onClick={() => {
                   // Simulate watch sync
-                  setForm(f => ({ 
-                    ...f, 
-                    biometrics: { 
+                  setForm(f => ({
+                    ...f,
+                    biometrics: {
                       heartRate: Math.floor(Math.random() * (120 - 65) + 65),
                       stressLevel: Math.floor(Math.random() * 40)
-                    } 
+                    }
                   }));
                 }}
               >
@@ -743,8 +749,8 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
           <div className="form-group advanced-section">
             <label className="input-label">🌌 Memory Portal (Collaborators)</label>
             <div className="portal-input-row">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="input"
                 placeholder="Invite friend by username..."
                 onKeyDown={e => {
@@ -810,7 +816,7 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
                 onBlur={() => setTimeout(() => setPersonSuggest(false), 150)}
                 onKeyDown={e => {
                   if (e.key === 'Enter') { e.preventDefault(); addPerson(personInput); }
-                  if (e.key === ',')     { e.preventDefault(); addPerson(personInput); }
+                  if (e.key === ',') { e.preventDefault(); addPerson(personInput); }
                 }}
               />
               {/* Suggestions dropdown */}
@@ -848,10 +854,10 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
                   <span>Drop photos here or click to browse</span>
                   <div className="media-exif-control" onClick={e => e.stopPropagation()}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>
-                      <input 
-                        type="checkbox" 
-                        checked={autoExif} 
-                        onChange={e => setAutoExif(e.target.checked)} 
+                      <input
+                        type="checkbox"
+                        checked={autoExif}
+                        onChange={e => setAutoExif(e.target.checked)}
                       />
                       Auto-sync metadata (Date, Location, Title)
                     </label>
@@ -875,8 +881,8 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
                 </label>
                 <div className="media-preview">
                   {form.media.map((m, i) => (
-                    <div 
-                      key={i} 
+                    <div
+                      key={i}
                       className="media-preview-item focal-point-target"
                       onClick={(e) => {
                         const rect = e.currentTarget.getBoundingClientRect();
@@ -887,18 +893,18 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
                         setForm(f => ({ ...f, media: newMedia }));
                       }}
                     >
-                      <img 
-                        src={m.url} 
-                        alt="" 
-                        style={{ 
-                          objectPosition: `${m.focalPoint?.x || 50}% ${m.focalPoint?.y || 50}%` 
-                        }} 
+                      <img
+                        src={m.url}
+                        alt=""
+                        style={{
+                          objectPosition: `${m.focalPoint?.x || 50}% ${m.focalPoint?.y || 50}%`
+                        }}
                       />
-                      <div 
+                      <div
                         className="focal-point-marker"
-                        style={{ 
-                          left: `${m.focalPoint?.x || 50}%`, 
-                          top: `${m.focalPoint?.y || 50}%` 
+                        style={{
+                          left: `${m.focalPoint?.x || 50}%`,
+                          top: `${m.focalPoint?.y || 50}%`
                         }}
                       />
                       <button type="button" className="media-remove" onClick={(e) => { e.stopPropagation(); removeMedia(i); }}>✕</button>
@@ -956,15 +962,55 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
 
           <div className="modal-footer">
             {!isSuccess && <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>}
-            <button 
-              type="submit" 
-              className={`btn ${isSuccess ? 'btn-success-timeline' : 'btn-primary'}`} 
+            <button
+              type="submit"
+              className={`btn ${isSuccess ? 'btn-success-timeline' : 'btn-primary'}`}
               disabled={loading}
             >
               {loading ? '…' : isSuccess ? 'See Timeline ✦' : event ? 'Save Changes' : 'Add Memory'}
             </button>
           </div>
         </form>
+
+        {/* EXIF floating notification — Pops up at the bottom */}
+        <AnimatePresence>
+          {exifBanner && (
+            <motion.div
+              className="meta-notification-pop"
+              initial={{ y: 100, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 100, opacity: 0, scale: 0.9 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            >
+              <div className="meta-pop-content">
+                <div className="meta-pop-icon">✨</div>
+                <div className="meta-pop-info">
+                  <div className="meta-pop-title">Memory history found!</div>
+                  <div className="meta-pop-subtitle">
+                    Detected: {exifBanner.found.join(', ')}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="meta-pop-btn"
+                  onClick={() => {
+                    applyExif(exifBanner);
+                    setExifBanner(null);
+                  }}
+                >
+                  APPLY
+                </button>
+                <button
+                  type="button"
+                  className="meta-pop-close"
+                  onClick={() => setExifBanner(null)}
+                >
+                  ✕
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

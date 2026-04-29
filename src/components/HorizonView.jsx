@@ -3,19 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './HorizonView.css';
 
 const MOOD_COLORS = {
-  joyful:'#f59e0b', nostalgic:'#8b5cf6', proud:'#10b981', sad:'#6b7280',
-  excited:'#ef4444', peaceful:'#06b6d4', grateful:'#ec4899', adventurous:'#f97316',
+  joyful: '#f59e0b', nostalgic: '#8b5cf6', proud: '#10b981', sad: '#6b7280',
+  excited: '#ef4444', peaceful: '#06b6d4', grateful: '#ec4899', adventurous: '#f97316',
 };
 const MOOD_EMOJIS = {
-  joyful:'😄', nostalgic:'🌙', proud:'🏆', sad:'💧',
-  excited:'⚡', peaceful:'🕊', grateful:'🌸', adventurous:'🗺',
+  joyful: '😄', nostalgic: '🌙', proud: '🏆', sad: '💧',
+  excited: '⚡', peaceful: '🕊', grateful: '🌸', adventurous: '🗺',
 };
 
-const SVG_H   = 560;
-const MID_Y   = SVG_H / 2;
-const H_GAP   = 310;
-const CARD_W  = 220;
-const CARD_H  = 185;
+const SVG_H = 560;
+const MID_Y = SVG_H / 2;
+const H_GAP = 310;
+const CARD_W = 220;
+const CARD_H = 185;
 const TENDRILS = 6;
 
 /* Catmull-Rom → cubic bezier path through points */
@@ -56,9 +56,9 @@ function buildLayout(events) {
 
 /* Tendril path (decorative energy arc) */
 function tendrilPath(seed, totalW) {
-  const amp   = 60 + seed * 22;
-  const freq  = 0.008 + seed * 0.002;
-  const yOff  = MID_Y + (seed % 2 === 0 ? -amp : amp);
+  const amp = 60 + seed * 22;
+  const freq = 0.008 + seed * 0.002;
+  const yOff = MID_Y + (seed % 2 === 0 ? -amp : amp);
   let d = `M 0 ${yOff}`;
   for (let x = 0; x <= totalW; x += 40) {
     const y = yOff + Math.sin(x * freq + seed) * (amp * 0.6);
@@ -70,8 +70,8 @@ function tendrilPath(seed, totalW) {
 /* ─── Detail overlay ─── */
 function MemoryDetail({ item, onClose, rank, total }) {
   const { ev, color } = item;
-  const emoji  = MOOD_EMOJIS[ev.mood] || '✦';
-  const fmtDate = new Date(ev.date).toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  const emoji = MOOD_EMOJIS[ev.mood] || '✦';
+  const fmtDate = new Date(ev.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
   return (
     <motion.div className="hv-detail-overlay"
@@ -80,8 +80,8 @@ function MemoryDetail({ item, onClose, rank, total }) {
     >
       <motion.div className="hv-detail-panel"
         initial={{ y: '100%', opacity: 0 }}
-        animate={{ y: 0,      opacity: 1 }}
-        exit={{    y: '100%', opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: '100%', opacity: 0 }}
         transition={{ type: 'spring', damping: 28, stiffness: 280 }}
       >
         {/* Color accent bar */}
@@ -204,11 +204,11 @@ export default function HorizonView({ events, editMode, onEdit }) {
   const layout = useMemo(() => buildLayout(sorted), [sorted]);
   const totalW = 280 + sorted.length * H_GAP;
 
-  const [selected,  setSelected]  = useState(null);
+  const [selected, setSelected] = useState(null);
   const [hoveredId, setHoveredId] = useState(null);
   const scrollRef = useRef(null);
   const isDragging = useRef(false);
-  const dragStart  = useRef(0);
+  const dragStart = useRef(0);
   const scrollStart = useRef(0);
 
   /* Mouse-drag horizontal scroll */
@@ -217,10 +217,10 @@ export default function HorizonView({ events, editMode, onEdit }) {
     if (!el) return;
     const onDown = e => { isDragging.current = true; dragStart.current = e.clientX; scrollStart.current = el.scrollLeft; el.style.cursor = 'grabbing'; };
     const onMove = e => { if (!isDragging.current) return; el.scrollLeft = scrollStart.current - (e.clientX - dragStart.current); };
-    const onUp   = ()  => { isDragging.current = false; el.style.cursor = 'grab'; };
+    const onUp = () => { isDragging.current = false; el.style.cursor = 'grab'; };
     el.addEventListener('mousedown', onDown);
     window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup',   onUp);
+    window.addEventListener('mouseup', onUp);
     return () => { el.removeEventListener('mousedown', onDown); window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
   }, []);
 
@@ -236,7 +236,7 @@ export default function HorizonView({ events, editMode, onEdit }) {
   const mainPath = smoothPath(layout.map(l => ({ x: l.cx, y: l.dotY })));
   const tendrils = Array.from({ length: TENDRILS }, (_, i) => ({
     d: tendrilPath(i, totalW),
-    color: ['#f59e0b','#8b5cf6','#06b6d4','#ec4899','#f97316','#10b981'][i],
+    color: ['#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316', '#10b981'][i],
     width: 0.8 + i * 0.2,
     opacity: 0.12 + i * 0.03,
     dashLen: 20 + i * 15,
@@ -259,10 +259,10 @@ export default function HorizonView({ events, editMode, onEdit }) {
             <defs>
               {/* Animated sweep gradient */}
               <linearGradient id="hv-main-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stopColor="#f59e0b" stopOpacity="0.6" />
-                <stop offset="25%"  stopColor="#ec4899" stopOpacity="0.8" />
-                <stop offset="50%"  stopColor="#8b5cf6" stopOpacity="0.9" />
-                <stop offset="75%"  stopColor="#06b6d4" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.6" />
+                <stop offset="25%" stopColor="#ec4899" stopOpacity="0.8" />
+                <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.9" />
+                <stop offset="75%" stopColor="#06b6d4" stopOpacity="0.8" />
                 <stop offset="100%" stopColor="#f97316" stopOpacity="0.6" />
               </linearGradient>
               <filter id="hv-glow">

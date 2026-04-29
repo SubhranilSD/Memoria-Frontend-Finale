@@ -20,8 +20,15 @@
 }
 
 @keyframes hv-bg-breathe {
-  from { opacity: 0.8; transform: scale(1); }
-  to { opacity: 1; transform: scale(1.02); }
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.02);
+  }
 }
 
 
@@ -54,9 +61,18 @@
   padding: 0 40px;
 }
 
-.hv-scroller::-webkit-scrollbar { height: 4px; }
-.hv-scroller::-webkit-scrollbar-track { background: transparent; }
-.hv-scroller::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+.hv-scroller::-webkit-scrollbar {
+  height: 4px;
+}
+
+.hv-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hv-scroller::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 2px;
+}
 
 /* ── Canvas ── */
 .hv-canvas {
@@ -79,8 +95,13 @@
 }
 
 @keyframes hv-tendril-flow {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -300; }
+  from {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: -300;
+  }
 }
 
 /* Core path pulse - Intense and Thick */
@@ -89,14 +110,15 @@
 }
 
 @keyframes hv-core-pulse {
-  from { 
-    stroke-opacity: 0.7; 
-    filter: drop-shadow(0 0 6px var(--accent-gold)) drop-shadow(0 0 12px var(--accent-rose)); 
+  from {
+    stroke-opacity: 0.7;
+    filter: drop-shadow(0 0 6px var(--accent-gold)) drop-shadow(0 0 12px var(--accent-rose));
     stroke-width: 4;
   }
-  to { 
-    stroke-opacity: 1;   
-    filter: drop-shadow(0 0 18px var(--accent-gold)) drop-shadow(0 0 40px var(--accent-indigo)); 
+
+  to {
+    stroke-opacity: 1;
+    filter: drop-shadow(0 0 18px var(--accent-gold)) drop-shadow(0 0 40px var(--accent-indigo));
     stroke-width: 6;
   }
 }
@@ -106,13 +128,25 @@
 }
 
 @keyframes hv-aura-float {
-  from { stroke-opacity: 0.1; stroke-width: 1; }
-  to { stroke-opacity: 0.4; stroke-width: 3; }
+  from {
+    stroke-opacity: 0.1;
+    stroke-width: 1;
+  }
+
+  to {
+    stroke-opacity: 0.4;
+    stroke-width: 3;
+  }
 }
 
 @keyframes hv-shimmer {
-  0% { stroke-dashoffset: 2000; }
-  100% { stroke-dashoffset: 0; }
+  0% {
+    stroke-dashoffset: 2000;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 .hv-svg path[stroke*="url"] {
@@ -126,8 +160,15 @@
 }
 
 @keyframes hv-glow-deep-pulse {
-  from { stroke-opacity: 0.05; filter: blur(12px); }
-  to { stroke-opacity: 0.15; filter: blur(20px); }
+  from {
+    stroke-opacity: 0.05;
+    filter: blur(12px);
+  }
+
+  to {
+    stroke-opacity: 0.15;
+    filter: blur(20px);
+  }
 }
 
 
@@ -176,13 +217,15 @@
   transition: transform 0.4s ease;
 }
 
-.hv-card:hover .hv-card-thumb img { transform: scale(1.07); }
+.hv-card:hover .hv-card-thumb img {
+  transform: scale(1.07);
+}
 
 .hv-card-thumb-count {
   position: absolute;
   bottom: 5px;
   right: 6px;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.65);
   color: white;
   font-size: 9px;
   font-weight: 700;
@@ -206,9 +249,14 @@
   gap: 5px;
 }
 
-.hv-card-emoji { font-size: 16px; line-height: 1; }
+.hv-card-emoji {
+  font-size: 16px;
+  line-height: 1;
+}
 
-.hv-card-private { font-size: 10px; }
+.hv-card-private {
+  font-size: 10px;
+}
 
 .hv-card-num {
   margin-left: auto;
@@ -268,10 +316,18 @@
   justify-content: center;
 }
 
-.hv-card-person-more { font-size: 9px; color: var(--text-muted); }
+.hv-card-person-more {
+  font-size: 9px;
+  color: var(--text-muted);
+}
 
 /* Tags */
-.hv-card-tags { display: flex; gap: 3px; flex-wrap: wrap; }
+.hv-card-tags {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
 .hv-card-tag {
   font-size: 9px;
   color: var(--text-muted);
@@ -293,7 +349,9 @@
   transition: opacity 0.2s ease;
 }
 
-.hv-card:hover .hv-card-click-hint { opacity: 1; }
+.hv-card:hover .hv-card-click-hint {
+  opacity: 1;
+}
 
 /* ══════════════════════════════════
    DETAIL OVERLAY
@@ -366,7 +424,11 @@
 }
 
 /* Left column */
-.hv-dp-left { display: flex; flex-direction: column; gap: 14px; }
+.hv-dp-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
 .hv-dp-gallery {
   display: flex;
@@ -418,7 +480,11 @@
   margin-bottom: 6px;
 }
 
-.hv-dp-people-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hv-dp-people-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
 
 .hv-dp-person {
   display: inline-flex;
@@ -433,15 +499,24 @@
 }
 
 .hv-dp-person-av {
-  width: 18px; height: 18px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent-gold), var(--accent-rose));
-  color: white; font-size: 8px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Right column */
-.hv-dp-right { display: flex; flex-direction: column; gap: 16px; }
+.hv-dp-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 .hv-dp-meta-row {
   display: flex;
@@ -449,7 +524,11 @@
   gap: 10px;
 }
 
-.hv-dp-date { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+.hv-dp-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+}
 
 .hv-dp-private {
   font-size: 11px;
@@ -486,7 +565,10 @@
   border-bottom: 1px dashed var(--accent-gold);
   transition: opacity 0.15s ease;
 }
-.hv-dp-loc-link:hover { opacity: 0.75; }
+
+.hv-dp-loc-link:hover {
+  opacity: 0.75;
+}
 
 .hv-dp-desc-wrap {
   display: flex;
@@ -507,9 +589,17 @@
   font-style: italic;
 }
 
-.hv-dp-section { display: flex; flex-direction: column; }
+.hv-dp-section {
+  display: flex;
+  flex-direction: column;
+}
 
-.hv-dp-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.hv-dp-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
 
 /* Stats strip */
 .hv-dp-stats {
@@ -522,7 +612,12 @@
   margin-top: auto;
 }
 
-.hv-dp-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.hv-dp-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
 
 .hv-dp-stat-n {
   font-family: 'Playfair Display', serif;
@@ -540,6 +635,11 @@
 }
 
 @media (max-width: 768px) {
-  .hv-dp-body { grid-template-columns: 1fr; }
-  .hv-dp-title { font-size: 22px; }
+  .hv-dp-body {
+    grid-template-columns: 1fr;
+  }
+
+  .hv-dp-title {
+    font-size: 22px;
+  }
 }

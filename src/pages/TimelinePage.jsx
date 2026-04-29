@@ -27,6 +27,7 @@ const MemoryDetail = lazy(() => import('../components/MemoryDetail'));
 const HighlightsReel = lazy(() => import('../components/HighlightsReel'));
 const Toast = lazy(() => import('../components/Toast'));
 const ProfileModal = lazy(() => import('../components/ProfileModal'));
+import MobileBottomBar from '../components/MobileBottomBar';
 import './TimelinePage.css';
 
 const MOOD_COLORS = {
@@ -446,6 +447,16 @@ export default function TimelinePage() {
           />
         )}
         {toast && <Toast message={toast.message} type={toast.type} />}
+        
+        {/* Mobile Bottom Bar - Only visible on mobile via CSS */}
+        <MobileBottomBar 
+          view={view}
+          setView={setView}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onAddClick={() => { setEditingEvent(null); setShowModal(true); }}
+          onProfileClick={() => setShowProfileModal(true)}
+        />
       </Suspense>
     </div>
   );

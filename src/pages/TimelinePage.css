@@ -69,7 +69,7 @@
 }
 
 @media (max-width: 768px) {
-  .timeline-main { padding: 8px 6px !important; }
+  .timeline-main { padding: 8px 6px 80px !important; }
   .timeline-header { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 12px; }
   .timeline-header-actions { 
     flex-wrap: wrap; 

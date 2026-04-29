@@ -58,9 +58,67 @@
 }
 
 /* Add Button Styling */
+.mbb-add-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
 .mbb-add {
   position: relative;
   margin-top: -30px; /* Pull it up */
+  z-index: 1002;
+}
+
+.mbb-sub-item {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1001;
+}
+
+.mbb-sub-inner {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-sidebar);
+  border: 2px solid var(--accent-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  color: var(--accent-gold);
+}
+
+.expanded .mbb-sub-item {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.expanded .mbb-sub-single {
+  transform: translateX(-160%) translateY(-75px);
+}
+
+.expanded .mbb-sub-bulk {
+  transform: translateX(60%) translateY(-75px);
+  transition-delay: 0.05s;
+}
+
+.mbb-sub-item .mbb-label {
+  font-size: 8px;
+  color: var(--text-secondary);
 }
 
 .mbb-add-inner {

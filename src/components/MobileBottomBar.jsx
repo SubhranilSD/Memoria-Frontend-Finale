@@ -7,8 +7,19 @@ const MobileBottomBar = ({
   theme, 
   toggleTheme, 
   onAddClick, 
+  onBulkAddClick,
   onProfileClick 
 }) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  const handleAddMainClick = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleSubAction = (action) => {
+    setIsExpanded(false);
+    action();
+  };
   return (
     <nav className="mobile-bottom-bar">
       <button 
@@ -27,12 +38,36 @@ const MobileBottomBar = ({
         <span className="mbb-label">Horizon</span>
       </button>
       
-      <button className="mbb-item mbb-add" onClick={onAddClick}>
-        <div className="mbb-add-inner">
-          <span className="mbb-icon">+</span>
-        </div>
-        <span className="mbb-label">Add</span>
-      </button>
+      <div className={`mbb-add-container ${isExpanded ? 'expanded' : ''}`}>
+        <button 
+          className="mbb-sub-item mbb-sub-bulk" 
+          onClick={() => handleSubAction(onBulkAddClick)}
+          title="Bulk Add"
+        >
+          <div className="mbb-sub-inner">
+            <span className="mbb-icon">📸</span>
+          </div>
+          <span className="mbb-label">Bulk</span>
+        </button>
+
+        <button 
+          className="mbb-sub-item mbb-sub-single" 
+          onClick={() => handleSubAction(onAddClick)}
+          title="Add Single"
+        >
+          <div className="mbb-sub-inner">
+            <span className="mbb-icon">✦</span>
+          </div>
+          <span className="mbb-label">Single</span>
+        </button>
+
+        <button className="mbb-item mbb-add" onClick={handleAddMainClick}>
+          <div className="mbb-add-inner">
+            <span className="mbb-icon">{isExpanded ? '×' : '+'}</span>
+          </div>
+          <span className="mbb-label">Add</span>
+        </button>
+      </div>
       
       <button className="mbb-item" onClick={toggleTheme}>
         <span className="mbb-icon">{theme === 'dark' ? '☀' : '☾'}</span>

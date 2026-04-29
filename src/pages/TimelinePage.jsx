@@ -455,6 +455,7 @@ export default function TimelinePage() {
           theme={theme}
           toggleTheme={toggleTheme}
           onAddClick={() => { setEditingEvent(null); setShowModal(true); }}
+          onBulkAddClick={() => setShowBulkModal(true)}
           onProfileClick={() => setShowProfileModal(true)}
         />
       </Suspense>

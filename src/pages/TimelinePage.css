@@ -72,9 +72,11 @@
   .timeline-main { padding: 8px 6px 80px !important; }
   .timeline-header { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 12px; }
   .timeline-header-actions { 
-    flex-wrap: wrap; 
-    justify-content: center;
-    gap: 4px;
+    display: flex;
+    width: 100%;
+  }
+  .timeline-header-actions .btn {
+    display: none;
   }
   .search-bar { width: 100%; max-width: none; height: 32px !important; }
   .btn { font-size: 10px !important; padding: 4px 8px !important; min-height: unset !important; }

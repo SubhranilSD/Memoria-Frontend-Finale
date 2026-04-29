@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import './EventModal.css'; // Reuse glassmorphism styles
 
@@ -14,6 +15,7 @@ export default function ProfileModal({ user, onClose, onUpdate }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const { logout } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -110,10 +112,25 @@ export default function ProfileModal({ user, onClose, onUpdate }) {
               </div>
             </div>
 
-            <div className="modal-footer">
-              <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Saving...' : 'Update Profile'}
+            <div className="modal-footer" style={{ flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={loading}>
+                  {loading ? 'Saving...' : 'Update Profile'}
+                </button>
+              </div>
+              <button 
+                type="button" 
+                className="btn btn-danger" 
+                style={{ width: '100%', marginTop: '8px', justifyContent: 'center' }} 
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to sign out?')) {
+                    logout();
+                    onClose();
+                  }
+                }}
+              >
+                <span style={{ marginRight: '8px' }}>⎋</span> Sign Out
               </button>
             </div>
           </form>

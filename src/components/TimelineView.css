@@ -43,47 +43,63 @@
 
 @media (max-width: 768px) {
   .timeline-view {
-    padding: 2px 0 10px !important;
+    padding: 20px 8px 40px !important;
   }
 
   .timeline-line {
     left: 50% !important;
-    transform: translateX(-50%) !important;
-    display: block !important;
-    width: 1px !important;
+    width: 1.5px !important;
   }
 
   .timeline-item {
+    width: 100% !important;
     margin-bottom: 24px !important;
-    padding-right: 12px !important;
+    display: flex !important;
+  }
+
+  .timeline-item.left {
+    padding-right: calc(50% + 18px) !important;
     padding-left: 0 !important;
-    width: 48% !important;
+    flex-direction: row !important;
   }
 
   .timeline-item.right {
-    padding-left: 12px !important;
+    padding-left: calc(50% + 18px) !important;
     padding-right: 0 !important;
-    margin-left: 52% !important;
+    flex-direction: row-reverse !important;
+    margin-left: 0 !important;
   }
 
   .timeline-dot-wrapper {
     left: 50% !important;
+    top: 14px !important;
     transform: translateX(-50%) !important;
-    top: 4px !important;
   }
 
   .timeline-dot {
-    width: 10px !important;
-    height: 10px !important;
+    width: 24px !important;
+    height: 24px !important;
   }
 
   .timeline-dot-emoji {
-    font-size: 6px !important;
+    font-size: 11px !important;
   }
 
   .timeline-connector {
-    width: 4px !important;
-    top: 9px !important;
+    display: block !important;
+    width: 14px !important;
+    top: 25px !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+  }
+
+  .left-connector {
+    right: calc(50% + 12px) !important;
+    left: auto !important;
+  }
+
+  .right-connector {
+    left: calc(50% + 12px) !important;
+    right: auto !important;
   }
 }
 

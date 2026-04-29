@@ -142,8 +142,6 @@
   .event-card {
     aspect-ratio: auto;
     min-height: unset;
-    width: 92% !important;
-    margin: 0 auto !important;
     transform: scale(0.96);
   }
   .event-card-media { 

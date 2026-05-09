@@ -512,6 +512,8 @@
     position: fixed;
     left: -264px;
     box-shadow: 20px 0 50px rgba(0,0,0,0.3);
+    padding-bottom: 90px;
+    z-index: 1000;
   }
   .sidebar.is-open {
     left: 0;

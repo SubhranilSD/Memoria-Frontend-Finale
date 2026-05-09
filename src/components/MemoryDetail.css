@@ -937,3 +937,25 @@
   box-shadow: 0 0 20px rgba(0,0,0,0.5);
   z-index: 10;
 }
+
+/* Composition Mobile Optimizations */
+@media (max-width: 600px) {
+  .md-composition-tab {
+    padding: 20px 16px;
+  }
+
+  .md-composition-controls {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 16px;
+  }
+
+  .md-zoom-slider-wrap {
+    gap: 8px;
+  }
+
+  .md-aspect-pill {
+    padding: 4px 10px;
+    font-size: 9px;
+  }
+}

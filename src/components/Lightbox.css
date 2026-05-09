@@ -109,3 +109,48 @@
   font-size: 14px;
   background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
 }
+
+/* Mobile optimizations */
+@media (max-width: 600px) {
+  .lightbox-header {
+    flex-direction: column;
+    padding: 16px 20px;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .lightbox-title-area h2 {
+    font-size: 20px;
+  }
+
+  .lightbox-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  
+  .lightbox-icon-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .lightbox-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  .lightbox-content {
+    padding: 20px 16px;
+  }
+
+  .lightbox-footer {
+    padding: 16px 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+}

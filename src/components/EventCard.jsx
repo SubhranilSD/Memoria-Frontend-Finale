@@ -140,7 +140,6 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
             }}
           />
 
-          <div className="event-card-accent" style={{ background: event.color || moodColor }} />
 
           {/* Media */}
           {hasMedia && !isFuture && (

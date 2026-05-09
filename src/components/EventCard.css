@@ -56,15 +56,6 @@
   opacity: 1;
 }
 
-/* Accent bar */
-.event-card-accent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  z-index: 2;
-}
 
 /* Media */
 .event-card-media {

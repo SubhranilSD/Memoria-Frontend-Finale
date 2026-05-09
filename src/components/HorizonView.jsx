@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './HorizonView.css';
 
@@ -100,7 +100,14 @@ function MemoryDetail({ item, onClose, rank, total }) {
             {ev.media?.length > 0 ? (
               <div className="hv-dp-gallery">
                 {ev.media.map((m, i) => (
-                  <img key={i} src={m.url} alt="" className="hv-dp-img" />
+                  <img
+                    key={i}
+                    src={m.url}
+                    alt=""
+                    className="hv-dp-img"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ))}
               </div>
             ) : (
@@ -204,12 +211,31 @@ export default function HorizonView({ events, editMode, onEdit }) {
   const layout = useMemo(() => buildLayout(sorted), [sorted]);
   const totalW = 280 + sorted.length * H_GAP;
 
+  // Memoize tendrils — they only depend on totalW, not on hover/selection state
+  const tendrils = useMemo(() => Array.from({ length: TENDRILS }, (_, i) => ({
+    d: tendrilPath(i, totalW),
+    color: ['#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316', '#10b981'][i],
+    width: 0.8 + i * 0.2,
+    opacity: 0.12 + i * 0.03,
+    dashLen: 20 + i * 15,
+    dur: 8 + i * 3,
+  })), [totalW]);
+
+  // Memoize main SVG path — only changes when layout changes
+  const mainPath = useMemo(() => smoothPath(layout.map(l => ({ x: l.cx, y: l.dotY }))), [layout]);
+
   const [selected, setSelected] = useState(null);
   const [hoveredId, setHoveredId] = useState(null);
   const scrollRef = useRef(null);
   const isDragging = useRef(false);
   const dragStart = useRef(0);
   const scrollStart = useRef(0);
+
+  // Stable callbacks — prevent child re-renders from changing handlers
+  const handleSelect = useCallback((id) => setSelected(id), []);
+  const handleHoverStart = useCallback((id) => setHoveredId(id), []);
+  const handleHoverEnd = useCallback(() => setHoveredId(null), []);
+  const handleClose = useCallback(() => setSelected(null), []);
 
   /* Mouse-drag horizontal scroll */
   useEffect(() => {
@@ -232,16 +258,6 @@ export default function HorizonView({ events, editMode, onEdit }) {
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
-
-  const mainPath = smoothPath(layout.map(l => ({ x: l.cx, y: l.dotY })));
-  const tendrils = Array.from({ length: TENDRILS }, (_, i) => ({
-    d: tendrilPath(i, totalW),
-    color: ['#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316', '#10b981'][i],
-    width: 0.8 + i * 0.2,
-    opacity: 0.12 + i * 0.03,
-    dashLen: 20 + i * 15,
-    dur: 8 + i * 3,
-  }));
 
   const selectedLayout = layout.find(l => l.ev._id === selected);
 
@@ -369,12 +385,13 @@ export default function HorizonView({ events, editMode, onEdit }) {
                 className={`hv-card ${above ? 'hv-card--above' : 'hv-card--below'}`}
                 style={{ left: cardX, top: cardY, '--card-color': color, width: CARD_W }}
                 whileHover={{ y: above ? -6 : 6, scale: 1.03 }}
-                onClick={() => setSelected(ev._id)}
-                onHoverStart={() => setHoveredId(ev._id)}
-                onHoverEnd={() => setHoveredId(null)}
+                onClick={() => handleSelect(ev._id)}
+                onHoverStart={() => handleHoverStart(ev._id)}
+                onHoverEnd={handleHoverEnd}
                 initial={{ opacity: 0, y: above ? -20 : 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.06, type: 'spring', damping: 20 }}
+                // Cap delay at 20 items so large timelines don't have cards waiting 5+ seconds
+                transition={{ delay: Math.min(idx, 20) * 0.05, type: 'spring', damping: 20 }}
               >
                 {/* Top accent bar */}
                 <div className="hv-card-bar" style={{ background: `linear-gradient(90deg, ${color}, ${color}55)` }} />
@@ -382,7 +399,12 @@ export default function HorizonView({ events, editMode, onEdit }) {
                 {/* Photo thumbnail */}
                 {ev.media?.[0]?.url && (
                   <div className="hv-card-thumb">
-                    <img src={ev.media[0].url} alt="" />
+                    <img
+                      src={ev.media[0].url}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
                     {ev.media.length > 1 && (
                       <span className="hv-card-thumb-count">+{ev.media.length - 1}</span>
                     )}
@@ -429,7 +451,7 @@ export default function HorizonView({ events, editMode, onEdit }) {
             item={selectedLayout}
             rank={layout.findIndex(l => l.ev._id === selected) + 1}
             total={layout.length}
-            onClose={() => setSelected(null)}
+            onClose={handleClose}
           />
         )}
       </AnimatePresence>

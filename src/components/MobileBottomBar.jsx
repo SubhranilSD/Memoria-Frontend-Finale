@@ -2,12 +2,15 @@ import React from 'react';
 import './MobileBottomBar.css';
 
 const MobileBottomBar = ({ 
+  user,
   view, 
   setView, 
   theme, 
   toggleTheme, 
   onAddClick, 
   onBulkAddClick,
+  onInstantClick,
+  onStatsClick,
   onProfileClick 
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -51,6 +54,17 @@ const MobileBottomBar = ({
         </button>
 
         <button 
+          className="mbb-sub-item mbb-sub-instant" 
+          onClick={() => handleSubAction(onInstantClick)}
+          title="Instant Camera"
+        >
+          <div className="mbb-sub-inner mbb-sub-inner--camera">
+            <span className="mbb-icon">📷</span>
+          </div>
+          <span className="mbb-label">Instant</span>
+        </button>
+
+        <button 
           className="mbb-sub-item mbb-sub-single" 
           onClick={() => handleSubAction(onAddClick)}
           title="Add Single"
@@ -69,13 +83,24 @@ const MobileBottomBar = ({
         </button>
       </div>
       
-      <button className="mbb-item" onClick={toggleTheme}>
-        <span className="mbb-icon">{theme === 'dark' ? '☀' : '☾'}</span>
-        <span className="mbb-label">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+      <button className="mbb-item" onClick={onStatsClick}>
+        <span className="mbb-icon">◎</span>
+        <span className="mbb-label">Stats</span>
       </button>
       
       <button className="mbb-item" onClick={onProfileClick}>
-        <span className="mbb-icon">👤</span>
+        <div className="mbb-icon" style={{ 
+          width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: user?.avatar ? 'transparent' : 'linear-gradient(135deg, var(--accent-gold), var(--accent-rose))',
+          color: 'white', fontSize: '10px', fontWeight: 'bold'
+        }}>
+          {user?.avatar ? (
+            <img src={user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <span>{user?.name?.[0]?.toUpperCase() || '👤'}</span>
+          )}
+        </div>
         <span className="mbb-label">Profile</span>
       </button>
     </nav>

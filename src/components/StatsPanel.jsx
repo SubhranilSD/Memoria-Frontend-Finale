@@ -162,25 +162,34 @@ function SectionTitle({ children }) {
   return <div className="sp-section-title">{children}</div>;
 }
 
-export default function StatsPanel({ events=[] }) {
-  const [open, setOpen] = useState(false);
+export default function StatsPanel({ events=[], externalOpen, onCloseExternal }) {
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : localOpen;
+  
+  const handleClose = () => {
+    if (onCloseExternal) onCloseExternal();
+    setLocalOpen(false);
+  };
+
   const [showExport, setShowExport] = useState(false);
   const stats = useMemo(()=>computeStats(events),[events]);
 
   return (
     <>
-      {/* ── Vertical trigger tab ── */}
-      <motion.button
-        className="sp-trigger"
-        onClick={()=>setOpen(true)}
-        whileHover={{ scale:1.04, x:-2 }}
-        whileTap={{ scale:0.96 }}
-        title="Open Stats"
-      >
-        <span className="sp-trigger-icon">◎</span>
-        <span className="sp-trigger-label">Stats</span>
-        {events.length>0 && <span className="sp-trigger-badge">{events.length}</span>}
-      </motion.button>
+      {/* ── Vertical trigger tab (Hidden if externally controlled) ── */}
+      {externalOpen === undefined && (
+        <motion.button
+          className="sp-trigger"
+          onClick={()=>setLocalOpen(true)}
+          whileHover={{ scale:1.04, x:-2 }}
+          whileTap={{ scale:0.96 }}
+          title="Open Stats"
+        >
+          <span className="sp-trigger-icon">◎</span>
+          <span className="sp-trigger-label">Stats</span>
+          {events.length>0 && <span className="sp-trigger-badge">{events.length}</span>}
+        </motion.button>
+      )}
 
       {/* ── Full-screen panel ── */}
       <AnimatePresence>
@@ -191,7 +200,7 @@ export default function StatsPanel({ events=[] }) {
               className="sp-backdrop"
               variants={overlayV}
               initial="hidden" animate="visible" exit="exit"
-              onClick={()=>setOpen(false)}
+              onClick={handleClose}
             />
 
             {/* Panel */}
@@ -223,7 +232,7 @@ export default function StatsPanel({ events=[] }) {
                   )}
                   <motion.button
                     className="sp-close"
-                    onClick={()=>setOpen(false)}
+                    onClick={handleClose}
                     whileHover={{ scale:1.12, rotate:90 }}
                     whileTap={{ scale:0.9 }}
                   >✕</motion.button>

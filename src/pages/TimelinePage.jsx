@@ -27,6 +27,7 @@ const MemoryDetail = lazy(() => import('../components/MemoryDetail'));
 const HighlightsReel = lazy(() => import('../components/HighlightsReel'));
 const Toast = lazy(() => import('../components/Toast'));
 const ProfileModal = lazy(() => import('../components/ProfileModal'));
+const InstantCameraModal = lazy(() => import('../components/InstantCameraModal'));
 import MobileBottomBar from '../components/MobileBottomBar';
 import './TimelinePage.css';
 
@@ -56,7 +57,13 @@ export default function TimelinePage() {
   const [editMode, setEditMode] = useState(false);
   const [showReel, setShowReel] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 900);
+  const [showMobileStats, setShowMobileStats] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  
+  // Pagination State
+  const [visibleCount, setVisibleCount] = useState(10);
+
+  const [showInstantModal, setShowInstantModal] = useState(false);
   const { setUser } = useAuth();
 
   // Debounced search — prevents visibleEvents from recomputing on every keystroke
@@ -250,6 +257,33 @@ export default function TimelinePage() {
     return `radial-gradient(circle at 50% -20%, color-mix(in srgb, ${color} 8%, transparent), transparent 70%)`;
   }, [visibleEvents]);
 
+  // Reset pagination when search/filters change
+  useEffect(() => {
+    setVisibleCount(10);
+  }, [search, filters, view]);
+
+  // Derived list based on pagination
+  const paginatedEvents = useMemo(() => {
+    if (view === 'timeline' || view === 'grid' || view === 'horizon') {
+      return visibleEvents.slice(0, visibleCount);
+    }
+    return visibleEvents;
+  }, [visibleEvents, visibleCount, view]);
+
+  // Observer callback for infinite scroll
+  const observerRef = useRef(null);
+  const loadMoreCallback = useCallback((node) => {
+    if (observerRef.current) observerRef.current.disconnect();
+    if (node) {
+      observerRef.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(prev => prev + 10);
+        }
+      }, { rootMargin: '800px' });
+      observerRef.current.observe(node);
+    }
+  }, []);
+
   return (
     <div className="timeline-page" style={{ background: dynamicBgColor }}>
       <Sidebar
@@ -314,6 +348,9 @@ export default function TimelinePage() {
               <button className="btn btn-ghost" onClick={() => setShowReel(true)} title="Watch your highlight reel">
                 🎬 Highlights
               </button>
+              <button className="btn btn-ghost" onClick={() => setShowInstantModal(true)} title="Snap an instant photo memory">
+                📷 Instant
+              </button>
               <button className="btn btn-ghost" onClick={() => setShowBulkModal(true)} title="Bulk upload photos">
                 📸 Bulk Add
               </button>
@@ -336,7 +373,12 @@ export default function TimelinePage() {
               {view === 'node' ? (
                 <NodeCanvasView events={visibleEvents} editMode={editMode} onEdit={openEdit} />
               ) : view === 'horizon' ? (
-                <HorizonView events={visibleEvents} editMode={editMode} onEdit={openEdit} />
+                <>
+                  <HorizonView events={paginatedEvents} editMode={editMode} onEdit={openEdit} />
+                  {visibleCount < visibleEvents.length && (
+                    <div ref={loadMoreCallback} style={{ position: 'absolute', right: '10vw', width: '1px', height: '100%' }} />
+                  )}
+                </>
               ) : view === 'constellation' ? (
                 <ConstellationView events={visibleEvents} />
               ) : view === 'globe' ? (
@@ -365,24 +407,33 @@ export default function TimelinePage() {
                     )}
                   </div>
                 ) : (
-                  <TimelineView
-                    events={visibleEvents}
-                    view={view}
-                    editMode={editMode}
-                    onEdit={openEdit}
-                    onDelete={handleDeleteEvent}
-                    onReorder={handleReorder}
-                    onClickMedia={setLightboxEvent}
-                    onSelectEvent={setSelectedEvent}
-                  />
+                  <>
+                    <TimelineView
+                      events={paginatedEvents}
+                      view={view}
+                      editMode={editMode}
+                      onEdit={openEdit}
+                      onDelete={handleDeleteEvent}
+                      onReorder={handleReorder}
+                      onClickMedia={setLightboxEvent}
+                      onSelectEvent={setSelectedEvent}
+                    />
+                    {visibleCount < visibleEvents.length && (
+                      <div ref={loadMoreCallback} style={{ height: '2px', width: '100%', margin: '40px 0' }} />
+                    )}
+                  </>
                 )
               )}
             </>
           )}
         </main>
 
-        {/* Right-side Stats Panel */}
-        <StatsPanel events={events} />
+        {/* Right-side Stats Panel (Or mobile full-screen modal) */}
+        <StatsPanel 
+          events={events} 
+          externalOpen={window.innerWidth <= 900 ? showMobileStats : undefined}
+          onCloseExternal={() => setShowMobileStats(false)}
+        />
 
         {showModal && (
           <EventModal
@@ -455,16 +506,29 @@ export default function TimelinePage() {
             }}
           />
         )}
+        {showInstantModal && (
+          <InstantCameraModal
+            onClose={() => setShowInstantModal(false)}
+            onComplete={() => {
+              setShowInstantModal(false);
+              fetchEvents();
+              showToast('Instant memory saved ✦');
+            }}
+          />
+        )}
         {toast && <Toast message={toast.message} type={toast.type} />}
         
         {/* Mobile Bottom Bar - Only visible on mobile via CSS */}
         <MobileBottomBar 
+          user={user}
           view={view}
           setView={setView}
           theme={theme}
           toggleTheme={toggleTheme}
           onAddClick={() => { setEditingEvent(null); setShowModal(true); }}
           onBulkAddClick={() => setShowBulkModal(true)}
+          onInstantClick={() => setShowInstantModal(true)}
+          onStatsClick={() => setShowMobileStats(true)}
           onProfileClick={() => setShowProfileModal(true)}
         />
       </Suspense>

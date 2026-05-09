@@ -17,6 +17,23 @@ export default function ProfileModal({ user, onClose, onUpdate }) {
   const [success, setSuccess] = useState(false);
   const { logout } = useAuth();
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return setError('Image must be less than 5MB');
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm({ ...form, avatar: reader.result });
+      setError('');
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password && form.password !== form.confirmPassword) {
@@ -67,6 +84,42 @@ export default function ProfileModal({ user, onClose, onUpdate }) {
           <form onSubmit={handleSubmit}>
             {error && <div className="error-message" style={{ marginBottom: '16px' }}>{error}</div>}
 
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
+              <div 
+                style={{ 
+                  width: '90px', height: '90px', borderRadius: '50%', background: 'var(--bg-secondary)', 
+                  border: '2px solid var(--accent-gold)', position: 'relative', overflow: 'hidden', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-sm)'
+                }}
+                onClick={() => document.getElementById('avatar-upload').click()}
+                title="Click to change photo"
+              >
+                {form.avatar ? (
+                  <img src={form.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ fontSize: '36px', color: 'var(--text-muted)', fontFamily: 'Playfair Display' }}>
+                    {form.name?.[0]?.toUpperCase() || '👤'}
+                  </span>
+                )}
+                <div style={{
+                  position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.6)', 
+                  color: 'white', fontSize: '10px', textAlign: 'center', padding: '3px 0',
+                  textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600
+                }}>Edit</div>
+              </div>
+              <input id="avatar-upload" type="file" accept="image/jpeg, image/png, image/webp" hidden onChange={handleImageChange} />
+              {form.avatar && (
+                <button 
+                  type="button" 
+                  className="btn btn-ghost btn-sm" 
+                  style={{ marginTop: '12px', fontSize: '11px', padding: '4px 8px' }} 
+                  onClick={() => setForm({...form, avatar: ''})}
+                >
+                  Remove Photo
+                </button>
+              )}
+            </div>
+
             <div className="form-group">
               <label className="input-label">Display Name</label>
               <input
@@ -112,25 +165,22 @@ export default function ProfileModal({ user, onClose, onUpdate }) {
               </div>
             </div>
 
-            <div className="modal-footer" style={{ flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
-                <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
-                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={loading}>
-                  {loading ? 'Saving...' : 'Update Profile'}
-                </button>
-              </div>
+            <div className="modal-footer" style={{ flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+              <button 
+                type="submit" 
+                className="btn btn-primary btn-lg" 
+                style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '16px', letterSpacing: '0.5px' }} 
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Update Profile'}
+              </button>
               <button 
                 type="button" 
-                className="btn btn-danger" 
-                style={{ width: '100%', marginTop: '8px', justifyContent: 'center' }} 
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to sign out?')) {
-                    logout();
-                    onClose();
-                  }
-                }}
+                className="btn btn-ghost btn-sm" 
+                style={{ border: 'none', color: 'var(--text-muted)' }}
+                onClick={onClose}
               >
-                <span style={{ marginRight: '8px' }}>⎋</span> Sign Out
+                Cancel
               </button>
             </div>
           </form>

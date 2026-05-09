@@ -1,0 +1,248 @@
+/* ══════════════════════════
+   Instant Camera Modal
+   ══════════════════════════ */
+
+.icam-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.icam-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+/* Header */
+.icam-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.icam-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icam-title-icon { font-size: 20px; }
+
+.icam-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+.icam-close:hover { color: var(--text-primary); background: var(--bg-secondary); }
+
+/* ── Camera view ── */
+.icam-camera-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.icam-video {
+  width: 100%;
+  max-height: 55vh;
+  object-fit: cover;
+  background: #000;
+  display: block;
+}
+
+.icam-video.mirrored {
+  transform: scaleX(-1);
+}
+
+.icam-error {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+}
+.icam-error span { font-size: 40px; }
+
+.icam-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+/* Flip button */
+.icam-flip-btn {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.icam-flip-btn:hover { border-color: var(--accent-gold); transform: scale(1.05); }
+
+/* Shutter button */
+.icam-shutter {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+.icam-shutter:active { transform: scale(0.93); }
+.icam-shutter:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.icam-shutter-ring {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(196, 129, 58, 0.3);
+}
+
+.icam-shutter-core {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+  transition: all 0.1s ease;
+  box-shadow: 0 4px 12px rgba(196, 129, 58, 0.5);
+}
+.icam-shutter:hover .icam-shutter-core { transform: scale(1.05); }
+.icam-shutter:active .icam-shutter-core { transform: scale(0.9); }
+
+/* ── Preview phase ── */
+.icam-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.icam-preview-img {
+  width: 100%;
+  max-height: 55vh;
+  object-fit: contain;
+  background: #000;
+  display: block;
+}
+
+.icam-preview-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  justify-content: flex-end;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+/* ── Form phase ── */
+.icam-form-wrap {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.icam-form-thumb {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.icam-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.icam-form-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 4px;
+}
+
+/* ── Status screens ── */
+.icam-status {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.icam-done { color: var(--accent-gold); }
+.icam-done-icon { font-size: 48px; animation: icam-pop 0.5s ease; }
+
+@keyframes icam-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Mobile full-screen */
+@media (max-width: 600px) {
+  .icam-overlay { padding: 0; align-items: flex-end; }
+  .icam-modal {
+    border-radius: 24px 24px 0 0;
+    max-width: 100%;
+    max-height: 96vh;
+  }
+  .icam-video { max-height: 50vh; }
+  .icam-form-row { grid-template-columns: 1fr; }
+}

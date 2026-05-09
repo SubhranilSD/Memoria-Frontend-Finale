@@ -12,6 +12,8 @@ const AUTOFILL_TITLES = [
 
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
+const MAX_FILES = 100;
+
 function exifDateToInputDate(raw) {
   if (!raw) return null;
   if (raw instanceof Date) return raw.toISOString().split('T')[0];
@@ -77,6 +79,7 @@ export default function BulkImportModal({ onClose, onComplete }) {
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
+  const [limitWarning, setLimitWarning] = useState(false);
   const fileRef = useRef(null);
 
   const fileToDataUrl = (file) => new Promise((resolve) => {
@@ -85,7 +88,13 @@ export default function BulkImportModal({ onClose, onComplete }) {
     reader.readAsDataURL(file);
   });
 
-  const processFiles = async (files) => {
+  const processFiles = async (rawFiles) => {
+    setLimitWarning(false);
+    let files = rawFiles;
+    if (files.length > MAX_FILES) {
+      setLimitWarning(true);
+      files = files.slice(0, MAX_FILES); // Hard cap at 100
+    }
     setProcessing(true);
     const newItems = [];
     
@@ -240,9 +249,20 @@ export default function BulkImportModal({ onClose, onComplete }) {
         <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '28px', marginBottom: '8px' }}>
           Bulk Photo Import
         </h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '14px' }}>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '14px' }}>
           Drop multiple photos here. We'll automatically extract timestamps and locations to arrange them in your timeline.
         </p>
+
+        {/* Limit warning */}
+        {limitWarning && (
+          <div style={{
+            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+            borderRadius: '10px', padding: '10px 14px', marginBottom: '12px',
+            color: '#ef4444', fontSize: '13px', display: 'flex', gap: '8px', alignItems: 'center'
+          }}>
+            ⚠️ You selected more than 100 photos. Only the first <strong>100</strong> will be imported.
+          </div>
+        )}
 
         {/* Mode Selector */}
         {!items.length && !processing && (
@@ -283,7 +303,7 @@ export default function BulkImportModal({ onClose, onComplete }) {
             />
             <div className="bulk-drop-icon">📸</div>
             <h3>Drag & Drop Photos</h3>
-            <p>or click to browse</p>
+            <p>or click to browse &mdash; <strong>max 100 photos</strong></p>
           </div>
         )}
 

@@ -1,0 +1,1409 @@
+/* ===================================================
+   RETRO PIXEL MODE — Neon Cyan Arcade
+   Thick. Bold. Glowing. No mercy.
+   Activated via: html.retro-mode
+   =================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* ── ROOT OVERRIDES (DARK — default) ─────────────── */
+.retro-mode {
+  --bg-primary:      #000000;
+  --bg-secondary:    #050510;
+  --bg-card:         #03030d;
+  --text-primary:    #00ffff;
+  --text-secondary:  #00cccc;
+  --text-muted:      #006666;
+  --accent-gold:     #00ffff;
+  --accent-rose:     #ff0080;
+  --accent-indigo:   #8000ff;
+  --border-color:    #00ffff;
+  --border-focus:    #ff0080;
+  --gradient-hero:   #000000;
+  --shadow-sm:       4px 4px 0px #006666;
+  --shadow-md:       6px 6px 0px #006666;
+  --shadow-lg:       8px 8px 0px #006666;
+  --timeline-line:   #00ffff;
+}
+
+/* ── ROOT OVERRIDES (LIGHT — Game Boy green-screen) ─ */
+.retro-mode[data-theme="light"] {
+  --bg-primary:      #e8f0d8;
+  --bg-secondary:    #d8e8c8;
+  --bg-card:         #ddeacc;
+  --text-primary:    #003300;
+  --text-secondary:  #004400;
+  --text-muted:      #336633;
+  --accent-gold:     #007700;
+  --accent-rose:     #880022;
+  --accent-indigo:   #003388;
+  --border-color:    #007700;
+  --border-focus:    #00aa00;
+  --gradient-hero:   #e8f0d8;
+  --shadow-sm:       4px 4px 0px #336633;
+  --shadow-md:       6px 6px 0px #336633;
+  --shadow-lg:       8px 8px 0px #336633;
+  --timeline-line:   #007700;
+}
+
+/* ── LIGHT RETRO — FULL ELEMENT OVERRIDES ─────────── */
+
+/* Page & main */
+.retro-mode[data-theme="light"] .timeline-main,
+.retro-mode[data-theme="light"] .timeline-page {
+  background: #e8f0d8 !important;
+}
+
+/* Sidebar */
+.retro-mode[data-theme="light"] .sidebar {
+  background: #d8e8c8 !important;
+  border-right: 4px solid #007700 !important;
+  box-shadow: 4px 0 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-logo-text {
+  color: #003300 !important;
+  text-shadow: 2px 2px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .logo-star {
+  color: #880022 !important;
+  text-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .sidebar-user {
+  border: 3px solid #007700 !important;
+  background: #ccdabc !important;
+  box-shadow: 4px 4px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-avatar {
+  border: 3px solid #007700 !important;
+  box-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .sidebar-user-name { color: #003300 !important; }
+.retro-mode[data-theme="light"] .sidebar-user-count { color: #336633 !important; }
+.retro-mode[data-theme="light"] .sidebar-tab {
+  border-color: #aaccaa !important;
+  color: #336633 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-tab.active {
+  background: #007700 !important;
+  color: #e8f0d8 !important;
+  border-color: #007700 !important;
+  box-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .sidebar-btn {
+  border-color: #aaccaa !important;
+  background: #d8e8c8 !important;
+  color: #336633 !important;
+  box-shadow: 3px 3px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .sidebar-btn:hover {
+  border-color: #007700 !important;
+  color: #003300 !important;
+  box-shadow: 0 0 0 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-logout {
+  border-color: #ccaaaa !important;
+  color: #880022 !important;
+  box-shadow: 3px 3px 0 #ccaaaa !important;
+}
+.retro-mode[data-theme="light"] .sidebar-logout:hover {
+  border-color: #880022 !important;
+  color: #660011 !important;
+  box-shadow: none !important;
+}
+
+/* Headings */
+.retro-mode[data-theme="light"] .timeline-heading {
+  color: #003300 !important;
+  text-shadow: 2px 2px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .timeline-subheading { color: #336633 !important; }
+
+/* Timeline line & dots */
+.retro-mode[data-theme="light"] .timeline-line {
+  background: #007700 !important;
+  box-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .timeline-dot {
+  border: 4px solid #007700 !important;
+  background: #e8f0d8 !important;
+  box-shadow: 3px 3px 0 #336633 !important;
+  animation: none !important;
+}
+.retro-mode[data-theme="light"] .timeline-connector { background: #aaccaa !important; }
+
+/* Cards */
+.retro-mode[data-theme="light"] .event-card {
+  background: #ddeacc !important;
+  border: 3px solid #aaccaa !important;
+  box-shadow: 5px 5px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .event-card:hover {
+  border-color: #007700 !important;
+  box-shadow: 6px 6px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .card-title {
+  color: #003300 !important;
+  text-shadow: 1px 1px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .card-description { color: #336633 !important; }
+.retro-mode[data-theme="light"] .card-date,
+.retro-mode[data-theme="light"] .card-meta { color: #558855 !important; }
+.retro-mode[data-theme="light"] .card-tag {
+  border: 2px solid #aaccaa !important;
+  background: #d8e8c8 !important;
+  color: #336633 !important;
+}
+
+/* Buttons */
+.retro-mode[data-theme="light"] .btn-primary {
+  background: #cce0cc !important;
+  color: #003300 !important;
+  border-color: #007700 !important;
+  box-shadow: 4px 4px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .btn-ghost {
+  color: #336633 !important;
+  border-color: #aaccaa !important;
+}
+
+/* Inputs */
+.retro-mode[data-theme="light"] .input,
+.retro-mode[data-theme="light"] .search-input,
+.retro-mode[data-theme="light"] select,
+.retro-mode[data-theme="light"] textarea {
+  background: #f0f8e8 !important;
+  color: #003300 !important;
+  border: 3px solid #aaccaa !important;
+  box-shadow: 3px 3px 0 #aaccaa !important;
+  caret-color: #007700 !important;
+}
+.retro-mode[data-theme="light"] .input:focus,
+.retro-mode[data-theme="light"] select:focus,
+.retro-mode[data-theme="light"] textarea:focus {
+  border-color: #007700 !important;
+  box-shadow: 4px 4px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] input::placeholder,
+.retro-mode[data-theme="light"] textarea::placeholder { color: #aaccaa !important; }
+.retro-mode[data-theme="light"] label,
+.retro-mode[data-theme="light"] .input-label { color: #558855 !important; }
+
+/* Modals */
+.retro-mode[data-theme="light"] [class*="modal"],
+.retro-mode[data-theme="light"] .event-modal {
+  background: #ddeacc !important;
+  border: 4px solid #007700 !important;
+  box-shadow: 8px 8px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .modal-overlay {
+  background: rgba(200, 220, 180, 0.85) !important;
+}
+.retro-mode[data-theme="light"] .modal-title,
+.retro-mode[data-theme="light"] [class*="modal"] h2,
+.retro-mode[data-theme="light"] [class*="modal"] h3 {
+  color: #003300 !important;
+  text-shadow: 1px 1px 0 #aaccaa !important;
+}
+
+/* Tags */
+.retro-mode[data-theme="light"] .tag {
+  border: 2px solid #aaccaa !important;
+  background: #d8e8c8 !important;
+  color: #336633 !important;
+}
+.retro-mode[data-theme="light"] .tag-active {
+  border-color: #007700 !important;
+  background: #cce0cc !important;
+  color: #003300 !important;
+}
+
+/* Mobile bar */
+.retro-mode[data-theme="light"] .mobile-bottom-bar {
+  background: #d8e8c8 !important;
+  border-top: 4px solid #007700 !important;
+  box-shadow: 0 -4px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .mbb-item { color: #558855 !important; }
+.retro-mode[data-theme="light"] .mbb-item.active {
+  color: #003300 !important;
+  text-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .mbb-add-inner {
+  background: #cce0cc !important;
+  border: 3px solid #007700 !important;
+  box-shadow: 3px 3px 0 #336633 !important;
+  color: #003300 !important;
+  animation: none !important;
+}
+
+/* Scrollbar */
+.retro-mode[data-theme="light"] ::-webkit-scrollbar-track { background: #e8f0d8; }
+.retro-mode[data-theme="light"] ::-webkit-scrollbar-thumb { background: #aaccaa; }
+.retro-mode[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #007700; }
+
+/* CRT scanlines — lighter for light mode */
+.retro-mode[data-theme="light"]::after {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  ) !important;
+}
+
+/* Floating title labels in light mode */
+.retro-mode[data-theme="light"] .timeline-item.left::after,
+.retro-mode[data-theme="light"] .timeline-item.right::after {
+  color: #558855 !important;
+  text-shadow: none !important;
+  border-color: #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .timeline-item.left:hover::after,
+.retro-mode[data-theme="light"] .timeline-item.right:hover::after {
+  color: #003300 !important;
+  text-shadow: none !important;
+}
+@media (max-width: 768px) {
+  .retro-mode[data-theme="light"] .timeline-item.left::after,
+  .retro-mode[data-theme="light"] .timeline-item.right::after {
+    color: #003300 !important;
+    text-shadow: none !important;
+    border-color: #007700 !important;
+    border-width: 3px !important;
+  }
+}
+
+/* ── LIGHT RETRO — FULL ELEMENT OVERRIDES ─────────── */
+
+/* Page & main */
+.retro-mode[data-theme="light"] .timeline-main,
+.retro-mode[data-theme="light"] .timeline-page {
+  background: #e8f0d8 !important;
+}
+
+/* Sidebar */
+.retro-mode[data-theme="light"] .sidebar {
+  background: #d8e8c8 !important;
+  border-right: 4px solid #007700 !important;
+  box-shadow: 4px 0 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-logo-text {
+  color: #003300 !important;
+  text-shadow: 2px 2px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .logo-star {
+  color: #880022 !important;
+  text-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .sidebar-user {
+  border: 3px solid #007700 !important;
+  background: #ccdabc !important;
+  box-shadow: 4px 4px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-avatar {
+  border: 3px solid #007700 !important;
+  box-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .sidebar-user-name { color: #003300 !important; }
+.retro-mode[data-theme="light"] .sidebar-user-count { color: #336633 !important; }
+.retro-mode[data-theme="light"] .sidebar-tab {
+  border-color: #aaccaa !important;
+  color: #336633 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-tab.active {
+  background: #007700 !important;
+  color: #e8f0d8 !important;
+  border-color: #007700 !important;
+  box-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .sidebar-btn {
+  border-color: #aaccaa !important;
+  background: #d8e8c8 !important;
+  color: #336633 !important;
+  box-shadow: 3px 3px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .sidebar-btn:hover {
+  border-color: #007700 !important;
+  color: #003300 !important;
+  box-shadow: 0 0 0 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-logout {
+  border-color: #ccaaaa !important;
+  color: #880022 !important;
+  box-shadow: 3px 3px 0 #ccaaaa !important;
+}
+.retro-mode[data-theme="light"] .sidebar-logout:hover {
+  border-color: #880022 !important;
+  color: #660011 !important;
+  box-shadow: none !important;
+}
+
+/* Headings */
+.retro-mode[data-theme="light"] .timeline-heading {
+  color: #003300 !important;
+  text-shadow: 2px 2px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .timeline-subheading { color: #336633 !important; }
+
+/* Timeline line & dots */
+.retro-mode[data-theme="light"] .timeline-line {
+  background: #007700 !important;
+  box-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .timeline-dot {
+  border: 4px solid #007700 !important;
+  background: #e8f0d8 !important;
+  box-shadow: 3px 3px 0 #336633 !important;
+  animation: none !important;
+}
+.retro-mode[data-theme="light"] .timeline-connector { background: #aaccaa !important; }
+
+/* Cards */
+.retro-mode[data-theme="light"] .event-card {
+  background: #ddeacc !important;
+  border: 3px solid #aaccaa !important;
+  box-shadow: 5px 5px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .event-card:hover {
+  border-color: #007700 !important;
+  box-shadow: 6px 6px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .card-title {
+  color: #003300 !important;
+  text-shadow: 1px 1px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .card-description { color: #336633 !important; }
+.retro-mode[data-theme="light"] .card-date,
+.retro-mode[data-theme="light"] .card-meta { color: #558855 !important; }
+.retro-mode[data-theme="light"] .card-tag {
+  border: 2px solid #aaccaa !important;
+  background: #d8e8c8 !important;
+  color: #336633 !important;
+}
+
+/* Buttons */
+.retro-mode[data-theme="light"] .btn-primary {
+  background: #cce0cc !important;
+  color: #003300 !important;
+  border-color: #007700 !important;
+  box-shadow: 4px 4px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .btn-ghost {
+  color: #336633 !important;
+  border-color: #aaccaa !important;
+}
+
+/* Inputs */
+.retro-mode[data-theme="light"] .input,
+.retro-mode[data-theme="light"] .search-input,
+.retro-mode[data-theme="light"] select,
+.retro-mode[data-theme="light"] textarea {
+  background: #f0f8e8 !important;
+  color: #003300 !important;
+  border: 3px solid #aaccaa !important;
+  box-shadow: 3px 3px 0 #aaccaa !important;
+  caret-color: #007700 !important;
+}
+.retro-mode[data-theme="light"] .input:focus,
+.retro-mode[data-theme="light"] select:focus,
+.retro-mode[data-theme="light"] textarea:focus {
+  border-color: #007700 !important;
+  box-shadow: 4px 4px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] input::placeholder,
+.retro-mode[data-theme="light"] textarea::placeholder { color: #aaccaa !important; }
+.retro-mode[data-theme="light"] label,
+.retro-mode[data-theme="light"] .input-label { color: #558855 !important; }
+
+/* Modals */
+.retro-mode[data-theme="light"] [class*="modal"],
+.retro-mode[data-theme="light"] .event-modal {
+  background: #ddeacc !important;
+  border: 4px solid #007700 !important;
+  box-shadow: 8px 8px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .modal-overlay {
+  background: rgba(200, 220, 180, 0.85) !important;
+}
+.retro-mode[data-theme="light"] .modal-title,
+.retro-mode[data-theme="light"] [class*="modal"] h2,
+.retro-mode[data-theme="light"] [class*="modal"] h3 {
+  color: #003300 !important;
+  text-shadow: 1px 1px 0 #aaccaa !important;
+}
+
+/* Tags */
+.retro-mode[data-theme="light"] .tag {
+  border: 2px solid #aaccaa !important;
+  background: #d8e8c8 !important;
+  color: #336633 !important;
+}
+.retro-mode[data-theme="light"] .tag-active {
+  border-color: #007700 !important;
+  background: #cce0cc !important;
+  color: #003300 !important;
+}
+
+/* Mobile bar */
+.retro-mode[data-theme="light"] .mobile-bottom-bar {
+  background: #d8e8c8 !important;
+  border-top: 4px solid #007700 !important;
+  box-shadow: 0 -4px 0 #336633 !important;
+}
+.retro-mode[data-theme="light"] .mbb-item { color: #558855 !important; }
+.retro-mode[data-theme="light"] .mbb-item.active {
+  color: #003300 !important;
+  text-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .mbb-add-inner {
+  background: #cce0cc !important;
+  border: 3px solid #007700 !important;
+  box-shadow: 3px 3px 0 #336633 !important;
+  color: #003300 !important;
+  animation: none !important;
+}
+
+/* Scrollbar */
+.retro-mode[data-theme="light"] ::-webkit-scrollbar-track { background: #e8f0d8; }
+.retro-mode[data-theme="light"] ::-webkit-scrollbar-thumb { background: #aaccaa; }
+.retro-mode[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #007700; }
+
+/* CRT scanlines — lighter for light mode */
+.retro-mode[data-theme="light"]::after {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  ) !important;
+}
+
+/* Floating title labels in light mode */
+.retro-mode[data-theme="light"] .timeline-item.left::after,
+.retro-mode[data-theme="light"] .timeline-item.right::after {
+  color: #558855 !important;
+  text-shadow: none !important;
+  border-color: #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .timeline-item.left:hover::after,
+.retro-mode[data-theme="light"] .timeline-item.right:hover::after {
+  color: #003300 !important;
+  text-shadow: none !important;
+}
+@media (max-width: 768px) {
+  .retro-mode[data-theme="light"] .timeline-item.left::after,
+  .retro-mode[data-theme="light"] .timeline-item.right::after {
+    color: #003300 !important;
+    text-shadow: none !important;
+    border-color: #007700 !important;
+    border-width: 3px !important;
+  }
+}
+
+
+/* ── LIGHT RETRO — Sidebar details ────────────────── */
+.retro-mode[data-theme="light"] .nav-quick-strip {
+  background: #ccdabc !important;
+  border: 3px solid #aaccaa !important;
+  box-shadow: 3px 3px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .nav-qs-cell { border-right: 1px solid #aaccaa !important; }
+.retro-mode[data-theme="light"] .nav-qs-num { color: #003300 !important; text-shadow: none !important; }
+.retro-mode[data-theme="light"] .nav-qs-lbl { color: #558855 !important; }
+.retro-mode[data-theme="light"] .sidebar-tabs {
+  background: #d8e8c8 !important;
+  border: 3px solid #aaccaa !important;
+  box-shadow: 3px 3px 0 #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .sidebar-tab-btn {
+  border: 2px solid #aaccaa !important;
+  color: #558855 !important;
+  background: transparent !important;
+}
+.retro-mode[data-theme="light"] .sidebar-tab-btn:hover {
+  background: #ccdabc !important;
+  color: #003300 !important;
+  border-color: #007700 !important;
+}
+.retro-mode[data-theme="light"] .sidebar-tab-btn.active {
+  background: #007700 !important;
+  color: #e8f0d8 !important;
+  border-color: #007700 !important;
+  box-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .sidebar-section-label {
+  color: #558855 !important;
+  border-bottom: 1px solid #aaccaa !important;
+}
+.retro-mode[data-theme="light"] .sidebar-btn.active {
+  background: #cce0cc !important;
+  color: #003300 !important;
+  border-color: #007700 !important;
+  text-shadow: none !important;
+}
+.retro-mode[data-theme="light"] .sidebar-btn.active.accent {
+  background: #f0cccc !important;
+  color: #660011 !important;
+  border-color: #880022 !important;
+  text-shadow: none !important;
+}
+
+/* ── GLOBAL FONT + RESET ─────────────────────────── */
+.retro-mode *:not(.event-card):not(.event-card *),
+.retro-mode *:not(.event-card):not(.event-card *)::before,
+.retro-mode *:not(.event-card):not(.event-card *)::after {
+  font-family: 'Press Start 2P', monospace !important;
+  border-radius: 0 !important;
+  letter-spacing: 0.05em;
+  line-height: 1.9 !important;
+  transition: color 0.06s, background 0.06s, border-color 0.06s !important;
+}
+
+/* Event cards keep full transition freedom for Framer Motion 3D tilt */
+.retro-mode .event-card,
+.retro-mode .event-card * {
+  font-family: 'Press Start 2P', monospace !important;
+  border-radius: 0 !important;
+  letter-spacing: 0.05em;
+  line-height: 1.9 !important;
+}
+
+/* Kill all blur/glass */
+.retro-mode .sidebar,
+.retro-mode .event-card,
+.retro-mode [class*="modal"],
+.retro-mode [style*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────── */
+.retro-mode .sidebar {
+  background: #000 !important;
+  border-right: 4px solid #00ffff !important;
+  box-shadow: 4px 0 0 #003333, inset -4px 0 20px rgba(0,255,255,0.04) !important;
+}
+.retro-mode .sidebar-logo-text {
+  color: #00ffff !important;
+  text-shadow: 0 0 10px #00ffff, 3px 3px 0 #003333 !important;
+  font-size: 12px !important;
+}
+.retro-mode .logo-star { color: #ff0080 !important; text-shadow: 0 0 8px #ff0080 !important; }
+
+.retro-mode .sidebar-user {
+  border: 3px solid #00ffff !important;
+  background: #030312 !important;
+  box-shadow: 4px 4px 0 #003333 !important;
+}
+.retro-mode .sidebar-avatar { border: 3px solid #00ffff !important; box-shadow: 0 0 8px #00ffff !important; }
+.retro-mode .sidebar-user-name { color: #00ffff !important; font-size: 8px !important; }
+.retro-mode .sidebar-user-count { color: #006666 !important; font-size: 7px !important; }
+
+/* Quick stats strip */
+.retro-mode .nav-quick-strip {
+  background: #03030d !important;
+  border: 3px solid #003333 !important;
+  box-shadow: 3px 3px 0 #001a1a !important;
+  border-radius: 0 !important;
+  margin-top: 10px !important;
+  padding: 8px 4px !important;
+  gap: 2px !important;
+}
+.retro-mode .nav-qs-cell {
+  border-right: 1px solid #001a1a !important;
+  padding: 0 4px !important;
+}
+.retro-mode .nav-qs-cell:last-child { border-right: none !important; }
+.retro-mode .nav-qs-num {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 9px !important;
+  color: #00ffff !important;
+  text-shadow: 0 0 6px rgba(0,255,255,0.5) !important;
+  line-height: 1.4 !important;
+}
+.retro-mode .nav-qs-lbl {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 5px !important;
+  color: #005555 !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1.6 !important;
+}
+
+/* Tab rail — correct class is sidebar-tab-btn not sidebar-tab */
+.retro-mode .sidebar-tabs {
+  background: #000 !important;
+  border: 3px solid #003333 !important;
+  border-radius: 0 !important;
+  padding: 3px !important;
+  gap: 3px !important;
+  box-shadow: 3px 3px 0 #001a1a !important;
+  margin-bottom: 10px !important;
+}
+.retro-mode .sidebar-tab-btn {
+  border: 2px solid #001a1a !important;
+  border-radius: 0 !important;
+  font-size: 7px !important;
+  color: #004444 !important;
+  background: transparent !important;
+  padding: 6px 4px !important;
+}
+.retro-mode .sidebar-tab-btn:hover {
+  border-color: #003333 !important;
+  color: #00aaaa !important;
+  background: #050510 !important;
+}
+.retro-mode .sidebar-tab-btn.active {
+  background: #001a1a !important;
+  color: #00ffff !important;
+  border-color: #00ffff !important;
+  box-shadow: inset 0 0 8px rgba(0,255,255,0.08) !important;
+}
+.retro-mode .sidebar-tab-label {
+  font-size: 5px !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* Section labels */
+.retro-mode .sidebar-section-label {
+  font-size: 6px !important;
+  color: #003333 !important;
+  letter-spacing: 0.12em !important;
+  border-bottom: 1px solid #001a1a !important;
+  padding-bottom: 4px !important;
+  margin-top: 10px !important;
+  margin-bottom: 4px !important;
+}
+
+/* Active nav button */
+.retro-mode .sidebar-btn.active {
+  background: #001a1a !important;
+  color: #00ffff !important;
+  border-color: #00ffff !important;
+  text-shadow: 0 0 6px rgba(0,255,255,0.4) !important;
+}
+.retro-mode .sidebar-btn.active.accent {
+  background: #110006 !important;
+  color: #ff0080 !important;
+  border-color: #ff0080 !important;
+  text-shadow: 0 0 6px rgba(255,0,128,0.4) !important;
+}
+
+.retro-mode .sidebar-btn {
+  border: 3px solid #003333 !important;
+  background: #000 !important;
+  color: #00aaaa !important;
+  box-shadow: 3px 3px 0 #001a1a !important;
+  font-size: 7px !important;
+}
+.retro-mode .sidebar-btn:hover {
+  border-color: #00ffff !important;
+  color: #00ffff !important;
+  box-shadow: 0 0 12px rgba(0,255,255,0.3), 2px 2px 0 #003333 !important;
+  transform: translate(1px, 1px) !important;
+}
+
+.retro-mode .sidebar-logout {
+  border-color: #330011 !important;
+  color: #880044 !important;
+  box-shadow: 3px 3px 0 #110008 !important;
+}
+.retro-mode .sidebar-logout:hover {
+  border-color: #ff0080 !important;
+  color: #ff0080 !important;
+  box-shadow: 0 0 12px rgba(255,0,128,0.3), 2px 2px 0 #330011 !important;
+}
+
+/* ── TIMELINE MAIN ───────────────────────────────── */
+.retro-mode .timeline-main { background: #000 !important; }
+
+.retro-mode .timeline-heading {
+  color: #00ffff !important;
+  text-shadow: 0 0 16px #00ffff, 4px 4px 0 #003333 !important;
+  font-size: 14px !important;
+  line-height: 2.2 !important;
+}
+.retro-mode .timeline-subheading {
+  color: #006666 !important;
+  font-size: 7px !important;
+  text-shadow: 0 0 6px #003333 !important;
+}
+
+.retro-mode .timeline-line { background: #00ffff !important; width: 3px !important; box-shadow: 0 0 8px #00ffff !important; }
+.retro-mode .timeline-dot {
+  border: 4px solid #00ffff !important;
+  background: #000 !important;
+  box-shadow: 0 0 12px #00ffff, 3px 3px 0 #003333 !important;
+}
+.retro-mode .timeline-dot-ring { display: none !important; }
+.retro-mode .timeline-connector { background: #003333 !important; height: 3px !important; }
+
+/* ── BUTTONS ─────────────────────────────────────── */
+.retro-mode .btn {
+  border: 3px solid currentColor !important;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.8) !important;
+  font-size: 7px !important;
+  padding: 10px 16px !important;
+}
+.retro-mode .btn:hover {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.8) !important;
+}
+.retro-mode .btn:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: none !important;
+}
+.retro-mode .btn-primary {
+  background: #001a1a !important;
+  color: #00ffff !important;
+  border-color: #00ffff !important;
+  box-shadow: 4px 4px 0 #003333, 0 0 14px rgba(0,255,255,0.2) !important;
+}
+.retro-mode .btn-primary:hover {
+  box-shadow: 2px 2px 0 #003333, 0 0 20px rgba(0,255,255,0.4) !important;
+}
+.retro-mode .btn-ghost {
+  background: transparent !important;
+  color: #006666 !important;
+  border-color: #003333 !important;
+}
+.retro-mode .btn-ghost:hover {
+  color: #00ffff !important;
+  border-color: #00ffff !important;
+  box-shadow: 2px 2px 0 #003333 !important;
+}
+
+/* ── EVENT CARDS ─────────────────────────────────── */
+.retro-mode .event-card {
+  background: #03030d !important;
+  border: 3px solid #003333 !important;
+  box-shadow: 5px 5px 0 #001a1a !important;
+}
+.retro-mode .event-card:hover {
+  border-color: #00ffff !important;
+  box-shadow: 6px 6px 0 #003333, 0 0 16px rgba(0,255,255,0.12) !important;
+  /* NO transform override — let Framer Motion's 3D tilt handle it */
+}
+.retro-mode .card-title {
+  color: #00ffff !important;
+  font-size: 8px !important;
+  text-shadow: 0 0 8px rgba(0,255,255,0.4), 2px 2px 0 #001a1a !important;
+  line-height: 2 !important;
+}
+.retro-mode .card-meta,
+.retro-mode .card-date { color: #005555 !important; font-size: 6px !important; }
+.retro-mode .card-description { color: #007777 !important; font-size: 6px !important; line-height: 1.9 !important; }
+.retro-mode .card-tag {
+  border: 2px solid #003333 !important;
+  background: #000 !important;
+  color: #006666 !important;
+  font-size: 6px !important;
+}
+.retro-mode .card-mood-badge {
+  border: 2px solid #003333 !important;
+  font-size: 6px !important;
+}
+
+/* ── INPUTS ──────────────────────────────────────── */
+.retro-mode .input,
+.retro-mode .search-input,
+.retro-mode select,
+.retro-mode textarea {
+  background: #000 !important;
+  color: #00ffff !important;
+  border: 3px solid #003333 !important;
+  box-shadow: 3px 3px 0 #001a1a !important;
+  font-size: 7px !important;
+  caret-color: #00ffff;
+}
+.retro-mode .input:focus,
+.retro-mode select:focus,
+.retro-mode textarea:focus {
+  border-color: #00ffff !important;
+  box-shadow: 4px 4px 0 #003333, 0 0 12px rgba(0,255,255,0.2) !important;
+  outline: none !important;
+}
+.retro-mode .search-bar {
+  border: 3px solid #003333 !important;
+  background: #000 !important;
+  box-shadow: 3px 3px 0 #001a1a !important;
+}
+.retro-mode input::placeholder,
+.retro-mode textarea::placeholder { color: #003333 !important; }
+.retro-mode .input-label,
+.retro-mode label { color: #005555 !important; font-size: 6px !important; letter-spacing: 0.1em !important; }
+
+/* ── MODALS ──────────────────────────────────────── */
+.retro-mode .modal-overlay { background: rgba(0,0,8,0.96) !important; }
+.retro-mode [class*="modal"],
+.retro-mode .event-modal {
+  background: #03030d !important;
+  border: 4px solid #00ffff !important;
+  box-shadow: 8px 8px 0 #003333, 0 0 24px rgba(0,255,255,0.15) !important;
+}
+.retro-mode .modal-title,
+.retro-mode [class*="modal"] h2,
+.retro-mode [class*="modal"] h3 {
+  color: #00ffff !important;
+  font-size: 9px !important;
+  text-shadow: 0 0 10px rgba(0,255,255,0.5), 2px 2px 0 #003333 !important;
+}
+
+/* ── HEADINGS ────────────────────────────────────── */
+.retro-mode h1 { color: #00ffff !important; font-size: 14px !important; }
+.retro-mode h2 { color: #00cccc !important; font-size: 10px !important; }
+.retro-mode h3 { color: #009999 !important; font-size: 8px !important;  }
+
+/* ── MOBILE BAR ──────────────────────────────────── */
+.retro-mode .mobile-bottom-bar {
+  background: #000 !important;
+  border-top: 4px solid #00ffff !important;
+  box-shadow: 0 -4px 0 #003333, 0 -2px 20px rgba(0,255,255,0.08) !important;
+}
+.retro-mode .mobile-nav-btn { color: #003333 !important; font-size: 6px !important; }
+.retro-mode .mobile-nav-btn.active { color: #00ffff !important; text-shadow: 0 0 8px #00ffff !important; }
+.retro-mode .mobile-add-btn {
+  background: #001a1a !important;
+  color: #00ffff !important;
+  border: 3px solid #00ffff !important;
+  box-shadow: 3px 3px 0 #003333 !important;
+  border-radius: 0 !important;
+}
+
+/* ── TAGS ────────────────────────────────────────── */
+.retro-mode .tag { border: 2px solid #003333 !important; background: #000 !important; color: #005555 !important; font-size: 6px !important; }
+.retro-mode .tag-active { border-color: #00ffff !important; background: #001a1a !important; color: #00ffff !important; }
+
+/* ── SCROLLBAR ───────────────────────────────────── */
+.retro-mode ::-webkit-scrollbar { width: 10px; }
+.retro-mode ::-webkit-scrollbar-track { background: #000; border-left: 3px solid #001a1a; }
+.retro-mode ::-webkit-scrollbar-thumb { background: #003333; border: 2px solid #000; }
+.retro-mode ::-webkit-scrollbar-thumb:hover { background: #00ffff; }
+
+/* ── SKELETON ────────────────────────────────────── */
+.retro-mode .skeleton { background: #001a1a !important; }
+
+/* ── CRT SCANLINES ───────────────────────────────── */
+.retro-mode::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* ── RETRO FLOATING TITLE LABELS ─────────────────── */
+/* Shows card title in the BLANK OPPOSITE side of the timeline */
+
+/* LEFT card → label appears on the RIGHT (blank) side */
+.retro-mode .timeline-item.left::after {
+  content: attr(data-title);
+  position: absolute;
+  /* Right half = from center line outward */
+  left: calc(50% + 52px);
+  right: 0;
+  top: 18px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  line-height: 1.9;
+  color: #006666;
+  text-shadow: 0 0 6px rgba(0,255,255,0.2);
+  letter-spacing: 0.06em;
+  word-break: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  border-left: 2px solid #003333;
+  padding-left: 12px;
+  pointer-events: none;
+  z-index: 1;
+  transition: color 0.15s, text-shadow 0.15s;
+}
+.retro-mode .timeline-item.left:hover::after {
+  color: #00aaaa;
+  text-shadow: 0 0 10px rgba(0,255,255,0.4);
+}
+
+/* RIGHT card → label appears on the LEFT (blank) side */
+.retro-mode .timeline-item.right::after {
+  content: attr(data-title);
+  position: absolute;
+  /* Left half = from 0 to center line */
+  right: calc(50% + 52px);
+  left: 0;
+  top: 18px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  line-height: 1.9;
+  color: #006666;
+  text-shadow: 0 0 6px rgba(0,255,255,0.2);
+  letter-spacing: 0.06em;
+  word-break: break-word;
+  text-align: right;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  border-right: 2px solid #003333;
+  padding-right: 12px;
+  pointer-events: none;
+  z-index: 1;
+  transition: color 0.15s, text-shadow 0.15s;
+}
+.retro-mode .timeline-item.right:hover::after {
+  color: #00aaaa;
+  text-shadow: 0 0 10px rgba(0,255,255,0.4);
+}
+
+/* Mobile — hide title inside card, show it prominently in the side label */
+@media (max-width: 768px) {
+  /* Hide the title from inside the card */
+  .retro-mode .timeline-item .card-title {
+    display: none !important;
+  }
+
+  /* Left card → right-side label, prominent */
+  .retro-mode .timeline-item.left::after {
+    left: calc(50% + 26px);
+    right: 0;
+    top: 14px;
+    font-size: 6px;
+    line-height: 1.8;
+    padding-left: 8px;
+    -webkit-line-clamp: unset;
+    color: #00cccc;
+    text-shadow: 0 0 10px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.2);
+    border-left: 3px solid #00ffff;
+  }
+
+  /* Right card → left-side label, prominent */
+  .retro-mode .timeline-item.right::after {
+    right: calc(50% + 26px);
+    left: 0;
+    top: 14px;
+    font-size: 6px;
+    line-height: 1.8;
+    padding-right: 8px;
+    -webkit-line-clamp: unset;
+    color: #00cccc;
+    text-align: right;
+    text-shadow: 0 0 10px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.2);
+    border-right: 3px solid #00ffff;
+  }
+}
+
+
+
+
+/* Apply glow pulse to timeline dots */
+.retro-mode .timeline-dot {
+  animation: retro-glow-pulse 2.4s ease-in-out infinite !important;
+}
+/* Sidebar logo gentle flicker */
+.retro-mode .sidebar-logo-text {
+  animation: retro-text-flicker 8s linear infinite !important;
+}
+
+/* ── ████ MOBILE BOTTOM BAR RETRO ████ ───────────── */
+.retro-mode .mobile-bottom-bar {
+  background: #000 !important;
+  border-top: 4px solid #00ffff !important;
+  box-shadow: 0 -4px 0 #003333, 0 0 20px rgba(0,255,255,0.06) !important;
+}
+
+
+/* Nav items */
+.retro-mode .mbb-item {
+  color: #004444 !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 6px !important;
+  gap: 3px !important;
+}
+.retro-mode .mbb-item.active {
+  color: #00ffff !important;
+  text-shadow: 0 0 8px #00ffff, 0 0 16px rgba(0,255,255,0.4) !important;
+}
+.retro-mode .mbb-item.active .mbb-icon {
+  filter: drop-shadow(0 0 4px #00ffff) !important;
+}
+.retro-mode .mbb-icon { font-size: 18px !important; }
+.retro-mode .mbb-label { font-size: 5px !important; letter-spacing: 0.05em !important; }
+
+/* Add button — glowing + marching border */
+.retro-mode .mbb-add-inner {
+  background: #001a1a !important;
+  border: 3px solid #00ffff !important;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 #003333, 0 0 14px rgba(0,255,255,0.25) !important;
+  animation: retro-glow-pulse 2s ease-in-out infinite !important;
+  color: #00ffff !important;
+  width: 44px !important;
+  height: 44px !important;
+}
+
+/* Sub-action buttons */
+.retro-mode .mbb-sub-item {
+  color: #006666 !important;
+  font-size: 5px !important;
+}
+.retro-mode .mbb-sub-inner {
+  background: #0a0a0a !important;
+  border: 2px solid #003333 !important;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 0 #001a1a !important;
+}
+.retro-mode .mbb-sub-inner--camera {
+  border-color: #ff0080 !important;
+  box-shadow: 2px 2px 0 #330011, 0 0 8px rgba(255,0,128,0.2) !important;
+}
+
+/* ── ████ PROFILE MODAL FULL RETRO ████ ──────────── */
+/* ProfileModal reuses .event-modal and EventModal.css classes */
+.retro-mode .event-modal {
+  background: #020212 !important;
+  border: 4px solid #00ffff !important;
+  box-shadow:
+    8px 8px 0 #003333,
+    0 0 0 1px #001a1a,
+    0 0 40px rgba(0,255,255,0.12) !important;
+}
+
+/* Profile avatar container */
+.retro-mode .profile-avatar-wrap,
+.retro-mode [class*="avatar-wrap"] {
+  border: 4px solid #00ffff !important;
+  box-shadow: 0 0 16px #00ffff, 4px 4px 0 #003333 !important;
+  border-radius: 0 !important;
+  animation: retro-glow-pulse 3s ease-in-out infinite !important;
+}
+
+/* Profile form fields */
+.retro-mode .form-group label,
+.retro-mode .input-group label {
+  color: #006666 !important;
+  font-size: 6px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+}
+
+/* Error / success banners */
+.retro-mode [class*="error"],
+.retro-mode [class*="alert-error"] {
+  border: 2px solid #ff0080 !important;
+  background: #110005 !important;
+  color: #ff0080 !important;
+  box-shadow: 3px 3px 0 #330011 !important;
+  font-size: 6px !important;
+}
+.retro-mode [class*="success"],
+.retro-mode [class*="alert-success"] {
+  border: 2px solid #00ffff !important;
+  background: #001a1a !important;
+  color: #00ffff !important;
+  box-shadow: 3px 3px 0 #003333 !important;
+  font-size: 6px !important;
+}
+
+/* Save / upload buttons in profile */
+.retro-mode .btn-save,
+.retro-mode [type="submit"] {
+  background: #001a1a !important;
+  color: #00ffff !important;
+  border: 3px solid #00ffff !important;
+  box-shadow: 4px 4px 0 #003333, 0 0 12px rgba(0,255,255,0.2) !important;
+  font-size: 7px !important;
+}
+.retro-mode .btn-save:hover,
+.retro-mode [type="submit"]:hover {
+  box-shadow: 2px 2px 0 #003333, 0 0 24px rgba(0,255,255,0.5) !important;
+  transform: translate(2px,2px) !important;
+}
+
+/* ── ████ HORIZON VIEW FULL RETRO ████ ───────────── */
+.retro-mode .hv-wrapper {
+  background: #000 !important;
+  border: 3px solid #00ffff !important;
+  box-shadow: 6px 6px 0 #003333, 0 0 30px rgba(0,255,255,0.08) !important;
+  border-radius: 0 !important;
+  animation: none !important; /* disable the breathe scale — causes layout shift */
+}
+
+/* Scroll hint pill */
+.retro-mode .hv-scroll-hint {
+  background: #000 !important;
+  border: 2px solid #003333 !important;
+  border-radius: 0 !important;
+  color: #006666 !important;
+  font-size: 6px !important;
+  box-shadow: 2px 2px 0 #001a1a !important;
+  backdrop-filter: none !important;
+}
+
+/* Scrollbar inside horizon */
+.retro-mode .hv-scroller::-webkit-scrollbar { height: 6px; }
+.retro-mode .hv-scroller::-webkit-scrollbar-track { background: #000; border-top: 2px solid #001a1a; }
+.retro-mode .hv-scroller::-webkit-scrollbar-thumb { background: #003333; }
+.retro-mode .hv-scroller::-webkit-scrollbar-thumb:hover { background: #00ffff; }
+
+/* Horizon cards */
+.retro-mode .hv-card {
+  background: #020212 !important;
+  border: 3px solid #003333 !important;
+  box-shadow: 5px 5px 0 #001a1a !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+  transition: border-color 0.08s, box-shadow 0.08s !important;
+}
+.retro-mode .hv-card:hover {
+  border-color: #00ffff !important;
+  box-shadow: 6px 6px 0 #003333, 0 0 18px rgba(0,255,255,0.15) !important;
+}
+.retro-mode .hv-card-bar {
+  background: #00ffff !important;
+  box-shadow: 0 0 6px #00ffff !important;
+  height: 4px !important;
+}
+.retro-mode .hv-card-title {
+  color: #00ffff !important;
+  font-size: 6px !important;
+  text-shadow: 0 0 6px rgba(0,255,255,0.4) !important;
+  font-family: 'Press Start 2P', monospace !important;
+  line-height: 1.9 !important;
+  -webkit-text-fill-color: #00ffff !important; /* override gradient clip */
+  background: none !important;
+}
+.retro-mode .hv-card-date,
+.retro-mode .hv-card-loc {
+  color: #005555 !important;
+  font-size: 5px !important;
+  font-family: 'Press Start 2P', monospace !important;
+}
+.retro-mode .hv-card-num {
+  border-radius: 0 !important;
+  border: 1px solid #003333 !important;
+  background: #000 !important;
+  color: #006666 !important;
+  font-size: 5px !important;
+}
+.retro-mode .hv-card-tag {
+  border-radius: 0 !important;
+  border: 1px solid #003333 !important;
+  background: #000 !important;
+  color: #005555 !important;
+  font-size: 5px !important;
+}
+.retro-mode .hv-card-person-dot {
+  border-radius: 0 !important;
+  background: #001a1a !important;
+  border: 1px solid #00ffff !important;
+  color: #00ffff !important;
+}
+.retro-mode .hv-card-click-hint {
+  color: #00ffff !important;
+  font-size: 5px !important;
+  text-shadow: 0 0 6px #00ffff !important;
+  font-family: 'Press Start 2P', monospace !important;
+}
+
+/* Detail panel */
+.retro-mode .hv-detail-overlay {
+  background: rgba(0,0,10,0.97) !important;
+  backdrop-filter: none !important;
+}
+.retro-mode .hv-detail-panel {
+  background: #020212 !important;
+  border: 4px solid #00ffff !important;
+  border-radius: 0 !important;
+  box-shadow: 0 -6px 0 #003333, 0 0 40px rgba(0,255,255,0.12) !important;
+}
+.retro-mode .hv-dp-bar {
+  background: linear-gradient(90deg, #00ffff, #ff0080, #8000ff) !important;
+  box-shadow: 0 0 8px #00ffff !important;
+  height: 4px !important;
+}
+.retro-mode .hv-dp-title {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 11px !important;
+  color: #00ffff !important;
+  text-shadow: 0 0 14px #00ffff, 3px 3px 0 #003333 !important;
+  -webkit-text-fill-color: #00ffff !important;
+  background: none !important;
+  line-height: 2 !important;
+}
+.retro-mode .hv-dp-rank {
+  color: #006666 !important;
+  font-size: 6px !important;
+  font-family: 'Press Start 2P', monospace !important;
+}
+.retro-mode .hv-dp-close {
+  border-radius: 0 !important;
+  border: 2px solid #003333 !important;
+  background: #000 !important;
+  color: #006666 !important;
+  box-shadow: 2px 2px 0 #001a1a !important;
+}
+.retro-mode .hv-dp-close:hover {
+  border-color: #ff0080 !important;
+  color: #ff0080 !important;
+  box-shadow: 0 0 8px rgba(255,0,128,0.3) !important;
+}
+.retro-mode .hv-dp-date,
+.retro-mode .hv-dp-location { color: #006666 !important; font-size: 6px !important; font-family: 'Press Start 2P', monospace !important; }
+.retro-mode .hv-dp-sublabel {
+  color: #003333 !important;
+  font-size: 5px !important;
+  font-family: 'Press Start 2P', monospace !important;
+  letter-spacing: 0.12em !important;
+}
+.retro-mode .hv-dp-desc {
+  color: #007777 !important;
+  font-size: 6px !important;
+  font-style: normal !important;
+  font-family: 'Press Start 2P', monospace !important;
+  line-height: 2 !important;
+}
+.retro-mode .hv-dp-desc-bar {
+  background: #00ffff !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 6px #00ffff !important;
+  width: 4px !important;
+}
+.retro-mode .hv-dp-stats {
+  background: #000 !important;
+  border: 3px solid #003333 !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 #001a1a !important;
+}
+.retro-mode .hv-dp-stat-n {
+  color: #00ffff !important;
+  font-size: 14px !important;
+  font-family: 'Press Start 2P', monospace !important;
+  text-shadow: 0 0 10px #00ffff !important;
+}
+.retro-mode .hv-dp-stat-l {
+  color: #005555 !important;
+  font-size: 5px !important;
+  font-family: 'Press Start 2P', monospace !important;
+}
+.retro-mode .hv-dp-img {
+  border-radius: 0 !important;
+  border: 3px solid #003333 !important;
+  box-shadow: 4px 4px 0 #001a1a !important;
+}
+.retro-mode .hv-dp-no-img {
+  border-radius: 0 !important;
+  border: 3px solid #003333 !important;
+  background: #020212 !important;
+}
+.retro-mode .hv-dp-private {
+  border-radius: 0 !important;
+  border: 2px solid #003333 !important;
+  background: #000 !important;
+  color: #006666 !important;
+}
+.retro-mode .hv-dp-mood {
+  border-radius: 0 !important;
+  border: 2px solid currentColor !important;
+  box-shadow: 2px 2px 0 #001a1a !important;
+  font-size: 7px !important;
+}
+.retro-mode .hv-dp-person {
+  border-radius: 0 !important;
+  border: 2px solid #003333 !important;
+  background: #000 !important;
+  color: #00ffff !important;
+  font-size: 6px !important;
+}
+.retro-mode .hv-dp-person-av {
+  border-radius: 0 !important;
+  background: #001a1a !important;
+  border: 1px solid #00ffff !important;
+  color: #00ffff !important;
+}
+
+/* Horizon SVG glow — override with neon cyan */
+.retro-mode .hv-core-path {
+  stroke: #00ffff !important;
+  animation: retro-horizon-core-pulse 1.6s ease-in-out infinite alternate !important;
+}
+@keyframes retro-horizon-core-pulse {
+  from {
+    stroke-opacity: 0.6;
+    filter: drop-shadow(0 0 4px #00ffff) drop-shadow(0 0 8px #003333);
+    stroke-width: 3;
+  }
+  to {
+    stroke-opacity: 1;
+    filter: drop-shadow(0 0 14px #00ffff) drop-shadow(0 0 28px rgba(0,255,255,0.5));
+    stroke-width: 5;
+  }
+}
+.retro-mode .hv-aura-path {
+  stroke: #00ffff !important;
+  animation: retro-horizon-aura 3s ease-in-out infinite alternate !important;
+}
+@keyframes retro-horizon-aura {
+  from { stroke-opacity: 0.05; }
+  to   { stroke-opacity: 0.2; }
+}
+.retro-mode .hv-tendril {
+  stroke: rgba(0,255,255,0.3) !important;
+}
+
+/* ── ████ MOBILE RESPONSIVE ████ ─────────────────── */
+@media (max-width: 768px) {
+  .retro-mode .timeline-heading { font-size: 10px !important; }
+  .retro-mode .timeline-subheading { font-size: 6px !important; }
+  .retro-mode .card-title { font-size: 7px !important; }
+  .retro-mode .card-description,
+  .retro-mode .card-date,
+  .retro-mode .card-meta { font-size: 5px !important; }
+  .retro-mode .btn { font-size: 6px !important; padding: 8px 10px !important; }
+  .retro-mode .sidebar-logo-text { font-size: 10px !important; }
+  .retro-mode .modal-title,
+  .retro-mode [class*="modal"] h2 { font-size: 8px !important; }
+  .retro-mode h1 { font-size: 11px !important; }
+  .retro-mode h2 { font-size: 8px !important; }
+  .retro-mode h3 { font-size: 7px !important; }
+  /* Mobile timeline adjustments */
+  .retro-mode .timeline-dot { width: 16px !important; height: 16px !important; }
+  .retro-mode .timeline-line { width: 2px !important; }
+  /* Inputs take full width and stay readable */
+  .retro-mode .input,
+  .retro-mode .search-input { font-size: 6px !important; padding: 10px !important; }
+  /* Horizon on mobile */
+  .retro-mode .hv-dp-title { font-size: 8px !important; }
+  .retro-mode .hv-card-title { font-size: 5px !important; }
+}
+
+/* Extra small phones */
+@media (max-width: 390px) {
+.retro-mode .timeline-heading { font-size: 8px !important; }
+  .retro-mode .mbb-label { font-size: 4px !important; }
+  .retro-mode .mbb-icon { font-size: 14px !important; }
+}
+
+/* Fix profile icon alignment in mobile bottom bar */
+.retro-mode .mbb-profile-icon {
+  width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  margin-top: 0 !important;
+}
+@media (max-width: 390px) {
+  .retro-mode .mbb-profile-icon {
+    width: 14px !important;
+    height: 14px !important;
+    min-height: 14px !important;
+  }
+}

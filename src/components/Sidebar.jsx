@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { calculateStreak } from '../utils/memoryUtils';
 import { getMoods, MOOD_COLORS } from '../utils/moodProvider';
+import { useTheme } from '../context/ThemeContext';
 import FaceMergeAssistant from './FaceMergeAssistant';
 import './Sidebar.css';
 
@@ -13,6 +14,7 @@ export default function Sidebar({
 }) {
   const [activeTab, setActiveTab] = useState('navigate');
   const moods = useMemo(() => getMoods(), []);
+  const { retroMode, toggleRetro } = useTheme();
 
   const clearFilters = () => setFilters({ mood: '', tag: '', person: '', sort: 'date', order: 'desc' });
   const hasFilters = filters.mood || filters.tag || filters.person;
@@ -216,6 +218,18 @@ export default function Sidebar({
 
       {/* Footer */}
       <div className="sidebar-footer">
+        <button
+          className="sidebar-btn"
+          onClick={toggleRetro}
+          style={retroMode ? {
+            background: '#e8e800',
+            color: '#000',
+            borderColor: '#ffff00',
+          } : {}}
+        >
+          <span className="sidebar-btn-icon">🕹️</span>
+          {retroMode ? 'Exit Retro' : 'Retro Mode'}
+        </button>
         <button className="sidebar-btn" onClick={toggleTheme}>
           <span className="sidebar-btn-icon">{theme === 'dark' ? '☀' : '☾'}</span>
           {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}

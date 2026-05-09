@@ -74,6 +74,9 @@ export default function StarsBackground() {
       timeRef.current = timestamp * 0.001; // seconds
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Check retro mode live so it responds instantly when toggled
+      const isRetro = document.documentElement.classList.contains('retro-mode');
+
       const stars = starsRef.current;
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
@@ -90,26 +93,43 @@ export default function StarsBackground() {
         const opacity = s.minOpacity + (s.maxOpacity - s.minOpacity) *
           (0.5 + 0.5 * Math.sin(t * s.twinkleFreq + s.twinklePhase));
 
-        // Draw star — simple filled circle, optionally with a very faint glow for the brighter ones
         const drawY = ((s.y + py) % (canvas.height + 4) + canvas.height + 4) % (canvas.height + 4);
 
-        if (s.maxOpacity > 0.6) {
-          // Brighter stars: add a tiny glow using shadow
-          ctx.shadowBlur = s.size * 3;
-          ctx.shadowColor = `rgba(${s.r},${s.g},${s.b},${opacity * 0.5})`;
-        } else {
-          ctx.shadowBlur = 0;
-        }
+        if (isRetro) {
+          // ── RETRO MODE: crisp square pixels ──
+          const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+          const retroR = isLight ? 0   : 0;
+          const retroG = isLight ? 102 : 255;
+          const retroB = isLight ? 0   : 255;
 
-        ctx.beginPath();
-        ctx.arc(s.x, drawY, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${s.r},${s.g},${s.b},${opacity})`;
-        ctx.fill();
+          ctx.shadowBlur = 0;
+          const px = s.size > 0.8 ? 2 : 1;
+          if (s.maxOpacity > 0.6) {
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = `rgba(${retroR},${retroG},${retroB},${opacity * 0.8})`;
+          }
+          ctx.fillStyle = `rgba(${retroR},${retroG},${retroB},${opacity})`;
+          ctx.fillRect(Math.round(s.x), Math.round(drawY), px, px);
+          ctx.shadowBlur = 0;
+        } else {
+          // ── NORMAL MODE: anti-aliased circles with warm glow ──
+          if (s.maxOpacity > 0.6) {
+            ctx.shadowBlur = s.size * 3;
+            ctx.shadowColor = `rgba(${s.r},${s.g},${s.b},${opacity * 0.5})`;
+          } else {
+            ctx.shadowBlur = 0;
+          }
+          ctx.beginPath();
+          ctx.arc(s.x, drawY, s.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${s.r},${s.g},${s.b},${opacity})`;
+          ctx.fill();
+        }
       }
 
       ctx.shadowBlur = 0;
       rafRef.current = requestAnimationFrame(draw);
     };
+
 
     rafRef.current = requestAnimationFrame(draw);
 

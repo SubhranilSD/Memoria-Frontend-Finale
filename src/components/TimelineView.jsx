@@ -59,6 +59,7 @@ export default function TimelineView({ events, view, editMode, onEdit, onDelete,
                     {...provided.draggableProps}
                     className={`timeline-item ${index % 2 === 0 ? 'left' : 'right'} ${snapshot.isDragging ? 'dragging' : ''}`}
                     style={{ ...provided.draggableProps.style, animationDelay: `${index * 0.08}s` }}
+                    data-title={event.title}
                   >
                     <div className="timeline-dot-wrapper">
                       <div className="timeline-dot" style={{ background: event.color || '#c4813a' }}>

@@ -89,7 +89,7 @@ const MobileBottomBar = ({
       </button>
       
       <button className="mbb-item" onClick={onProfileClick}>
-        <div className="mbb-icon" style={{ 
+        <div className="mbb-icon mbb-profile-icon" style={{ 
           width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden', 
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           background: user?.avatar ? 'transparent' : 'linear-gradient(135deg, var(--accent-gold), var(--accent-rose))',

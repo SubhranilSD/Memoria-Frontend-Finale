@@ -360,9 +360,11 @@ export default function EventModal({ event, onSubmit, onClose, allPeople = [] })
       // Process all images in parallel
       const results = await Promise.all(fileList.map(async (file) => {
         try {
-          const compressedBase64 = await compressImage(file);
+          const compressedBase64 = await compressImage(file, 1600, 0.8);
+          const thumbBase64 = await compressImage(file, 400, 0.5); // Aggressive thumbnail compression
+
           const [uploadRes, focalPoint] = await Promise.all([
-            api.post('/upload', { base64: compressedBase64, filename: file.name }),
+            api.post('/upload', { base64: compressedBase64, thumbnailBase64: thumbBase64, filename: file.name }),
             detectFocalPoint(compressedBase64)
           ]);
 

@@ -118,7 +118,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 20px currentColor;
   position: relative;
   z-index: 2;
   cursor: default;
@@ -127,7 +126,6 @@
 .timeline-dot-emoji {
   font-size: 16px;
   line-height: 1;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
 }
 
 .timeline-dot-ring {

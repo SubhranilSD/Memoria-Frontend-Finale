@@ -17,7 +17,34 @@ export default function ProfileModal({ user, onClose, onUpdate }) {
   const [success, setSuccess] = useState(false);
   const { logout } = useAuth();
 
-  const handleImageChange = (e) => {
+  const compressImage = (file, maxWidth = 400, quality = 0.8) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = (maxWidth / width) * height;
+            width = maxWidth;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+      };
+    });
+  };
+
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     
@@ -26,12 +53,13 @@ export default function ProfileModal({ user, onClose, onUpdate }) {
       return setError('Image must be less than 5MB');
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setForm({ ...form, avatar: reader.result });
+    try {
+      const compressedBase64 = await compressImage(file, 400, 0.8);
+      setForm({ ...form, avatar: compressedBase64 });
       setError('');
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      setError('Failed to compress image');
+    }
   };
 
   const handleSubmit = async (e) => {

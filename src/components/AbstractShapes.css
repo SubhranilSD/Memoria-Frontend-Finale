@@ -1,0 +1,135 @@
+/* Abstract Shapes Layer */
+.abstract-shapes {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict; /* Isolate this layer from layout/paint of the rest of the page */
+}
+
+/* Blur is applied ONCE on a static wrapper — GPU caches the blurred texture */
+.shape-blur-wrap {
+  position: absolute;
+  inset: 0;
+  will-change: transform; /* Promote to own GPU layer */
+  transform: translateZ(0); /* Force compositing */
+}
+
+.shape {
+  position: absolute;
+  border-radius: 50%; /* Fixed large radius — no border-radius animation */
+  /* Only opacity and transform are animated — both compositor-only, zero paint cost */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Blurred versions via a parent (avoids re-blurring on every frame) */
+.shape-blur-a { filter: blur(70px); }
+.shape-blur-b { filter: blur(55px); }
+.shape-blur-c { filter: blur(80px); }
+
+/* === SHAPE ANIMATIONS (TRANSFORM + OPACITY ONLY) === */
+
+/* Slow drifting blob - top left purple */
+.shape-1 {
+  width: 420px;
+  height: 320px;
+  top: -100px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(100, 40, 160, 0.22) 0%, transparent 70%);
+  animation: drift1 30s ease-in-out infinite alternate, fade1 30s ease-in-out infinite alternate;
+}
+@keyframes drift1 {
+  0%   { transform: translate3d(0,    0,   0) scale(1);   }
+  33%  { transform: translate3d(80px, 50px, 0) scale(1.15); }
+  66%  { transform: translate3d(30px, 110px,0) scale(0.9);  }
+  100% { transform: translate3d(110px,30px, 0) scale(1.1);  }
+}
+@keyframes fade1 {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 0.8; }
+  100% { opacity: 0.35;}
+}
+
+/* Mid blob - right side deep red */
+.shape-2 {
+  width: 360px;
+  height: 460px;
+  top: 15%;
+  right: -80px;
+  background: radial-gradient(circle, rgba(180, 30, 60, 0.15) 0%, transparent 70%);
+  animation: drift2 38s ease-in-out infinite alternate, fade2 38s ease-in-out infinite alternate;
+}
+@keyframes drift2 {
+  0%   { transform: translate3d(0,     0,    0) scale(1);   }
+  40%  { transform: translate3d(-60px, 80px, 0) scale(1.1); }
+  100% { transform: translate3d(-80px, -40px,0) scale(0.9); }
+}
+@keyframes fade2 {
+  0%   { opacity: 0.35; }
+  50%  { opacity: 0.65; }
+  100% { opacity: 0.25; }
+}
+
+/* Bottom large blob - gold/amber */
+.shape-3 {
+  width: 520px;
+  height: 360px;
+  bottom: 5%;
+  left: 20%;
+  background: radial-gradient(circle, rgba(200, 130, 20, 0.12) 0%, transparent 70%);
+  animation: drift3 45s ease-in-out infinite alternate, fade3 45s ease-in-out infinite alternate;
+}
+@keyframes drift3 {
+  0%   { transform: translate3d(0,    0,    0) scale(1);    }
+  50%  { transform: translate3d(60px, -50px,0) scale(1.12); }
+  100% { transform: translate3d(-30px,20px, 0) scale(0.95); }
+}
+@keyframes fade3 {
+  0%   { opacity: 0.3; }
+  50%  { opacity: 0.55;}
+  100% { opacity: 0.22;}
+}
+
+/* Small accent blob - indigo */
+.shape-4 {
+  width: 240px;
+  height: 240px;
+  top: 42%;
+  left: 5%;
+  background: radial-gradient(circle, rgba(60, 80, 200, 0.15) 0%, transparent 70%);
+  animation: drift4 24s ease-in-out infinite alternate, fade4 24s ease-in-out infinite alternate;
+  animation-delay: -6s;
+}
+@keyframes drift4 {
+  0%   { transform: translate3d(0,    0,    0) scale(1);   }
+  50%  { transform: translate3d(40px, -30px,0) scale(1.2); }
+  100% { transform: translate3d(-20px,50px, 0) scale(0.85);}
+}
+@keyframes fade4 {
+  0%   { opacity: 0.25; }
+  50%  { opacity: 0.5;  }
+  100% { opacity: 0.18; }
+}
+
+/* Small teal accent - top right */
+.shape-5 {
+  width: 280px;
+  height: 200px;
+  top: 8%;
+  right: 12%;
+  background: radial-gradient(circle, rgba(20, 150, 160, 0.12) 0%, transparent 70%);
+  animation: drift5 21s ease-in-out infinite alternate, fade5 21s ease-in-out infinite alternate;
+  animation-delay: -10s;
+}
+@keyframes drift5 {
+  0%   { transform: translate3d(0,     0,   0) scale(1);   }
+  50%  { transform: translate3d(-40px, 30px,0) scale(1.15);}
+  100% { transform: translate3d(20px, -20px,0) scale(0.9); }
+}
+@keyframes fade5 {
+  0%   { opacity: 0.3; }
+  50%  { opacity: 0.55;}
+  100% { opacity: 0.2; }
+}

@@ -145,7 +145,7 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
           {hasMedia && !isFuture && (
             <div className="event-card-media" onClick={() => onClickMedia && onClickMedia(event)} style={{ cursor: onClickMedia ? 'zoom-in' : 'default' }}>
               <img
-                src={event.media[0].url}
+                src={event.media[0].thumbnailUrl || event.media[0].url}
                 alt={event.title}
                 className="event-card-img"
                 loading="lazy"

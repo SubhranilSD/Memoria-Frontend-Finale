@@ -29,6 +29,7 @@ const Toast = lazy(() => import('../components/Toast'));
 const ProfileModal = lazy(() => import('../components/ProfileModal'));
 const InstantCameraModal = lazy(() => import('../components/InstantCameraModal'));
 import MobileBottomBar from '../components/MobileBottomBar';
+import StarsBackground from '../components/StarsBackground';
 import './TimelinePage.css';
 
 const MOOD_COLORS = {
@@ -245,18 +246,6 @@ export default function TimelinePage() {
 
   const memCount = visibleEvents.length;
 
-  /* Dynamic Background based on dominant mood */
-  const dynamicBgColor = useMemo(() => {
-    if (!visibleEvents.length) return 'transparent';
-    const counts = {};
-    visibleEvents.forEach(e => { if (e.mood) counts[e.mood] = (counts[e.mood] || 0) + 1; });
-    const topMood = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-    if (!topMood) return 'transparent';
-    const color = MOOD_COLORS[topMood[0]];
-    // Create a subtle radial gradient string for the background
-    return `radial-gradient(circle at 50% -20%, color-mix(in srgb, ${color} 8%, transparent), transparent 70%)`;
-  }, [visibleEvents]);
-
   // Reset pagination when search/filters change
   useEffect(() => {
     setVisibleCount(10);
@@ -285,8 +274,9 @@ export default function TimelinePage() {
   }, []);
 
   return (
-    <div className="timeline-page" style={{ background: dynamicBgColor }}>
-      <Sidebar
+    <div className={`timeline-page ${theme}`}>
+      <StarsBackground />
+      <Sidebar 
         user={user}
         view={view} setView={setView}
         filters={filters} setFilters={setFilters}

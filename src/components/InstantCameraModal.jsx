@@ -1,9 +1,32 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../utils/api';
+import { pipeline, env } from '@xenova/transformers';
+import { sentimentScore, sentimentToMood } from '../utils/memoryUtils';
 import './InstantCameraModal.css';
 
+env.allowLocalModels = false;
+env.useBrowserCache = true;
+
 const today = () => new Date().toISOString().split('T')[0];
+
+async function reverseGeocode(lat, lon) {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10`,
+      { headers: { 'Accept-Language': 'en' } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const a = data.address || {};
+    return (
+      a.village || a.town || a.city_district || a.suburb ||
+      a.city || a.county || a.state || a.country || null
+    );
+  } catch {
+    return null;
+  }
+}
 
 export default function InstantCameraModal({ onClose, onComplete }) {
   const videoRef = useRef(null);
@@ -20,7 +43,47 @@ export default function InstantCameraModal({ onClose, onComplete }) {
     location: '',
     mood: 'joyful',
   });
+  });
   const [saving, setSaving] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [autofilled, setAutofilled] = useState(false);
+
+  const handleMagicAutofill = async () => {
+    setAiGenerating(true);
+    try {
+      // 1. Get Location via GPS
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const loc = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+          if (loc) setForm(f => ({ ...f, location: loc }));
+        }, () => {});
+      }
+
+      // 2. Generate AI caption for title
+      if (capturedImage) {
+        const captioner = await pipeline('image-to-text', 'Xenova/vit-gpt2-image-captioning');
+        const result = await captioner(capturedImage);
+        
+        let aiCaption = '';
+        if (result && result.length > 0 && result[0].generated_text) {
+          aiCaption = result[0].generated_text.trim();
+          aiCaption = aiCaption.charAt(0).toUpperCase() + aiCaption.slice(1);
+          setForm(f => {
+            const newForm = { ...f, title: aiCaption };
+            const score = sentimentScore(aiCaption);
+            newForm.mood = sentimentToMood(score);
+            return newForm;
+          });
+        }
+      }
+      
+      setAutofilled(true);
+      setTimeout(() => setAutofilled(false), 1200);
+    } catch (err) {
+      console.error("Magic Autofill failed", err);
+    }
+    setAiGenerating(false);
+  };
 
   const startCamera = useCallback(async (mode) => {
     // Stop any existing stream first
@@ -173,12 +236,29 @@ export default function InstantCameraModal({ onClose, onComplete }) {
           )}
 
           {phase === 'form' && (
-            <motion.div key="form" className="icam-form-wrap" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
+            <motion.div key="form" className={`icam-form-wrap ${autofilled ? 'autofilled' : ''}`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
               <img src={capturedImage} alt="" className="icam-form-thumb" />
+              
+              <div className="icam-form-actions" style={{ marginBottom: '16px' }}>
+                <button
+                  type="button"
+                  className={`btn btn-primary btn-sm magic-btn ${aiGenerating ? 'loading' : ''}`}
+                  onClick={handleMagicAutofill}
+                  disabled={aiGenerating}
+                  style={{
+                    background: 'linear-gradient(135deg, var(--accent-indigo), var(--accent-rose))',
+                    border: 'none', color: 'white', padding: '10px', borderRadius: '12px', fontWeight: 600, width: '100%',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  {aiGenerating ? '🪄 AI Thinking...' : '🪄 Apply Meta Data & AI Describe'}
+                </button>
+              </div>
+
               <div className="form-group">
                 <label className="input-label">Memory Title *</label>
                 <input
-                  className="input"
+                  className={`input ${autofilled ? 'input-autofilled' : ''}`}
                   placeholder="What happened here?"
                   value={form.title}
                   onChange={e => setForm({ ...form, title: e.target.value })}
@@ -188,11 +268,11 @@ export default function InstantCameraModal({ onClose, onComplete }) {
               <div className="icam-form-row">
                 <div className="form-group">
                   <label className="input-label">Date</label>
-                  <input type="date" className="input" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+                  <input type="date" className={`input ${autofilled ? 'input-autofilled' : ''}`} value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label className="input-label">Mood</label>
-                  <select className="input" value={form.mood} onChange={e => setForm({ ...form, mood: e.target.value })}>
+                  <select className={`input ${autofilled ? 'input-autofilled' : ''}`} value={form.mood} onChange={e => setForm({ ...form, mood: e.target.value })}>
                     {['joyful','nostalgic','proud','sad','excited','peaceful','grateful','adventurous'].map(m => (
                       <option key={m} value={m}>{m}</option>
                     ))}
@@ -201,7 +281,7 @@ export default function InstantCameraModal({ onClose, onComplete }) {
               </div>
               <div className="form-group">
                 <label className="input-label">Location</label>
-                <input className="input" placeholder="Where was this?" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
+                <input className={`input ${autofilled ? 'input-autofilled' : ''}`} placeholder="Where was this?" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
               </div>
               <div className="icam-form-footer">
                 <button className="btn btn-ghost" onClick={() => setPhase('preview')}>← Back</button>

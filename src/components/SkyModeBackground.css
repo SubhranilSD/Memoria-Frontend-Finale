@@ -1,0 +1,70 @@
+.sky-mode-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transition: background 0.2s ease-out;
+}
+
+.sky-layer {
+  position: absolute;
+  inset: -100px; /* Overshoot to allow parallax movement without showing edges */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  will-change: transform, opacity;
+}
+
+/* Stars Layer 1 - Slow */
+.stars-1 {
+  background-image: radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(2px 2px at 160px 120px, #ffffff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.8;
+}
+
+/* Stars Layer 2 - Fast */
+.stars-2 {
+  background-image: radial-gradient(1.5px 1.5px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
+                    radial-gradient(2px 2px at 130px 80px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(1px 1px at 160px 120px, rgba(255,255,255,0.8), rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  opacity: 0.6;
+}
+
+/* Clouds Base Layer */
+.clouds-base {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Procedural Cloud Bubbles using box-shadows */
+.cloud-bubble {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  filter: blur(10px);
+  opacity: 0.4;
+  will-change: transform;
+}
+
+/* Earth Base */
+.earth-base {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30vh;
+  background: linear-gradient(to top, #2e5128 0%, #4a7c3c 40%, transparent 100%);
+  transform-origin: bottom center;
+  will-change: transform, opacity;
+}

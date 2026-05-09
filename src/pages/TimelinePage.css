@@ -1,7 +1,13 @@
 .timeline-page {
   display: flex;
   min-height: 100vh;
-  background: var(--bg-primary);
+  background-color: #0d0e12;
+  background-image: 
+    radial-gradient(at 80% 0%, rgba(131, 58, 180, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 40%, rgba(253, 29, 29, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, rgba(252, 176, 69, 0.1) 0px, transparent 50%),
+    radial-gradient(at 10% 10%, rgba(25, 25, 112, 0.2) 0px, transparent 50%);
+  background-attachment: fixed;
 }
 
 .timeline-main {
@@ -9,7 +15,7 @@
   padding: 36px 40px;
   overflow-y: auto;
   min-height: 100vh;
-  background: var(--gradient-hero);
+  background: transparent;
 }
 
 .timeline-header {

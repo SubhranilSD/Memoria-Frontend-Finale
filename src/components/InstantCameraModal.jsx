@@ -1,12 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../utils/api';
-import { pipeline, env } from '@xenova/transformers';
 import { sentimentScore, sentimentToMood } from '../utils/memoryUtils';
 import './InstantCameraModal.css';
-
-env.allowLocalModels = false;
-env.useBrowserCache = true;
 
 const today = () => new Date().toISOString().split('T')[0];
 
@@ -43,7 +39,6 @@ export default function InstantCameraModal({ onClose, onComplete }) {
     location: '',
     mood: 'joyful',
   });
-  });
   const [saving, setSaving] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
   const [autofilled, setAutofilled] = useState(false);
@@ -51,7 +46,10 @@ export default function InstantCameraModal({ onClose, onComplete }) {
   const handleMagicAutofill = async () => {
     setAiGenerating(true);
     try {
-      // 1. Get Location via GPS
+      // Fill today's date
+      setForm(f => ({ ...f, date: today() }));
+
+      // Get GPS location
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (pos) => {
           const loc = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
@@ -59,28 +57,10 @@ export default function InstantCameraModal({ onClose, onComplete }) {
         }, () => {});
       }
 
-      // 2. Generate AI caption for title
-      if (capturedImage) {
-        const captioner = await pipeline('image-to-text', 'Xenova/vit-gpt2-image-captioning');
-        const result = await captioner(capturedImage);
-        
-        let aiCaption = '';
-        if (result && result.length > 0 && result[0].generated_text) {
-          aiCaption = result[0].generated_text.trim();
-          aiCaption = aiCaption.charAt(0).toUpperCase() + aiCaption.slice(1);
-          setForm(f => {
-            const newForm = { ...f, title: aiCaption };
-            const score = sentimentScore(aiCaption);
-            newForm.mood = sentimentToMood(score);
-            return newForm;
-          });
-        }
-      }
-      
       setAutofilled(true);
       setTimeout(() => setAutofilled(false), 1200);
     } catch (err) {
-      console.error("Magic Autofill failed", err);
+      console.error('Autofill failed', err);
     }
     setAiGenerating(false);
   };

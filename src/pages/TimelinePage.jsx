@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -55,10 +55,19 @@ export default function TimelinePage() {
   const [filters, setFilters] = useState({ mood: '', tag: '', person: '', sort: 'date', order: 'desc' });
   const [editMode, setEditMode] = useState(false);
   const [showReel, setShowReel] = useState(false);
-  const [search, setSearch] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open on PC
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 900);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const { setUser } = useAuth();
+
+  // Debounced search — prevents visibleEvents from recomputing on every keystroke
+  const [searchRaw, setSearchRaw] = useState('');
+  const [search, setSearch] = useState('');
+  const searchDebounceRef = useRef(null);
+  const handleSearchChange = (val) => {
+    setSearchRaw(val);
+    clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => setSearch(val), 300);
+  };
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -171,7 +180,7 @@ export default function TimelinePage() {
     if (search.trim()) {
       const q = search.toLowerCase();
 
-      // Load face clusters to allow searching by AI-recognized person name
+      // Parse face clusters ONCE, not on every filter iteration
       let faceClusters = [];
       try {
         const clustersKey = `memoria_face_clusters_${user?._id || 'guest'}`;
@@ -295,11 +304,11 @@ export default function TimelinePage() {
                   className="search-input"
                   type="text"
                   placeholder="Search memories (Cmd+K)…"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  value={searchRaw}
+                  onChange={e => handleSearchChange(e.target.value)}
                 />
-                {search && (
-                  <button className="search-clear" onClick={() => setSearch('')}>✕</button>
+                {searchRaw && (
+                  <button className="search-clear" onClick={() => { setSearchRaw(''); setSearch(''); }}>✕</button>
                 )}
               </div>
               <button className="btn btn-ghost" onClick={() => setShowReel(true)} title="Watch your highlight reel">

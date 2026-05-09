@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, memo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { isFutureLetter, daysUntilUnlock, inferWeather } from '../utils/memoryUtils';
@@ -149,6 +149,8 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
                 src={event.media[0].url}
                 alt={event.title}
                 className="event-card-img"
+                loading="lazy"
+                decoding="async"
                 style={{
                   objectPosition: `${event.media[0].focalPoint?.x || 50}% ${event.media[0].focalPoint?.y || 50}%`,
                   transform: `scale(${event.media[0].focalPoint?.scale || 1})`
@@ -219,7 +221,10 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
                 ) : (
                   event.description && (
                     <div className="event-card-desc markdown-body animate-in">
-                      <ReactMarkdown>{event.description}</ReactMarkdown>
+                      {/[*_`#\[\]!]/.test(event.description)
+                        ? <ReactMarkdown>{event.description}</ReactMarkdown>
+                        : <p>{event.description}</p>
+                      }
                     </div>
                   )
                 )}

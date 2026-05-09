@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-const STAR_COUNT = 180;
+const STAR_COUNT = 80;
 const LAYERS = [
   { speed: 0.006, parallax: 0.05, size: [0.3, 0.7] },  // distant, slow
   { speed: 0.015, parallax: 0.13, size: [0.5, 1.0] },  // mid

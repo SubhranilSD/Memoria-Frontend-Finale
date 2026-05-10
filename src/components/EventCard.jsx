@@ -36,7 +36,7 @@ function renderAudio(audioUrl) {
   );
 }
 
-export default function EventCard({ event, view, editMode, onEdit, onDelete, onClickMedia }) {
+const EventCard = memo(function EventCard({ event, view, editMode, onEdit, onDelete, onClickMedia, onSelectEvent }) {
   const { user } = useAuth();
   const cardRef = useRef(null);
   const [peopleInEvent, setPeopleInEvent] = useState([]);
@@ -52,7 +52,7 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
           observer.disconnect();
         }
       },
-      { rootMargin: '200px' } // Load slightly before coming into view
+      { rootMargin: '400px' } // Load even earlier for smoother scroll
     );
     if (cardRef.current) observer.observe(cardRef.current);
     return () => observer.disconnect();
@@ -357,4 +357,6 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
       )}
     </div>
   );
-}
+});
+
+export default EventCard;

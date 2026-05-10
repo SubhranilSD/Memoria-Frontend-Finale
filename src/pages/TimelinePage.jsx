@@ -93,10 +93,14 @@ export default function TimelinePage() {
       const params = new URLSearchParams();
       if (filters.mood) params.set('mood', filters.mood);
       if (filters.tag) params.set('tag', filters.tag);
+      if (filters.person) params.set('person', filters.person);
       if (search) params.set('search', search);
       params.set('sort', filters.sort);
       params.set('order', filters.order);
-      params.set('limit', PAGE_SIZE);
+      
+      // Phase 1: ULTRA-FAST load of first 4 for instant paint
+      const limit = isReset ? 4 : PAGE_SIZE;
+      params.set('limit', limit);
       params.set('skip', currentSkip);
       
       const res = await api.get(`/events?${params}`);
@@ -104,12 +108,25 @@ export default function TimelinePage() {
       
       if (isReset) {
         setEvents(newEvents);
+        setLoading(false); // First paint done!
+        
+        // Phase 2: Load the rest of the first page in background
+        if (newEvents.length === 4) {
+          params.set('limit', PAGE_SIZE - 4);
+          params.set('skip', 4);
+          const nextRes = await api.get(`/events?${params}`);
+          setEvents(prev => [...prev, ...nextRes.data]);
+          setSkip(PAGE_SIZE);
+          if (nextRes.data.length < (PAGE_SIZE - 4)) setHasMore(false);
+        } else {
+          setSkip(newEvents.length);
+          setHasMore(false);
+        }
       } else {
         setEvents(prev => [...prev, ...newEvents]);
+        setSkip(currentSkip + PAGE_SIZE);
+        if (newEvents.length < PAGE_SIZE) setHasMore(false);
       }
-      
-      setSkip(currentSkip + PAGE_SIZE);
-      if (newEvents.length < PAGE_SIZE) setHasMore(false);
     } catch {
       showToast('Failed to load events', 'error');
     } finally {
@@ -320,8 +337,12 @@ export default function TimelinePage() {
               ) : view === 'horizon' ? (
                 <>
                   <HorizonView events={paginatedEvents} editMode={editMode} onEdit={openEdit} />
-                  {visibleCount < visibleEvents.length && (
-                    <div ref={loadMoreCallback} style={{ position: 'absolute', right: '10vw', width: '1px', height: '100%' }} />
+                  {hasMore && (
+                    <div ref={loadMoreCallback} style={{ position: 'absolute', right: '5vw', width: '200px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                       <span style={{ color: 'var(--accent-gold)', opacity: 0.4, fontSize: '10px', letterSpacing: '0.3em', transform: 'rotate(-90deg)' }}>
+                         {loadingMore ? 'SYNCING...' : '✦'}
+                       </span>
+                    </div>
                   )}
                 </>
               ) : view === 'constellation' ? (

@@ -79,18 +79,23 @@ export default function TimelinePage() {
     searchDebounceRef.current = setTimeout(() => setSearch(val), 300);
   };
 
+  const skipRef = useRef(0);
+  const hasMoreRef = useRef(true);
+
   const fetchEvents = useCallback(async (isReset = false) => {
     if (isReset) {
       setLoading(true);
+      skipRef.current = 0;
+      hasMoreRef.current = true;
       setSkip(0);
       setHasMore(true);
     } else {
-      if (!hasMore || loadingMore) return;
+      if (!hasMoreRef.current || loadingMore) return;
       setLoadingMore(true);
     }
 
     try {
-      const currentSkip = isReset ? 0 : skip;
+      const currentSkip = isReset ? 0 : skipRef.current;
       const params = new URLSearchParams();
       if (filters.mood) params.set('mood', filters.mood);
       if (filters.tag) params.set('tag', filters.tag);
@@ -99,8 +104,7 @@ export default function TimelinePage() {
       params.set('sort', filters.sort);
       params.set('order', filters.order);
       
-      // Phase 1: ULTRA-FAST load of first 4 for instant paint
-      const limit = isReset ? 4 : PAGE_SIZE;
+      const limit = isReset ? PAGE_SIZE : PAGE_SIZE;
       params.set('limit', limit);
       params.set('skip', currentSkip);
       
@@ -109,14 +113,22 @@ export default function TimelinePage() {
       setTotalMemories(total);
       
       if (isReset) {
-        setLoading(false); // Immediate transition to content
+        setLoading(false);
         setEvents(newEvents);
+        skipRef.current = newEvents.length;
         setSkip(newEvents.length);
-        if (newEvents.length < limit) setHasMore(false);
+        if (newEvents.length < limit) {
+          setHasMore(false);
+          hasMoreRef.current = false;
+        }
       } else {
         setEvents(prev => [...prev, ...newEvents]);
+        skipRef.current = currentSkip + newEvents.length;
         setSkip(currentSkip + newEvents.length);
-        if (newEvents.length < PAGE_SIZE) setHasMore(false);
+        if (newEvents.length < PAGE_SIZE) {
+          setHasMore(false);
+          hasMoreRef.current = false;
+        }
       }
     } catch {
       showToast('Failed to load events', 'error');
@@ -124,7 +136,7 @@ export default function TimelinePage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [filters, skip, hasMore, loadingMore, search]);
+  }, [filters, search]);
 
   useEffect(() => { 
     fetchEvents(true); 
@@ -378,7 +390,6 @@ export default function TimelinePage() {
                       onEdit={openEdit}
                       onDelete={handleDeleteEvent}
                       onReorder={handleReorder}
-                      onClickMedia={setLightboxEvent}
                       onSelectEvent={setSelectedEvent}
                     />
                     {hasMore && (
@@ -441,18 +452,6 @@ export default function TimelinePage() {
               setShowBulkModal(false);
               fetchEvents(true);
               showToast('Bulk import complete ✦');
-            }}
-          />
-        )}
-
-        {lightboxEvent && (
-          <Lightbox
-            event={lightboxEvent}
-            onClose={() => setLightboxEvent(null)}
-            onUpdateTitle={handleUpdateTitle}
-            onEdit={(ev) => {
-              setLightboxEvent(null);
-              openEdit(ev);
             }}
           />
         )}

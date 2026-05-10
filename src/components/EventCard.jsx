@@ -169,20 +169,21 @@ const EventCard = memo(function EventCard({ event, view, editMode, onEdit, onDel
       ) : (
         <motion.div
           className={`event-card glass-card ${isDream ? 'dream-card' : ''} ${isInteracting ? 'is-interacting' : ''}`}
-          style={{
-            '--event-color': event.color || moodColor,
-            rotateX,
-            rotateY,
-            scale: isInteracting ? 1.02 : 1,
-            transformStyle: "preserve-3d"
-          }}
-          whileHover={{ scale: 1.02 }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           onTouchCancel={handleTouchEnd}
+          onClick={() => onSelectEvent && onSelectEvent(event)}
+          style={{
+            cursor: onSelectEvent ? 'pointer' : 'default',
+            '--event-color': event.color || moodColor,
+            rotateX,
+            rotateY,
+            scale: isInteracting ? 1.02 : 1,
+            transformStyle: "preserve-3d"
+          }}
         >
           {/* Dynamic Glare/Shine */}
           <motion.div
@@ -198,7 +199,7 @@ const EventCard = memo(function EventCard({ event, view, editMode, onEdit, onDel
 
           {/* Media */}
           {hasMedia && !isFuture && (
-            <div className="event-card-media" onClick={() => onClickMedia && onClickMedia(event)} style={{ cursor: onClickMedia ? 'zoom-in' : 'default' }}>
+            <div className="event-card-media">
               {!imgLoaded && (
                 <div className="media-placeholder shimmer-effect" style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
               )}

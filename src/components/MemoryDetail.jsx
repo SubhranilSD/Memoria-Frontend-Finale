@@ -175,6 +175,17 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
   const wordCount = event.description ? event.description.split(/\s+/).filter(Boolean).length : 0;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
+  const handleDownload = () => {
+    const url = allMedia[activeImg]?.url;
+    if (!url) return;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Memoria_${event.title || 'Export'}_${activeImg + 1}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <motion.div
       className="md-overlay"
@@ -210,6 +221,9 @@ export default function MemoryDetail({ event, allEvents = [], onClose, onEdit, o
             </button>
           </div>
           <div className="md-action-group">
+            {hasMedia && (
+              <button className="md-action-btn" onClick={handleDownload} title="Download Photo">💾 Save</button>
+            )}
             {onEdit && (
               <button className="md-action-btn" onClick={() => { onClose(); onEdit(event); }}>✏ Edit</button>
             )}

@@ -164,7 +164,7 @@ function SectionTitle({ children }) {
   return <div className="sp-section-title">{children}</div>;
 }
 
-export default function StatsPanel({ events = [], externalOpen, onCloseExternal }) {
+export default function StatsPanel({ events = [], totalMemories = 0, externalOpen, onCloseExternal }) {
   const [localOpen, setLocalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const open = externalOpen !== undefined ? externalOpen : localOpen;
@@ -190,7 +190,7 @@ export default function StatsPanel({ events = [], externalOpen, onCloseExternal 
         >
           <span className="sp-trigger-icon">◎</span>
           <span className="sp-trigger-label">Stats</span>
-          {events.length > 0 && <span className="sp-trigger-badge">{events.length}</span>}
+          {totalMemories > 0 && <span className="sp-trigger-badge">{totalMemories}</span>}
         </motion.button>
       )}
 
@@ -218,7 +218,7 @@ export default function StatsPanel({ events = [], externalOpen, onCloseExternal 
                   <span className="sp-header-icon">◎</span>
                   <div>
                     <h2 className="sp-header-title">Your Memory Stats</h2>
-                    <p className="sp-header-sub">{events.length} memories · {stats?.spanDays ? dur(stats.spanDays) + ' of journaling' : 'start adding memories'}</p>
+                    <p className="sp-header-sub">{totalMemories} memories · {stats?.spanDays ? dur(stats.spanDays) + ' of journaling' : 'start adding memories'}</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -283,7 +283,7 @@ export default function StatsPanel({ events = [], externalOpen, onCloseExternal 
                               <SectionTitle>Overview</SectionTitle>
                               <div className="sp-overview-pills">
                                 {[
-                                  { n: events.length, l: 'Memories', accent: 'var(--accent-gold)' },
+                                  { n: totalMemories, l: 'Memories', accent: 'var(--accent-gold)' },
                                   { n: stats.totalPhotos, l: 'Photos', accent: 'var(--accent-rose)' },
                                   { n: stats.uniqueLocs, l: 'Places', accent: 'var(--accent-sage)' },
                                   { n: stats.privateCount, l: 'Private', accent: 'var(--accent-indigo)' },

@@ -64,6 +64,7 @@ export default function TimelinePage() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [skip, setSkip] = useState(0);
+  const [totalMemories, setTotalMemories] = useState(0);
   const PAGE_SIZE = 15;
 
   const [showInstantModal, setShowInstantModal] = useState(false);
@@ -104,7 +105,8 @@ export default function TimelinePage() {
       params.set('skip', currentSkip);
       
       const res = await api.get(`/events?${params}`);
-      const newEvents = res.data;
+      const { events: newEvents, total } = res.data;
+      setTotalMemories(total);
       
       if (isReset) {
         setEvents(newEvents);
@@ -115,9 +117,10 @@ export default function TimelinePage() {
           params.set('limit', PAGE_SIZE - 4);
           params.set('skip', 4);
           const nextRes = await api.get(`/events?${params}`);
-          setEvents(prev => [...prev, ...nextRes.data]);
+          const { events: nextEvents } = nextRes.data;
+          setEvents(prev => [...prev, ...nextEvents]);
           setSkip(PAGE_SIZE);
-          if (nextRes.data.length < (PAGE_SIZE - 4)) setHasMore(false);
+          if (nextEvents.length < (PAGE_SIZE - 4)) setHasMore(false);
         } else {
           setSkip(newEvents.length);
           setHasMore(false);
@@ -409,6 +412,7 @@ export default function TimelinePage() {
         {/* Right-side Stats Panel (Or mobile full-screen modal) */}
         <StatsPanel 
           events={events} 
+          totalMemories={totalMemories}
           externalOpen={window.innerWidth <= 900 ? showMobileStats : undefined}
           onCloseExternal={() => setShowMobileStats(false)}
         />

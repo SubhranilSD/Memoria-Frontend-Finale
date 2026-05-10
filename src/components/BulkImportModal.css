@@ -228,11 +228,18 @@
 }
 
 .bulk-actions {
+  position: sticky;
+  bottom: -20px;
+  margin: 0 -20px -20px;
+  padding: 16px 20px;
+  background: var(--bg-sidebar);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  z-index: 100;
+  box-shadow: 0 -10px 20px rgba(0,0,0,0.15);
 }
 
 /* ── Mobile Optimization ── */

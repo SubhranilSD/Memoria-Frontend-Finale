@@ -115,24 +115,27 @@ export default function ProfileModal({ user, onClose, onUpdate }) {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
               <div 
                 style={{ 
-                  width: '90px', height: '90px', borderRadius: '50%', background: 'var(--bg-secondary)', 
-                  border: '2px solid var(--accent-gold)', position: 'relative', overflow: 'hidden', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-sm)'
+                  width: '110px', height: '110px', borderRadius: '50%', background: 'var(--bg-secondary)', 
+                  border: '3px solid var(--accent-gold)', position: 'relative', overflow: 'hidden', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+                  transition: 'transform 0.3s ease'
                 }}
+                className="profile-avatar-wrapper"
                 onClick={() => document.getElementById('avatar-upload').click()}
                 title="Click to change photo"
               >
                 {form.avatar ? (
-                  <img src={form.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={form.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                 ) : (
-                  <span style={{ fontSize: '36px', color: 'var(--text-muted)', fontFamily: 'Playfair Display' }}>
+                  <span style={{ fontSize: '42px', color: 'var(--text-muted)', fontFamily: 'Playfair Display' }}>
                     {form.name?.[0]?.toUpperCase() || '👤'}
                   </span>
                 )}
                 <div style={{
-                  position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.6)', 
-                  color: 'white', fontSize: '10px', textAlign: 'center', padding: '3px 0',
-                  textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600
+                  position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.5)', 
+                  color: 'white', fontSize: '10px', textAlign: 'center', padding: '6px 0 4px',
+                  textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600,
+                  backdropFilter: 'blur(4px)'
                 }}>Edit</div>
               </div>
               <input id="avatar-upload" type="file" accept="image/jpeg, image/png, image/webp" hidden onChange={handleImageChange} />

@@ -100,7 +100,7 @@ export default function BulkImportModal({ onClose, onComplete }) {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        const max = 1200;
+        const max = 1000; // Balanced speed/quality
         
         if (width > height && width > max) {
           height *= max / width;
@@ -114,7 +114,7 @@ export default function BulkImportModal({ onClose, onComplete }) {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.75));
+        resolve(canvas.toDataURL('image/jpeg', 0.65)); // Restored quality
       };
       img.src = e.target.result;
     };
@@ -173,15 +173,22 @@ export default function BulkImportModal({ onClose, onComplete }) {
     setProgress(0);
   };
 
+  const [savedCount, setSavedCount] = useState(0);
+
   const handleSaveAll = async () => {
     setSaving(true);
     setProgress(0);
+    setSavedCount(0);
     
-    const batchSize = 5;
-    for (let i = 0; i < items.length; i += batchSize) {
-      const batch = items.slice(i, i + batchSize);
-      await Promise.all(batch.map(item => api.post('/events', item)));
-      setProgress(Math.round(((i + batch.length) / items.length) * 100));
+    // Individual processing for "Live" 1/10 counter
+    for (let i = 0; i < items.length; i++) {
+      try {
+        await api.post('/events', items[i]);
+        setSavedCount(i + 1);
+        setProgress(Math.round(((i + 1) / items.length) * 100));
+      } catch (e) {
+        console.error("Failed to save item", i, e);
+      }
     }
     
     setSaving(false);
@@ -270,9 +277,18 @@ export default function BulkImportModal({ onClose, onComplete }) {
         {saving && (
           <div className="bulk-progress-state">
             <div className="spinner" style={{ margin: '0 auto 16px' }} />
-            <h3>Saving to Timeline...</h3>
+            <h3>Syncing Memories...</h3>
             <div className="progress-bar-container">
               <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <div style={{ 
+              marginTop: '12px', 
+              fontSize: '18px', 
+              fontWeight: '700', 
+              color: 'var(--accent-gold)',
+              fontFamily: 'Playfair Display, serif'
+            }}>
+              {savedCount} <span style={{ opacity: 0.5, fontSize: '14px' }}>/ {items.length}</span>
             </div>
             <p>{progress}% complete</p>
           </div>

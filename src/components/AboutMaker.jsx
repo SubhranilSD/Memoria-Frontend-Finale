@@ -76,10 +76,10 @@ export default function AboutMaker() {
         .about-photo-wrap {
           width: 240px;
           height: 240px;
-          border-radius: 32px !important;
+          border-radius: 50% !important;
           overflow: hidden !important;
-          border: 4px solid rgba(255,255,255,0.15) !important;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important;
+          border: 6px solid var(--accent-gold) !important;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
           position: relative;
           z-index: 5;
         }
@@ -99,23 +99,23 @@ export default function AboutMaker() {
         .social-btn {
           width: 64px;
           height: 64px;
-          border-radius: 16px !important;
-          border: 1px solid rgba(255,255,255,0.1) !important;
+          border-radius: 50% !important;
+          border: 2px solid rgba(255,255,255,0.15) !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
           overflow: hidden !important;
           text-decoration: none !important;
-          transition: all 0.3s ease !important;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
         }
 
         @media (max-width: 768px) {
           .about-maker-container { padding: 40px 16px; }
           .about-card { padding: 40px 20px; border-radius: 24px; }
-          .about-photo-wrap { width: 160px; height: 160px; border-radius: 24px !important; }
+          .about-photo-wrap { width: 180px; height: 180px; border-radius: 50% !important; border-width: 4px !important; }
           .about-name { font-size: 32px; }
           .about-socials { gap: 12px; }
-          .social-btn { width: 50px; height: 50px; border-radius: 12px !important; }
+          .social-btn { width: 56px; height: 56px; border-radius: 50% !important; }
           .social-btn svg { width: 24px; height: 24px; }
           .about-text { font-size: 15px !important; }
         }

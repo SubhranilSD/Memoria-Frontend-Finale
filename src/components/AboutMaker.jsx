@@ -76,25 +76,46 @@ export default function AboutMaker() {
         .about-photo-wrap {
           width: 240px;
           height: 240px;
+          border-radius: 32px !important;
+          overflow: hidden !important;
+          border: 4px solid rgba(255,255,255,0.15) !important;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important;
+          position: relative;
+          z-index: 5;
+        }
+        .about-photo-wrap img {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          display: block;
         }
         .about-name {
           font-size: 52px;
         }
         .about-socials {
           gap: 24px;
+          margin-top: 40px;
         }
         .social-btn {
           width: 64px;
           height: 64px;
+          border-radius: 16px !important;
+          border: 1px solid rgba(255,255,255,0.1) !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          overflow: hidden !important;
+          text-decoration: none !important;
+          transition: all 0.3s ease !important;
         }
 
         @media (max-width: 768px) {
           .about-maker-container { padding: 40px 16px; }
           .about-card { padding: 40px 20px; border-radius: 24px; }
-          .about-photo-wrap { width: 160px; height: 160px; }
+          .about-photo-wrap { width: 160px; height: 160px; border-radius: 24px !important; }
           .about-name { font-size: 32px; }
           .about-socials { gap: 12px; }
-          .social-btn { width: 50px; height: 50px; border-radius: 14px; }
+          .social-btn { width: 50px; height: 50px; border-radius: 12px !important; }
           .social-btn svg { width: 24px; height: 24px; }
           .about-text { font-size: 15px !important; }
         }
@@ -142,47 +163,19 @@ export default function AboutMaker() {
             onMouseLeave={handleMouseLeave}
             className="about-photo-wrap"
             style={{
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: '4px solid rgba(255,255,255,0.15)',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
               rotateX,
               rotateY,
               transformStyle: 'preserve-3d',
-              cursor: 'pointer',
-              position: 'relative'
+              cursor: 'pointer'
             }}
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            {/* Gloss Shine Overlay */}
-            <motion.div
-              style={{
-                position: 'absolute',
-                inset: '-50%',
-                width: '200%',
-                height: '200%',
-                background: 'linear-gradient(135deg, transparent 35%, rgba(255,255,255,0.4) 48%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.4) 52%, transparent 65%)',
-                zIndex: 2,
-                pointerEvents: 'none',
-                opacity: 0,
-                rotate: '45deg',
-                x: useTransform(shineX, [0, 100], [-100, 100]),
-                y: useTransform(shineY, [0, 100], [-100, 100]),
-              }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            />
-
             <img
               src="/maker-photo-new.jpg"
               alt="Subhranil"
               style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transform: 'translateZ(20px) scale(1.1)',
-                zIndex: 1
+                transform: 'translateZ(20px) scale(1.1)'
               }}
             />
           </motion.div>
@@ -263,7 +256,7 @@ export default function AboutMaker() {
               whileTap={{ scale: 0.95 }}
               className="social-btn"
               style={{
-                borderRadius: '20px',
+                borderRadius: '50%',
                 background: `linear-gradient(135deg, ${social.color}22, ${social.color}11)`,
                 border: `1px solid ${social.color}33`,
                 display: 'flex',
@@ -311,6 +304,7 @@ export default function AboutMaker() {
             style={{
               width: '80px',
               height: '80px',
+              borderRadius: '50%',
               objectFit: 'contain',
               filter: 'grayscale(1) brightness(2)',
               opacity: 0.4

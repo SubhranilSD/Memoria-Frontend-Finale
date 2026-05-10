@@ -78,6 +78,7 @@ export default function TimelinePage() {
   };
 
   const fetchEvents = useCallback(async () => {
+    // Phase 1: Lightning fast load of first 6 events
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -85,11 +86,17 @@ export default function TimelinePage() {
       if (filters.tag) params.set('tag', filters.tag);
       params.set('sort', filters.sort);
       params.set('order', filters.order);
-      const res = await api.get(`/events?${params}`);
-      setEvents(res.data);
+      
+      // Fetch only 6 initially
+      const initialRes = await api.get(`/events?${params}&limit=6`);
+      setEvents(initialRes.data);
+      setLoading(false); // Page is now "loaded" for the user
+
+      // Phase 2: Load the rest in background
+      const fullRes = await api.get(`/events?${params}`);
+      setEvents(fullRes.data);
     } catch {
       showToast('Failed to load events', 'error');
-    } finally {
       setLoading(false);
     }
   }, [filters]);

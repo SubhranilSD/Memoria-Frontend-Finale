@@ -151,6 +151,8 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
     y.set(0);
   };
 
+  const [imgLoaded, setImgLoaded] = useState(false);
+
   const moodColor = MOOD_COLORS[event.mood] || '#c4813a';
   const hasMedia = event.media && event.media.length > 0;
   const isFuture = isFutureLetter(event);
@@ -161,7 +163,9 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
   return (
     <div className={`event-card-container ${view} ${isDream ? 'dream-container' : ''}`} style={{ perspective: 1000 }} ref={cardRef}>
       {!isVisible ? (
-        <div className="skeleton-card" style={{ height: '180px', width: '100%', borderRadius: '16px' }} />
+        <div className="skeleton-card glass-card" style={{ height: '220px', width: '100%', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+          <div className="shimmer-effect" style={{ width: '100%', height: '100%' }} />
+        </div>
       ) : (
         <motion.div
           className={`event-card glass-card ${isDream ? 'dream-card' : ''} ${isInteracting ? 'is-interacting' : ''}`}
@@ -195,11 +199,15 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
           {/* Media */}
           {hasMedia && !isFuture && (
             <div className="event-card-media" onClick={() => onClickMedia && onClickMedia(event)} style={{ cursor: onClickMedia ? 'zoom-in' : 'default' }}>
+              {!imgLoaded && (
+                <div className="media-placeholder shimmer-effect" style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+              )}
               <img
                 src={event.media[0].thumbnailUrl || event.media[0].url}
                 alt={event.title}
-                className="event-card-img"
+                className={`event-card-img ${imgLoaded ? 'loaded' : ''}`}
                 loading="lazy"
+                onLoad={() => setImgLoaded(true)}
                 decoding="async"
                 style={{
                   objectPosition: `${event.media[0].focalPoint?.x || 50}% ${event.media[0].focalPoint?.y || 50}%`,

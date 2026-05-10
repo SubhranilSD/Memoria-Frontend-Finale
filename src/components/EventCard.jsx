@@ -88,15 +88,60 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
   const glareX = useTransform(mouseXSpring, [-0.5, 0.5], ["100%", "0%"]);
   const glareY = useTransform(mouseYSpring, [-0.5, 0.5], ["100%", "0%"]);
 
+  // Long press & Touch interaction for Mobile 3D
+  const [isInteracting, setIsInteracting] = useState(false);
+  const touchTimerRef = useRef(null);
+  const initialTouchRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (!isVisible) return;
+    const touch = e.touches[0];
+    initialTouchRef.current = { x: touch.clientX, y: touch.clientY };
+    
+    // Start 1s timer for "Long Press"
+    touchTimerRef.current = setTimeout(() => {
+      setIsInteracting(true);
+      if (window.navigator.vibrate) window.navigator.vibrate(50); // Haptic feedback
+    }, 800); // 800ms feels more responsive than a full second
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isVisible) return;
+    const touch = e.touches[0];
+
+    if (!isInteracting) {
+      // Check if user moved too much during hold (cancel it)
+      const dist = Math.hypot(
+        touch.clientX - initialTouchRef.current.x,
+        touch.clientY - initialTouchRef.current.y
+      );
+      if (dist > 10) clearTimeout(touchTimerRef.current);
+      return;
+    }
+
+    // Prevent scrolling once 3D move is active
+    if (e.cancelable) e.preventDefault();
+
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const mouseX = (touch.clientX - rect.left) / rect.width - 0.5;
+    const mouseY = (touch.clientY - rect.top) / rect.height - 0.5;
+    x.set(mouseX);
+    y.set(mouseY);
+  };
+
+  const handleTouchEnd = () => {
+    clearTimeout(touchTimerRef.current);
+    setIsInteracting(false);
+    x.set(0);
+    y.set(0);
+  };
+
   const handleMouseMove = (e) => {
     if (!cardRef.current || !isVisible) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-
-    const mouseX = (e.clientX - rect.left) / width - 0.5;
-    const mouseY = (e.clientY - rect.top) / height - 0.5;
-
+    const mouseX = (e.clientX - rect.left) / rect.width - 0.5;
+    const mouseY = (e.clientY - rect.top) / rect.height - 0.5;
     x.set(mouseX);
     y.set(mouseY);
   };
@@ -119,21 +164,27 @@ export default function EventCard({ event, view, editMode, onEdit, onDelete, onC
         <div className="skeleton-card" style={{ height: '180px', width: '100%', borderRadius: '16px' }} />
       ) : (
         <motion.div
-          className={`event-card glass-card ${isDream ? 'dream-card' : ''}`}
+          className={`event-card glass-card ${isDream ? 'dream-card' : ''} ${isInteracting ? 'is-interacting' : ''}`}
           style={{
             '--event-color': event.color || moodColor,
             rotateX,
             rotateY,
+            scale: isInteracting ? 1.02 : 1,
             transformStyle: "preserve-3d"
           }}
+          whileHover={{ scale: 1.02 }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
         >
           {/* Dynamic Glare/Shine */}
           <motion.div
             className="event-card-glare"
             style={{
-              background: `radial-gradient(circle at center, rgba(255,255,255,0.4) 0%, transparent 60%)`,
+              background: `radial-gradient(circle at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)`,
               left: glareX,
               top: glareY,
               transform: 'translate(-50%, -50%)'

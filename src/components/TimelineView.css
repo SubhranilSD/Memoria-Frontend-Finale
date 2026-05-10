@@ -121,11 +121,108 @@
   position: relative;
   z-index: 2;
   cursor: default;
+  border: 3px solid var(--bg-primary);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4), 0 0 5px rgba(255, 255, 255, 0.1);
+}
+
+/* Interactive Mood Popup */
+.mood-detail-popup {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  padding: 16px;
+  z-index: 200;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  background: rgba(15, 15, 25, 0.95);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 20px rgba(197, 160, 89, 0.15);
+}
+
+.popup-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
+}
+.popup-close:hover { color: white; }
+
+.popup-mood-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popup-mood-emoji { font-size: 20px; }
+.popup-mood-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.popup-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.popup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.popup-view-btn {
+  margin-top: 4px;
+  width: 100%;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.timeline-item.right .mood-detail-popup {
+  left: auto;
+  right: -100px;
+}
+
+.timeline-item.left .mood-detail-popup {
+  left: -100px;
+  right: auto;
+}
+
+@media (max-width: 768px) {
+  .mood-detail-popup {
+    width: 180px;
+    padding: 12px;
+  }
+  .timeline-item.right .mood-detail-popup,
+  .timeline-item.left .mood-detail-popup {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    top: 60px;
+  }
 }
 
 .timeline-dot-emoji {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
 .timeline-dot-ring {

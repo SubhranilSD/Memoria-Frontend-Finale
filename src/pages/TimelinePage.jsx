@@ -33,8 +33,8 @@ import StarsBackground from '../components/StarsBackground';
 import './TimelinePage.css';
 
 const MOOD_COLORS = {
-  joyful: '#f59e0b', nostalgic: '#8b5cf6', proud: '#10b981', sad: '#6b7280',
-  excited: '#ef4444', peaceful: '#06b6d4', grateful: '#ec4899', adventurous: '#f97316',
+  joyful: '#ffae00', nostalgic: '#a78bfa', proud: '#10b981', sad: '#6b7280',
+  excited: '#ff3d3d', peaceful: '#22d3ee', grateful: '#fb7185', adventurous: '#ff6200',
 };
 
 export default function TimelinePage() {
@@ -303,25 +303,25 @@ export default function TimelinePage() {
         <main className="timeline-main">
           {/* Header */}
           <div className="timeline-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {!sidebarOpen && (
-                <button
-                  className="mobile-menu-toggle btn btn-ghost"
-                  onClick={() => setSidebarOpen(true)}
-                >
-                  ☰
-                </button>
-              )}
-              <div>
-                <h1 className="timeline-heading">
-                  <span className="font-display">{user?.name?.split(' ')[0]}'s</span> Timeline
-                </h1>
-                <p className="timeline-subheading">
-                  {memCount === 0 ? 'Your story begins here.' : `${memCount} memor${memCount === 1 ? 'y' : 'ies'} captured`}
-                </p>
-              </div>
+            {!sidebarOpen && (
+              <button
+                className="mobile-menu-toggle btn btn-ghost"
+                onClick={() => setSidebarOpen(true)}
+              >
+                ☰
+              </button>
+            )}
+            
+            <div className="timeline-header-center">
+              <h1 className="timeline-heading">
+                {user?.name?.split(' ')[0]}'s Timeline
+              </h1>
+              <p className="timeline-subheading">
+                {memCount === 0 ? 'Your story begins here.' : `${memCount} memor${memCount === 1 ? 'y' : 'ies'} captured`}
+              </p>
             </div>
-            <div className="timeline-header-actions">
+
+            <div className="timeline-header-actions centered">
               <div className="search-bar">
                 <span className="search-icon">⌕</span>
                 <input
@@ -335,18 +335,20 @@ export default function TimelinePage() {
                   <button className="search-clear" onClick={() => { setSearchRaw(''); setSearch(''); }}>✕</button>
                 )}
               </div>
-              <button className="btn btn-ghost" onClick={() => setShowReel(true)} title="Watch your highlight reel">
-                🎬 Highlights
-              </button>
-              <button className="btn btn-ghost" onClick={() => setShowInstantModal(true)} title="Snap an instant photo memory">
-                📷 Instant
-              </button>
-              <button className="btn btn-ghost" onClick={() => setShowBulkModal(true)} title="Bulk upload photos">
-                📸 Bulk Add
-              </button>
-              <button className="btn btn-primary" onClick={() => { setEditingEvent(null); setShowModal(true); }}>
-                + Add Memory
-              </button>
+              <div className="header-action-btns">
+                <button className="btn btn-ghost" onClick={() => setShowReel(true)} title="Watch your highlight reel">
+                  🎬 Highlights
+                </button>
+                <button className="btn btn-ghost" onClick={() => setShowInstantModal(true)} title="Snap an instant photo memory">
+                  📷 Instant
+                </button>
+                <button className="btn btn-ghost" onClick={() => setShowBulkModal(true)} title="Bulk upload photos">
+                  📸 Bulk Add
+                </button>
+                <button className="btn btn-primary" onClick={() => { setEditingEvent(null); setShowModal(true); }}>
+                  + Add Memory
+                </button>
+              </div>
             </div>
           </div>
 

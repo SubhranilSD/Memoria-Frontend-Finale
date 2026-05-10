@@ -82,9 +82,32 @@ export default function BulkImportModal({ onClose, onComplete }) {
   const [limitWarning, setLimitWarning] = useState(false);
   const fileRef = useRef(null);
 
-  const fileToDataUrl = (file) => new Promise((resolve) => {
+  const compressImage = (file) => new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const max = 1200;
+        
+        if (width > height && width > max) {
+          height *= max / width;
+          width = max;
+        } else if (height > max) {
+          width *= max / height;
+          height = max;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = e.target.result;
+    };
     reader.readAsDataURL(file);
   });
 
@@ -93,123 +116,46 @@ export default function BulkImportModal({ onClose, onComplete }) {
     let files = rawFiles;
     if (files.length > MAX_FILES) {
       setLimitWarning(true);
-      files = files.slice(0, MAX_FILES); // Hard cap at 100
+      files = files.slice(0, MAX_FILES);
     }
     setProcessing(true);
     const newItems = [];
     
-    if (importMode === 'single') {
-      let firstExifData = null;
-      const mediaList = [];
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (!file.type.startsWith('image/')) continue;
-        setProgress(Math.round(((i) / files.length) * 100));
+    // Process in small parallel chunks for speed
+    const batchSize = 3;
+    for (let i = 0; i < files.length; i += batchSize) {
+      const batch = files.slice(i, i + batchSize);
+      const results = await Promise.all(batch.map(async (file, idx) => {
+        if (!file.type.startsWith('image/')) return null;
         
-        // Extract EXIF from the very first photo that works
-        if (!firstExifData) {
-          try {
-            const exif = await exifr.parse(file, { 
-              tiff: true, exif: true, gps: true, iptc: true, xmp: true, translateValues: true 
-            });
-            if (exif) {
-              firstExifData = {};
-              const dateStr = exifDateToInputDate(exif.DateTimeOriginal || exif.DateTime);
-              if (dateStr) firstExifData.date = dateStr;
-              
-              if (exif.latitude != null && exif.longitude != null) {
-                firstExifData.coordinates = { lat: exif.latitude, lon: exif.longitude };
-                const place = await reverseGeocode(exif.latitude, exif.longitude);
-                if (place) firstExifData.location = place;
-              }
-              
-              if (exif.Make || exif.Model) {
-                firstExifData.camera = [exif.Make, exif.Model].filter(Boolean).join(' ').trim();
-              }
-              
-              const mood = inferMoodFromExif(exif);
-              if (mood) firstExifData.mood = mood;
-
-              const metaTitle = exif.XPTitle || exif.ObjectName || exif.Title;
-              const metaDesc = exif.ImageDescription || exif.UserComment || exif.Caption || exif.XPSubject || exif.XPComment;
-              
-              firstExifData.title = metaTitle || buildTitleFromExif(exif, firstExifData.location);
-              firstExifData.description = metaDesc || (firstExifData.camera ? `Captured with ${firstExifData.camera}` : '');
-            }
-          } catch (e) {
-            // keep firstExifData null so it tries the next photo
-          }
-        }
-        
-        const base64 = await fileToDataUrl(file);
-        mediaList.push({ url: base64, type: 'image' });
-      }
-
-      if (mediaList.length > 0) {
-        newItems.push({
-          id: Math.random().toString(36).substr(2, 9),
-          title: firstExifData?.title || 'Photo Gallery',
-          date: firstExifData?.date || new Date().toISOString().split('T')[0],
-          location: firstExifData?.location || '',
-          mood: firstExifData?.mood || 'joyful',
-          coordinates: firstExifData?.coordinates || null,
-          media: mediaList,
-          color: '#c4813a',
-          description: firstExifData?.description || '',
-        });
-      }
-    } else {
-      // Multiple mode
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (!file.type.startsWith('image/')) continue;
-        setProgress(Math.round(((i) / files.length) * 100));
-        
+        // Extract EXIF
         let exifData = {};
         try {
-          const exif = await exifr.parse(file, { 
-            tiff: true, exif: true, gps: true, iptc: true, xmp: true, translateValues: true 
-          });
+          const exif = await exifr.parse(file, { tiff:true, exif:true, gps:true });
           if (exif) {
-            const dateStr = exifDateToInputDate(exif.DateTimeOriginal || exif.DateTime);
-            if (dateStr) exifData.date = dateStr;
-            
-            if (exif.latitude != null && exif.longitude != null) {
-              exifData.coordinates = { lat: exif.latitude, lon: exif.longitude };
+            exifData.date = exifDateToInputDate(exif.DateTimeOriginal || exif.DateTime);
+            if (exif.latitude != null) {
               const place = await reverseGeocode(exif.latitude, exif.longitude);
               if (place) exifData.location = place;
             }
-            
-            if (exif.Make || exif.Model) {
-              exifData.camera = [exif.Make, exif.Model].filter(Boolean).join(' ').trim();
-            }
-            
-            const mood = inferMoodFromExif(exif);
-            if (mood) exifData.mood = mood;
-            
-            const metaTitle = exif.XPTitle || exif.ObjectName || exif.Title;
-            const metaDesc = exif.ImageDescription || exif.UserComment || exif.Caption || exif.XPSubject || exif.XPComment;
-            
-            exifData.title = metaTitle || buildTitleFromExif(exif, exifData.location);
-            exifData.description = metaDesc || (exifData.camera ? `Captured with ${exifData.camera}` : '');
+            exifData.title = buildTitleFromExif(exif, exifData.location);
           }
-        } catch (e) { }
+        } catch (e) {}
 
-        const base64 = await fileToDataUrl(file);
-        
-        newItems.push({
+        const compressed = await compressImage(file);
+        return {
           id: Math.random().toString(36).substr(2, 9),
           title: exifData.title || file.name.split('.')[0],
-          date: exifData.date || new Date().toISOString().split('T')[0],
+          date: exifData.date || today(),
           location: exifData.location || '',
-          mood: exifData.mood || 'joyful',
-          coordinates: exifData.coordinates || null,
-          media: [{ url: base64, type: 'image' }],
-          color: '#c4813a',
-          description: exifData.description || '',
-        });
-      }
+          mood: inferMoodFromExif({}) || 'joyful',
+          media: [{ url: compressed, type: 'image' }],
+          description: '',
+        };
+      }));
+      
+      newItems.push(...results.filter(Boolean));
+      setProgress(Math.round(((i + batch.length) / files.length) * 100));
     }
 
     setItems(prev => [...prev, ...newItems]);
@@ -217,28 +163,19 @@ export default function BulkImportModal({ onClose, onComplete }) {
     setProgress(0);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    if (e.dataTransfer.files?.length > 0) processFiles(Array.from(e.dataTransfer.files));
-  };
-
   const handleSaveAll = async () => {
     setSaving(true);
     setProgress(0);
     
-    // Staggered save to avoid locking browser/backend
-    for (let i = 0; i < items.length; i++) {
-      try {
-        await api.post('/events', items[i]);
-      } catch (err) {
-        console.error('Failed to save item', items[i].title, err);
-      }
-      setProgress(Math.round(((i + 1) / items.length) * 100));
+    const batchSize = 5;
+    for (let i = 0; i < items.length; i += batchSize) {
+      const batch = items.slice(i, i + batchSize);
+      await Promise.all(batch.map(item => api.post('/events', item)));
+      setProgress(Math.round(((i + batch.length) / items.length) * 100));
     }
     
     setSaving(false);
-    onComplete(); // refresh timeline
+    onComplete();
   };
 
   return (

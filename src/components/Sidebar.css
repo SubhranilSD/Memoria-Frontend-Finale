@@ -48,16 +48,28 @@
 }
 
 .sidebar-logo-text {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  background: linear-gradient(135deg, #fff 0%, var(--accent-gold) 50%, #fff 100%);
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(
+    120deg, 
+    var(--accent-gold) 0%, 
+    var(--accent-gold) 40%, 
+    #fff 50%, 
+    var(--accent-gold) 60%, 
+    var(--accent-gold) 100%
+  );
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-fill-color: transparent;
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+  animation: logo-shine 3s linear infinite;
+}
+
+@keyframes logo-shine {
+  to { background-position: 200% center; }
 }
 
 /* ── User card ── */
@@ -65,10 +77,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px 12px;
+  padding: 12px;
   border-radius: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   margin-bottom: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -116,12 +128,14 @@
 .sidebar-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .sidebar-user-name {
-  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.02em;
 }
 .sidebar-user-count {
   font-size: 11px;
@@ -135,8 +149,8 @@
 .sidebar-tabs {
   display: flex;
   gap: 4px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0;
   padding: 4px;
   margin-bottom: 14px;
@@ -166,18 +180,18 @@
 }
 
 .sidebar-tab-btn.active {
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--accent-gold);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .sidebar-tab-label {
+  font-family: 'DM Sans', sans-serif;
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-family: 'DM Sans', sans-serif;
 }
 
 /* ════════════════════════════════
@@ -202,7 +216,7 @@
 /* ── Section labels ── */
 .sidebar-section-label {
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--accent-gold);
@@ -211,7 +225,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid rgba(197, 160, 89, 0.15);
+  border-top: 1px solid var(--border-color);
   opacity: 0.8;
 }
 
@@ -236,20 +250,19 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: left;
   width: 100%;
-  letter-spacing: 0;
+  text-align: left;
+  transition: all 0.2s ease;
   position: relative;
+  overflow: hidden;
 }
 
 .sidebar-btn:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: #fff;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  background: var(--bg-card);
+  color: var(--text-primary);
   transform: translateX(4px);
 }
 

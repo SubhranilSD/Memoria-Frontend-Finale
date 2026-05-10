@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 
 const STAR_COUNT = 200;
 const LAYERS = [
-  { speed: 0.005, parallax: 0.04, size: [0.1, 0.4] },  // distant
-  { speed: 0.015, parallax: 0.12, size: [0.3, 0.7] },  // mid
-  { speed: 0.035, parallax: 0.25, size: [0.6, 1.0] },  // close
+  { speed: 0.01, parallax: 0.2, size: [0.1, 0.4] },  // distant
+  { speed: 0.03, parallax: 0.5, size: [0.3, 0.7] },  // mid
+  { speed: 0.08, parallax: 1.0, size: [0.6, 1.2] },  // close
 ];
 
 function rand(min, max, seed) {
@@ -89,14 +89,20 @@ export default function StarsBackground() {
 
       // ── DRAW NEBULAE (Slow-moving faint gas) ──
       const isRetro = document.documentElement.classList.contains('retro-mode');
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      
       if (!isRetro) {
         const t = timeRef.current * 0.04;
-        const nebulae = [
-          { x: 0.1, y: 0.2, r: 0.8, color: 'rgba(15, 23, 42, 0.2)' },    // Deep midnight blue
-          { x: 0.8, y: 0.3, r: 0.9, color: 'rgba(30, 27, 75, 0.15)' },   // Dark indigo
-          { x: 0.3, y: 0.8, r: 0.7, color: 'rgba(194, 65, 12, 0.03)' },  // Subtle cosmic orange
-          { x: 0.7, y: 0.7, r: 0.8, color: 'rgba(190, 24, 93, 0.025)' }, // Subtle nebula pink
-          { x: 0.5, y: 0.5, r: 1.2, color: 'rgba(10, 10, 30, 0.3)' },    // Base dark blue void
+        const nebulae = isLight ? [
+          { x: 0.1, y: 0.2, r: 0.8, color: 'rgba(99, 102, 241, 0.05)' }, 
+          { x: 0.8, y: 0.3, r: 0.9, color: 'rgba(242, 166, 61, 0.03)' },
+          { x: 0.5, y: 0.5, r: 1.2, color: 'rgba(255, 255, 255, 0)' }, // Remove central smudge
+        ] : [
+          { x: 0.1, y: 0.2, r: 0.8, color: 'rgba(15, 23, 42, 0.2)' },    
+          { x: 0.8, y: 0.3, r: 0.9, color: 'rgba(30, 27, 75, 0.15)' },   
+          { x: 0.3, y: 0.8, r: 0.7, color: 'rgba(194, 65, 12, 0.03)' },  
+          { x: 0.7, y: 0.7, r: 0.8, color: 'rgba(190, 24, 93, 0.025)' }, 
+          { x: 0.5, y: 0.5, r: 1.2, color: 'rgba(10, 10, 30, 0.3)' },    
         ];
         
         nebulae.forEach(n => {
@@ -117,14 +123,15 @@ export default function StarsBackground() {
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
         s.y -= s.speed;
-        if (s.y < -2) s.y = canvas.height + 2;
+        if (s.y < 0) s.y = canvas.height;
 
         const py = -(scrollRef.current * s.parallax);
         const t = timeRef.current;
         const opacity = s.minOpacity + (s.maxOpacity - s.minOpacity) *
           (0.5 + 0.5 * Math.sin(t * s.twinkleFreq + s.twinklePhase));
 
-        const drawY = ((s.y + py) % (canvas.height + 4) + canvas.height + 4) % (canvas.height + 4);
+        // Seamless wrap around based on scroll + drift
+        const drawY = ((s.y + py) % canvas.height + canvas.height) % canvas.height;
 
         if (isRetro) {
           const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -141,10 +148,19 @@ export default function StarsBackground() {
           ctx.fillRect(Math.round(s.x), Math.round(drawY), px, px);
           ctx.shadowBlur = 0;
         } else {
-          ctx.fillStyle = `rgba(${s.r},${s.g},${s.b},${opacity})`;
-          if (s.maxOpacity > 0.6) {
+          const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+          let r = s.r, g = s.g, b = s.b;
+          if (isLight) {
+            // "Ink stars" for light mode
+            r = Math.round(s.r * 0.2);
+            g = Math.round(s.g * 0.25);
+            b = Math.round(s.b * 0.4);
+          }
+
+          ctx.fillStyle = `rgba(${r},${g},${b},${opacity})`;
+          if (s.maxOpacity > 0.6 && !isLight) {
             ctx.shadowBlur = s.size * 3;
-            ctx.shadowColor = `rgba(${s.r},${s.g},${s.b},${opacity * 0.6})`;
+            ctx.shadowColor = `rgba(${r},${g},${b},${opacity * 0.6})`;
           } else {
             ctx.shadowBlur = 0;
           }

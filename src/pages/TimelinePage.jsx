@@ -275,7 +275,6 @@ export default function TimelinePage() {
 
   return (
     <div className={`timeline-page ${theme}`}>
-      <StarsBackground />
       <Sidebar 
         user={user}
         view={view} setView={setView}

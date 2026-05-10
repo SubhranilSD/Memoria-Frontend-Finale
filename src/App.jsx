@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import AuthPage from './pages/AuthPage';
 import TimelinePage from './pages/TimelinePage';
 import LandingPage from './pages/LandingPage';
+import StarsBackground from './components/StarsBackground';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -29,12 +30,15 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
-            <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
-            <Route path="/timeline" element={<PrivateRoute><TimelinePage /></PrivateRoute>} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <div className="app-container" style={{ position: 'relative', minHeight: '100vh' }}>
+            <StarsBackground />
+            <Routes>
+              <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+              <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
+              <Route path="/timeline" element={<PrivateRoute><TimelinePage /></PrivateRoute>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>

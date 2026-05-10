@@ -230,67 +230,110 @@
 
 /* ── Mobile Optimization ── */
 @media (max-width: 600px) {
-  .bulk-modal {
-    padding: 24px 20px;
-    max-height: 95vh;
-    border-radius: 20px;
-    margin: 10px;
-    width: auto;
-  }
-  
   .bulk-modal-overlay {
-    padding: 12px;
+    padding: 0;
   }
 
+  .bulk-modal {
+    padding: 20px 16px;
+    max-height: 100vh;
+    border-radius: 0;
+    height: 100%;
+    border: none;
+  }
+  
   .bulk-close {
     top: 16px;
     right: 16px;
+    background: rgba(0,0,0,0.05);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
   }
 
   h2 {
     font-size: 22px !important;
+    margin-top: 10px;
   }
 
   .bulk-mode-selector {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 16px;
   }
 
   .bulk-mode-btn {
-    padding: 12px;
+    padding: 10px;
+    gap: 10px;
   }
 
+  .bulk-mode-btn strong { font-size: 14px; }
+  .bulk-mode-btn span { font-size: 11px; }
+
   .bulk-dropzone {
-    padding: 40px 16px;
+    padding: 30px 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .bulk-drop-icon {
-    font-size: 36px;
-    margin-bottom: 12px;
+    font-size: 32px;
+    margin-bottom: 8px;
   }
 
   .bulk-preview-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding-right: 4px;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for better density */
+    gap: 8px;
+    padding-right: 0;
   }
 
-  .bulk-preview-card img {
-    height: 140px;
+  .bulk-preview-card {
+    border-radius: 8px;
   }
 
-  .bulk-preview-img-wrap {
-    height: 140px;
+  .bulk-preview-img-wrap, .bulk-preview-card img {
+    height: 100px; /* More compact previews */
+  }
+
+  .bulk-preview-info {
+    padding: 8px;
+    gap: 4px;
+  }
+
+  .bulk-inline-input {
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+
+  .bulk-preview-meta {
+    font-size: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .bulk-remove-item {
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
   }
 
   .bulk-actions {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row; /* Keep buttons side by side if possible or stack with gap */
     gap: 8px;
+    padding-top: 12px;
   }
-
+  
   .bulk-actions button {
-    width: 100%;
-    justify-content: center;
+    flex: 1;
+    font-size: 13px;
+    padding: 10px;
   }
 }

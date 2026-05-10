@@ -43,7 +43,9 @@
 
 @media (max-width: 768px) {
   .timeline-view {
-    padding: 20px 8px 40px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 20px 16px 40px !important;
   }
 
   .timeline-line {
@@ -58,13 +60,13 @@
   }
 
   .timeline-item.left {
-    padding-right: calc(50% + 18px) !important;
+    padding-right: calc(50% + 16px) !important;
     padding-left: 0 !important;
     flex-direction: row !important;
   }
 
   .timeline-item.right {
-    padding-left: calc(50% + 18px) !important;
+    padding-left: calc(50% + 16px) !important;
     padding-right: 0 !important;
     flex-direction: row-reverse !important;
     margin-left: 0 !important;

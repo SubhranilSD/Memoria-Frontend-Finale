@@ -38,7 +38,7 @@ const MOOD_COLORS = {
 };
 
 export default function TimelinePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   const [events, setEvents] = useState([]);
@@ -61,13 +61,14 @@ export default function TimelinePage() {
   const [showMobileStats, setShowMobileStats] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   
-  // Pagination State
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [skip, setSkip] = useState(0);
+  const PAGE_SIZE = 15;
 
   const [showInstantModal, setShowInstantModal] = useState(false);
-  const { setUser } = useAuth();
 
-  // Debounced search — prevents visibleEvents from recomputing on every keystroke
+  // Debounced search
   const [searchRaw, setSearchRaw] = useState('');
   const [search, setSearch] = useState('');
   const searchDebounceRef = useRef(null);
@@ -77,31 +78,49 @@ export default function TimelinePage() {
     searchDebounceRef.current = setTimeout(() => setSearch(val), 300);
   };
 
-  const fetchEvents = useCallback(async () => {
-    // Phase 1: Lightning fast load of first 6 events
-    setLoading(true);
+  const fetchEvents = useCallback(async (isReset = false) => {
+    if (isReset) {
+      setLoading(true);
+      setSkip(0);
+      setHasMore(true);
+    } else {
+      if (!hasMore || loadingMore) return;
+      setLoadingMore(true);
+    }
+
     try {
+      const currentSkip = isReset ? 0 : skip;
       const params = new URLSearchParams();
       if (filters.mood) params.set('mood', filters.mood);
       if (filters.tag) params.set('tag', filters.tag);
+      if (search) params.set('search', search);
       params.set('sort', filters.sort);
       params.set('order', filters.order);
+      params.set('limit', PAGE_SIZE);
+      params.set('skip', currentSkip);
       
-      // Fetch only 6 initially
-      const initialRes = await api.get(`/events?${params}&limit=6`);
-      setEvents(initialRes.data);
-      setLoading(false); // Page is now "loaded" for the user
-
-      // Phase 2: Load the rest in background
-      const fullRes = await api.get(`/events?${params}`);
-      setEvents(fullRes.data);
+      const res = await api.get(`/events?${params}`);
+      const newEvents = res.data;
+      
+      if (isReset) {
+        setEvents(newEvents);
+      } else {
+        setEvents(prev => [...prev, ...newEvents]);
+      }
+      
+      setSkip(currentSkip + PAGE_SIZE);
+      if (newEvents.length < PAGE_SIZE) setHasMore(false);
     } catch {
       showToast('Failed to load events', 'error');
+    } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, [filters]);
+  }, [filters, skip, hasMore, loadingMore, search]);
 
-  useEffect(() => { fetchEvents(); }, [fetchEvents]);
+  useEffect(() => { 
+    fetchEvents(true); 
+  }, [filters, search]);
 
   // Cmd+K to focus search
   useEffect(() => {
@@ -188,83 +207,11 @@ export default function TimelinePage() {
   const allTags = useMemo(() => [...new Set(events.flatMap(e => e.tags || []))], [events]);
   const allPeople = useMemo(() => [...new Set(events.flatMap(e => e.people || []))], [events]);
 
-  /* Client-side search + person filter (layered on top of server filters) */
-  const visibleEvents = useMemo(() => {
-    let list = events;
-    if (filters.person) list = list.filter(e => (e.people || []).includes(filters.person));
-    if (search.trim()) {
-      const q = search.toLowerCase();
-
-      // Parse face clusters ONCE, not on every filter iteration
-      let faceClusters = [];
-      try {
-        const clustersKey = `memoria_face_clusters_${user?._id || 'guest'}`;
-        const saved = localStorage.getItem(clustersKey);
-        if (saved) faceClusters = JSON.parse(saved);
-      } catch (e) { }
-
-      // Support multi-person search using comma separation
-      if (q.includes(',')) {
-        const queryNames = q.split(',').map(n => n.trim()).filter(Boolean);
-
-        // Find matching clusters for EACH query name
-        const matchingClusterGroups = queryNames.map(name => {
-          return faceClusters.filter(c => c.name.toLowerCase().includes(name));
-        });
-
-        // If we found clusters for every query name, intersect them
-        if (matchingClusterGroups.every(group => group.length > 0)) {
-          // Flatten eventIds for each group (in case multiple clusters match "Alice")
-          const eventIdsPerName = matchingClusterGroups.map(group => {
-            const ids = new Set();
-            group.forEach(c => c.eventIds.forEach(id => ids.add(id)));
-            return ids;
-          });
-
-          // Intersect
-          const intersectedIds = [...eventIdsPerName[0]].filter(id => {
-            return eventIdsPerName.every(set => set.has(id));
-          });
-
-          return list.filter(e => intersectedIds.includes(e._id));
-        }
-      }
-
-      // Normal single search
-      list = list.filter(e => {
-        // Match standard fields
-        if (
-          e.title?.toLowerCase().includes(q) ||
-          e.description?.toLowerCase().includes(q) ||
-          e.location?.toLowerCase().includes(q) ||
-          (e.tags || []).some(t => t.toLowerCase().includes(q)) ||
-          (e.people || []).some(p => p.toLowerCase().includes(q))
-        ) return true;
-
-        // Match face cluster name
-        const personMatch = faceClusters.some(c =>
-          c.name.toLowerCase().includes(q) && c.eventIds.includes(e._id)
-        );
-        return personMatch;
-      });
-    }
-    return list;
-  }, [events, filters.person, search]);
-
+  const visibleEvents = events;
   const memCount = visibleEvents.length;
 
-  // Reset pagination when search/filters change
-  useEffect(() => {
-    setVisibleCount(10);
-  }, [search, filters, view]);
-
-  // Derived list based on pagination
-  const paginatedEvents = useMemo(() => {
-    if (view === 'timeline' || view === 'grid' || view === 'horizon') {
-      return visibleEvents.slice(0, visibleCount);
-    }
-    return visibleEvents;
-  }, [visibleEvents, visibleCount, view]);
+  // Derived list based on pagination (now server-side)
+  const paginatedEvents = visibleEvents;
 
   // Observer callback for infinite scroll
   const observerRef = useRef(null);
@@ -272,13 +219,13 @@ export default function TimelinePage() {
     if (observerRef.current) observerRef.current.disconnect();
     if (node) {
       observerRef.current = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount(prev => prev + 10);
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          fetchEvents(false);
         }
       }, { rootMargin: '800px' });
       observerRef.current.observe(node);
     }
-  }, []);
+  }, [hasMore, loadingMore, fetchEvents]);
 
   return (
     <div className={`timeline-page ${theme}`}>
@@ -416,8 +363,20 @@ export default function TimelinePage() {
                       onClickMedia={setLightboxEvent}
                       onSelectEvent={setSelectedEvent}
                     />
-                    {visibleCount < visibleEvents.length && (
-                      <div ref={loadMoreCallback} style={{ height: '2px', width: '100%', margin: '40px 0' }} />
+                    {hasMore && (
+                      <div ref={loadMoreCallback} style={{ 
+                        height: '100px', 
+                        width: '100%', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        color: 'var(--accent-gold)',
+                        opacity: 0.6,
+                        fontSize: '12px',
+                        letterSpacing: '0.2em'
+                      }}>
+                        {loadingMore ? 'SYNCING MEMORIES...' : '✦'}
+                      </div>
                     )}
                   </>
                 )
@@ -449,7 +408,7 @@ export default function TimelinePage() {
             onClose={() => setShowBulkModal(false)}
             onComplete={() => {
               setShowBulkModal(false);
-              fetchEvents();
+              fetchEvents(true);
               showToast('Bulk import complete ✦');
             }}
           />

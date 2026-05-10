@@ -20,8 +20,8 @@ const MobileBottomBar = ({
   };
 
   const handleSubAction = (action) => {
-    setIsExpanded(false);
     action();
+    setIsExpanded(false);
   };
   return (
     <nav className="mobile-bottom-bar">

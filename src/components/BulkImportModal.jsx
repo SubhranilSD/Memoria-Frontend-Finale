@@ -82,6 +82,16 @@ export default function BulkImportModal({ onClose, onComplete }) {
   const [limitWarning, setLimitWarning] = useState(false);
   const fileRef = useRef(null);
 
+  const today = () => new Date().toISOString().split('T')[0];
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer.files) {
+      processFiles(Array.from(e.dataTransfer.files));
+    }
+  };
+
   const compressImage = (file) => new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {

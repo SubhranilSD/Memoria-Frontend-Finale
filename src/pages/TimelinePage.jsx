@@ -65,7 +65,7 @@ export default function TimelinePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [skip, setSkip] = useState(0);
   const [totalMemories, setTotalMemories] = useState(0);
-  const PAGE_SIZE = 15;
+  const PAGE_SIZE = 10;
 
   const [showInstantModal, setShowInstantModal] = useState(false);
 
@@ -109,25 +109,13 @@ export default function TimelinePage() {
       setTotalMemories(total);
       
       if (isReset) {
+        setLoading(false); // Immediate transition to content
         setEvents(newEvents);
-        setLoading(false); // First paint done!
-        
-        // Phase 2: Load the rest of the first page in background
-        if (newEvents.length === 4) {
-          params.set('limit', PAGE_SIZE - 4);
-          params.set('skip', 4);
-          const nextRes = await api.get(`/events?${params}`);
-          const { events: nextEvents } = nextRes.data;
-          setEvents(prev => [...prev, ...nextEvents]);
-          setSkip(PAGE_SIZE);
-          if (nextEvents.length < (PAGE_SIZE - 4)) setHasMore(false);
-        } else {
-          setSkip(newEvents.length);
-          setHasMore(false);
-        }
+        setSkip(newEvents.length);
+        if (newEvents.length < limit) setHasMore(false);
       } else {
         setEvents(prev => [...prev, ...newEvents]);
-        setSkip(currentSkip + PAGE_SIZE);
+        setSkip(currentSkip + newEvents.length);
         if (newEvents.length < PAGE_SIZE) setHasMore(false);
       }
     } catch {
@@ -163,10 +151,10 @@ export default function TimelinePage() {
     try {
       const res = await api.post('/events', data);
       setEvents(prev => [res.data, ...prev]);
-      showToast('Memory added ✦');
-      // Removed setShowModal(false) to allow the modal to show its success state
-    } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to create', 'error');
+      setTotalMemories(prev => prev + 1);
+      showToast('Memory captured ✦');
+    } catch {
+      showToast('Failed to save memory', 'error');
     }
   };
 
@@ -174,12 +162,9 @@ export default function TimelinePage() {
     try {
       const res = await api.put(`/events/${id}`, data);
       setEvents(prev => prev.map(e => e._id === id ? res.data : e));
-
-      // Update the active detail view if it's the same event
       if (selectedEvent && selectedEvent._id === id) {
         setSelectedEvent(res.data);
       }
-
       showToast('Memory updated');
       setEditingEvent(null);
     } catch {
@@ -205,6 +190,7 @@ export default function TimelinePage() {
     try {
       await api.delete(`/events/${id}`);
       setEvents(prev => prev.filter(e => e._id !== id));
+      setTotalMemories(prev => Math.max(0, prev - 1));
       showToast('Memory removed');
     } catch {
       showToast('Failed to delete', 'error');
@@ -272,7 +258,15 @@ export default function TimelinePage() {
         <div className="mobile-overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <Suspense fallback={<div className="timeline-loading">Loading component...</div>}>
+      <Suspense fallback={
+        <div className="memoria-global-loader">
+          <div className="loader-content animate-float">
+            <div className="loader-logo">✦</div>
+            <div className="loader-spinner"></div>
+            <h2 className="loader-text font-display">Memoria</h2>
+          </div>
+        </div>
+      }>
         <main className="timeline-main">
           {/* Header */}
           <div className="timeline-header">
@@ -389,17 +383,29 @@ export default function TimelinePage() {
                     />
                     {hasMore && (
                       <div ref={loadMoreCallback} style={{ 
-                        height: '100px', 
+                        height: '120px', 
                         width: '100%', 
                         display: 'flex', 
+                        flexDirection: 'column',
                         alignItems: 'center', 
                         justifyContent: 'center',
-                        color: 'var(--accent-gold)',
-                        opacity: 0.6,
-                        fontSize: '12px',
-                        letterSpacing: '0.2em'
+                        gap: '12px'
                       }}>
-                        {loadingMore ? 'SYNCING MEMORIES...' : '✦'}
+                        {loadingMore ? (
+                          <>
+                            <div className="mini-loader"></div>
+                            <span style={{ 
+                              color: 'var(--accent-gold)', 
+                              fontSize: '10px', 
+                              letterSpacing: '0.3em',
+                              opacity: 0.8 
+                            }}>
+                              RESTORING MEMORIES
+                            </span>
+                          </>
+                        ) : (
+                          <div style={{ color: 'var(--accent-gold)', opacity: 0.3, fontSize: '20px' }}>✦</div>
+                        )}
                       </div>
                     )}
                   </>

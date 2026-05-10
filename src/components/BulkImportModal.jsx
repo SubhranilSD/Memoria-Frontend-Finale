@@ -180,14 +180,33 @@ export default function BulkImportModal({ onClose, onComplete }) {
     setProgress(0);
     setSavedCount(0);
     
-    // Individual processing for "Live" 1/10 counter
-    for (let i = 0; i < items.length; i++) {
+    if (importMode === 'single') {
+      // Combine all media into ONE memory
+      const first = items[0];
+      const combinedEvent = {
+        ...first,
+        title: first.title || 'Bulk Import Gallery',
+        media: items.flatMap(item => item.media),
+        description: `Batch import of ${items.length} photos.`
+      };
+      
       try {
-        await api.post('/events', items[i]);
-        setSavedCount(i + 1);
-        setProgress(Math.round(((i + 1) / items.length) * 100));
+        await api.post('/events', combinedEvent);
+        setSavedCount(items.length);
+        setProgress(100);
       } catch (e) {
-        console.error("Failed to save item", i, e);
+        console.error("Failed to save combined event", e);
+      }
+    } else {
+      // Individual processing for "Live" 1/10 counter
+      for (let i = 0; i < items.length; i++) {
+        try {
+          await api.post('/events', items[i]);
+          setSavedCount(i + 1);
+          setProgress(Math.round(((i + 1) / items.length) * 100));
+        } catch (e) {
+          console.error("Failed to save item", i, e);
+        }
       }
     }
     

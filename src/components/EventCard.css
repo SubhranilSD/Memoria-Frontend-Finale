@@ -102,6 +102,20 @@
   opacity: 1;
 }
 
+.event-card-media-count {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
 .shimmer-effect {
   background: linear-gradient(
     90deg,
